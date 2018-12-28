@@ -2,6 +2,18 @@
 #include <vector>
 using namespace std;
 
+/*
+   <--------------length (j)----------->
+/\
+| * * * * * * * * * * * * * * * * * * *
+| * * * * * * * * * * * * * * * * * * * 
+| * * * * * * * * * * * * * * * * * * * 
+width (i) * * * * * * * * * * * * * * * 
+| * * * * * * * * * * * * * * * * * * * 
+| * * * * * * * * * * * * * * * * * * * 
+| * * * * * * * * * * * * * * * * * * * 
+\/
+*/
 class Map {
 
 	public:
@@ -18,10 +30,12 @@ class Map {
 		int yaxisloc;
 };
 
+// This is the map base class
 Map::Map(int l, int w) {
 	length = l;
 	width = w;
-	yaxisloc = length/2;
+	// Shift the center of the Y axis because of the label size
+	yaxisloc = (length-2)/2;
 	xaxisloc = width/2;
 }
 
@@ -29,14 +43,19 @@ void Map::create() {
 	for(int i = 0; i < width; i++) {
 		vector<char> rowfill;
 		for(int j = 0; j < length; j++) {
-			if(j==yaxisloc){
+			if(j==yaxisloc && i != xaxisloc) {
+				rowfill.push_back(i + '0');
+			} else if(j==yaxisloc+1) {
 				rowfill.push_back('|');
 			} else {
-				if(i==xaxisloc) {
+				if (i==xaxisloc && j==yaxisloc) {
+					rowfill.push_back(' ');
+				} else if (i==xaxisloc) {
+					rowfill.push_back(j + '0');
+				} else if(i==xaxisloc-1) {
 					rowfill.push_back('_');
 				} else {
 					rowfill.push_back('.');				
-
 				}
 			}
 		}
@@ -45,8 +64,8 @@ void Map::create() {
 	return;
 }
 void Map::print() {
-	for(int i = 0; i < theMap.size(); i++) {
-		for(int j = 0; j != theMap[i].size(); j++) {
+	for(int i = 0; i <= theMap.size(); i++) {
+		for(int j = 0; j < theMap[i].size(); j++) {
 	    	std::cout << theMap[i][j] << " ";
 		}
 		if(i != width-1) cout<<endl;
@@ -105,10 +124,22 @@ main() {
 	int y[] = {4,7,3,5,8,3,4,6,7,1};
 
 	int len = 10;
-
-	PositiveTimeGraph m(30,13);
-	m.create();
-	m.print();
+	Map a(30,14);
+	CoordinateGrid b(30);
+	TimeGraph c(30,14);
+	PositiveTimeGraph d(30,14);
+	a.create();
+	b.create();
+	c.create();
+	d.create();	
+	a.print();
+	cout<<endl;	
+	b.print();
+	cout<<endl;
+	c.print();
+	cout<<endl;
+	d.print();
+	cout<<endl;
     
 	cout<<endl;
 
