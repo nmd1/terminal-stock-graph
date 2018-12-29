@@ -1,10 +1,16 @@
 #include <iostream>
 #include "base_map.h"
 #include "time_graph.h"
+#include "stock_in.h"
 using namespace std;
 
 
 main() {
+
+	Stock_track first("AAPL");
+	first.web();
+
+	return 0;
 
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
 	int y[] = {4,7,3,5,8,3,4,6,7,1};
@@ -61,5 +67,9 @@ main() {
 }
 
 /* Changelog
-	refactored repository
+	Added in struct for Stock information
+	Created min_max struct. May or may not be implimented later 
+	json api added, and subequently moved to c++11
+	added stock_track class to manage data about a paticular stock
+	stock data is now confirmed to be coming in through yahoo's api (THANK YOU YAHOO)
 */

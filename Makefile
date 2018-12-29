@@ -8,8 +8,8 @@ DIR_CREATE = @mkdir -p
 
 
 CC=g++
-CFLAGS=-I$(INCLUDES)
-LIBS=
+CFLAGS=-I$(INCLUDES) -std=c++11 
+LIBS= -lcurl 
 
 
 SRCS=$(wildcard $(SOURCE)/*.cpp)
@@ -21,15 +21,15 @@ OBJS=$(patsubst $(SOURCE)/%.cpp,$(OBJECTS)/%.o,$(SRCS))
 
 $(OBJECTS)/%.o: $(SOURCE)/%.cpp $(HEAD)
 	@$(MAKE) -s makesourcetree
-	@$(CC) -c $< $(CFLAGS) $(LIBS) -o $@
+	@$(CC) -c $< $(CFLAGS) $(LIBS) -o $@ 
 
 
 
 all: $(OBJS)
-	@$(CC)  $^ -o $(OUT)/$(NAME)
+	@$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)
 
 loud: $(OBJS)
-	$(CC)  $^ -o $(OUT)/$(NAME)
+	$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)
 
 
 run:
