@@ -1,3 +1,5 @@
 test
 *.sublime
-
+extra/
+bin/
+build/
