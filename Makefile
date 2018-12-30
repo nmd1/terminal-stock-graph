@@ -8,7 +8,7 @@ DIR_CREATE = @mkdir -p
 
 
 CC=g++
-CFLAGS=-I$(INCLUDES) -std=c++11 
+CFLAGS=-I$(INCLUDES) -std=c++11 # -Wall -Wextra
 LIBS= -lcurl 
 
 

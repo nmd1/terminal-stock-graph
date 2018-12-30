@@ -1,6 +1,5 @@
 #include "stock_in.h"
 
-
 Stock_track::Stock_track(string stock_name) {
 	name = stock_name;
 	api = "https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&corsDomain=finance.yahoo.com";
@@ -9,7 +8,7 @@ Stock_track::Stock_track(string stock_name) {
 /*
 	Source: https://gist.github.com/connormanning/41efa6075515019e499c
 */
-void Stock_track::web() {
+json Stock_track::web() {
 
 	string urlbuilder = api+"&symbols="+name;
 
@@ -34,7 +33,7 @@ void Stock_track::web() {
     std::unique_ptr<std::string> httpData(new std::string());
 
     // Hook up data handling function.
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+    //scurl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
 
     // Hook up data container (will be passed as the last parameter to the
     // callback handling function).  Can be any pointer type, since it will
@@ -51,7 +50,7 @@ void Stock_track::web() {
     switch (httpCode) {
     	case (200): {
     		std::cout<<"Got a successful response from " << url << std::endl;
-    		std::cout<<*raw_json<<endl;
+    		//std::cout<<*raw_json<<endl;
     		break;
     	}
     	case 404: {
@@ -64,10 +63,26 @@ void Stock_track::web() {
     		std::cout<<"Got error "<<httpCode<<" when querying " << url << std::endl;
     		break;
     	}
-    } 
+    }
 
+    json raw_response_json = json::parse(*raw_json);
     delete raw_json;
-    return;
+    json error = raw_response_json["quoteResponse"]["error"];
+
+    json data = raw_response_json["quoteResponse"]["result"][0];
+    return data;
+
+    //std::cout << data.dump(4) << std::endl;
+   	
+   	//stk::Stock p2 = data.get<stk::Stock>();
+   	//cout<<p2.region<<endl;
+   	//return;
+
+	//for (json::iterator it = data.begin(); it != data.end(); ++it) {
+	//	std::cout << it.key() << " : " << it.value() << endl;
+	//}
+
+    //std::cout << j.dump(4) << std::endl;
     /*
     if (httpCode == 200)
     {

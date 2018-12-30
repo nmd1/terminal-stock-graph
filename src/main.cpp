@@ -2,14 +2,33 @@
 #include "base_map.h"
 #include "time_graph.h"
 #include "stock_in.h"
+#include "yahoo_api.h"
 using namespace std;
 
 
-main() {
+int main() {
 
-	Stock_track first("AAPL");
-	first.web();
 
+	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AAPL");
+
+	TimeGraph apple(100,40);
+	apple.create();
+
+	apple.scaleY((double)1/7);
+	apple.scaleX((double)230);
+	time_t starttime = get<0>(data[0]);
+	double startdata = get<1>(data[0])->close;
+	double maxdiff = difftime(get<0>(data[data.size()-1]), starttime);
+	cout<<"maxdiff: "<<maxdiff<<endl;
+	
+	for (int i = 0; i < data.size(); i++) {
+		time_t t = get<0>(data[i]);
+		yahoo::OHLC* point_data = get<1>(data[i]);
+		double difference =  difftime (t, starttime);
+		apple.setCoord(difference, point_data->close-startdata);
+	}
+
+	apple.print();
 	return 0;
 
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
@@ -67,9 +86,11 @@ main() {
 }
 
 /* Changelog
-	Added in struct for Stock information
-	Created min_max struct. May or may not be implimented later 
-	json api added, and subequently moved to c++11
-	added stock_track class to manage data about a paticular stock
-	stock data is now confirmed to be coming in through yahoo's api (THANK YOU YAHOO)
+	BIG UPDATE ohohohoho
+	Hard-coded connection with yahoo api for historical stock data
+	data can now be taken from the api, fed into a data structure, and displayed out on a graph
+	Fixed bug with yscaling on graphs
+	stock_in has pretty much been replaced by yahoo_api
+	stock struct information has been moved to it's own file, since the struct definition 
+		is uninteresting and long
 */

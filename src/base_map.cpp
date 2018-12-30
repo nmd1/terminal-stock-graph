@@ -56,17 +56,22 @@ void Map::create() {
 				}
 			}
 		}
+		//std::cout<<"size of row i="<<i<<" is "<<rowfill.size()<<std::endl;
 		theMap.push_back(rowfill);
 	}
+	//std::cout<<"size of map is "<<theMap.size()<<std::endl;
 	return;
 }
 void Map::print() {
-	for(int i = 0; i <= theMap.size(); i++) {
+	for(int i = 0; i < theMap.size(); i++) {
 		for(int j = 0; j < theMap[i].size(); j++) {
+			//std::cout <<i<<":"<<j<<std::endl;
 	    	std::cout << theMap[i][j] << " ";
+
 		}
 		if(i != width-1) cout<<endl;
 	}
+	std::cout<<std::endl;
 	return;
 }
 
@@ -75,8 +80,11 @@ bool Map::setCoord(double x, double y) {
 	//cout<<xzero<<','<<yzero<<endl;
 
 	// Rescale down to coords that would fit on the board
+
 	x = x/scalex;
 	y = y/scaley;
+
+	cout<<x<<" , "<<y<<endl;
 
 	// Skip over labels
 	if(x < 0) x-=1;
@@ -85,6 +93,8 @@ bool Map::setCoord(double x, double y) {
 	// Translate to map coordinates
 	int finaly = (int)yzero-y;
 	int finalx = (int)xzero+x;
+
+	//cout<<scalex<<" , "<<scaley<<endl;
 
 	// check bounds 
 	if(finaly<0) return false;
@@ -149,7 +159,7 @@ void Map::setMaxX(double max) {
 	scalex = max / getMaxX(false);
 }
 void Map::setMaxY(double max) {
-	scalex = max / getMaxY(false);
+	scaley = max / getMaxY(false);
 }
 
 
