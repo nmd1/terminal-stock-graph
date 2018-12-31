@@ -1,8 +1,8 @@
 #include <iostream>
 #include "base_map.h"
 #include "time_graph.h"
-#include "stock_in.h"
 #include "yahoo_api.h"
+#include "window.h"
 using namespace std;
 
 
