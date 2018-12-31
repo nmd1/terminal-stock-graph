@@ -98,6 +98,9 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 
 }
 
+/*
+    Source: https://gist.github.com/connormanning/41efa6075515019e499c
+*/
 json yahoo::web(const std::string url, const int timeout) {
     CURL* curl = curl_easy_init();
 

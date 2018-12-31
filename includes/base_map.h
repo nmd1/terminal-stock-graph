@@ -20,8 +20,15 @@ class Map {
 		void create();
 		void print();
 		bool setCoord(double x, double y);
-		void setLabelX(vector<char>);
-		void setLabelY(vector<char>);
+
+		// labeling
+		// Auto label based on how many labels we have
+		void setLabelX(vector<std::string>);
+		// Set X label spacing as a percentage of the whole width
+		void setLabelX(vector<std::string>, double);
+		// Set X label spacing as int many spaces between each label
+		void setLabelX(vector<std::string>, int);
+		void setLabelY(vector<std::string>);
 
 		// Get extremes of a graph
 		int getMaxX(bool=true);
@@ -48,6 +55,7 @@ class Map {
 		int yzero;
 		double scalex;
 		double scaley;
+		int ylabelsize;
 
 		// characters to use in graphs
 		char space;

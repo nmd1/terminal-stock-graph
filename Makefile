@@ -8,7 +8,8 @@ DIR_CREATE = @mkdir -p
 
 
 CC=g++
-CFLAGS=-I$(INCLUDES) -std=c++11 # -Wall -Wextra
+CL=clang++
+CFLAGS=-I$(INCLUDES) -std=c++11  -Wall -Wextra -pedantic
 LIBS= -lcurl 
 
 
@@ -27,6 +28,9 @@ $(OBJECTS)/%.o: $(SOURCE)/%.cpp $(HEAD)
 
 all: $(OBJS)
 	@$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)
+
+alt: $(OBJS)
+	@$(CL)  $^ $(LIBS) -o $(OUT)/$(NAME)
 
 loud: $(OBJS)
 	$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)

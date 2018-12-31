@@ -8,7 +8,6 @@ using namespace std;
 
 int main() {
 
-
 	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AAPL");
 
 	TimeGraph apple(100,40);
@@ -20,17 +19,22 @@ int main() {
 	double startdata = get<1>(data[0])->close;
 	double maxdiff = difftime(get<0>(data[data.size()-1]), starttime);
 	cout<<"maxdiff: "<<maxdiff<<endl;
-	
-	for (int i = 0; i < data.size(); i++) {
+
+
+	for (int i = 0; i < (signed)data.size(); i++) {
+		//tie(i_val,ignore,f_val) = tup1; 
 		time_t t = get<0>(data[i]);
 		yahoo::OHLC* point_data = get<1>(data[i]);
 		double difference =  difftime (t, starttime);
 		apple.setCoord(difference, point_data->close-startdata);
 	}
-
+	vector<std::string> aw = {"432.42","bfs","c"};
+	vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
+	apple.setLabelY(aw);
+	apple.setLabelX(bw);
 	apple.print();
 	return 0;
-
+/* //
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
 	int y[] = {4,7,3,5,8,3,4,6,7,1};
 
@@ -83,14 +87,12 @@ int main() {
 	cout<<endl;
 
 	return 0;
+*/
 }
 
 /* Changelog
-	BIG UPDATE ohohohoho
-	Hard-coded connection with yahoo api for historical stock data
-	data can now be taken from the api, fed into a data structure, and displayed out on a graph
-	Fixed bug with yscaling on graphs
-	stock_in has pretty much been replaced by yahoo_api
-	stock struct information has been moved to it's own file, since the struct definition 
-		is uninteresting and long
+	Variable length labels in the yaxis has been implimented
+	Variable length labels in the xaxis has been implimented	
+		Various ways to set those labels
+	Removed stock_in files
 */
