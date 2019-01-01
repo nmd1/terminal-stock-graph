@@ -8,6 +8,21 @@ using namespace std;
 
 int main() {
 
+	//window::test();
+	Display d;
+	int win_numb = d.newWindow(5,5,0,0);
+	d.debugSwitch();
+	d.write(win_numb, 'A', 0,0,3);
+	d.write(win_numb, 'B', 0,1,1);
+	d.write(win_numb, 'C', 0,2,2);
+	d.write(win_numb, 'D', 0,3,2);
+	d.write(win_numb, 'E', 0,4,1);
+	d.write(win_numb, 'F', 0,5,1);
+
+	// block
+
+	d.inputBlock(win_numb);
+	return 0;
 	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AAPL");
 
 	TimeGraph apple(100,40);
@@ -91,8 +106,7 @@ int main() {
 }
 
 /* Changelog
-	Variable length labels in the yaxis has been implimented
-	Variable length labels in the xaxis has been implimented	
-		Various ways to set those labels
-	Removed stock_in files
+	Simple window class created
+	Added debug option to makefile 
+		(The symbols are missing for some odd reason)
 */

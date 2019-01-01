@@ -9,15 +9,16 @@ DIR_CREATE = @mkdir -p
 
 CC=g++
 CL=clang++
-CFLAGS=-I$(INCLUDES) -std=c++11  -Wall -Wextra -pedantic
-LIBS= -lcurl 
+DEBUG=gdb
+CFLAGS=-I$(INCLUDES) -g -std=c++11 -Wall -Wextra -pedantic
+LIBS= -lcurl -lncurses 
 
 
 SRCS=$(wildcard $(SOURCE)/*.cpp)
 HEAD=$(wildcard $(INCLUDES)/*.h)
 OBJS=$(patsubst $(SOURCE)/%.cpp,$(OBJECTS)/%.o,$(SRCS))	
 
-.PHONY: clean makesourcetree run
+.PHONY: clean makesourcetree run debug
 
 
 $(OBJECTS)/%.o: $(SOURCE)/%.cpp $(HEAD)
@@ -35,9 +36,11 @@ alt: $(OBJS)
 loud: $(OBJS)
 	$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)
 
-
 run:
 	@$(OUT)/$(NAME)
+
+debug:
+	@$(DEBUG) $(OUT)/$(NAME)
 
 makesourcetree:
 	@$(DIR_CREATE) $(OBJECTS) $(OUT)
