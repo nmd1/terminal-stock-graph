@@ -11,7 +11,7 @@ CC=g++
 CL=clang++
 DEBUG=gdb
 CFLAGS=-I$(INCLUDES) -g -std=c++11 -Wall -Wextra -pedantic
-LIBS= -lcurl -lncurses 
+LIBS= -lcurl -lncurses -rdynamic
 
 
 SRCS=$(wildcard $(SOURCE)/*.cpp)

@@ -60,12 +60,64 @@ int Display::newWindow(int nlines, int ncols, int x0, int y0) {
     windows.push_back(win);
     return result;
 }
+void Display::resize(int window, int col, int lines) {
+	wresize(windows[window], lines, col);
+}
+void Display::start(int& cursorx, int& cursory) {
+	cursorx = 0;
+	cursory = 0;
+}
+bool Display::next(int window, char output, int& cursorx, int& cursory, int color_pair_color) {
+	place(window, output, cursorx, cursory, color_pair_color);
+	return Display::next(window, cursorx, cursory);
+}
+bool Display::next(int window, int& cursorx, int& cursory) {
+	int h, w;
+	cursorx+=1;
+	getmaxyx(windows[window], h, w);
+	if(!(cursorx<w)) {
+		cursorx=0;
+		++cursory;
+	}
+	if(!(cursory<h)) {
+		start(cursorx, cursory);
+		return false;
+	}
+
+	return true;
+}
+bool Display::isValidCursor(int window, int cursorx, int cursory) {
+	int h, w;
+	getmaxyx(windows[window], h, w);
+
+	if(!(cursorx<w)) {
+		return false;
+	}
+	if(!(cursory<h)) {
+		return false;
+	}
+
+	return true;
+}
 void Display::place(int window, char output, int x, int y, int color_pair_color) {
 	if(!(window<(signed)windows.size())) return;
 	WINDOW * win = windows[window];
    	mvwaddch(win, y, x, output | A_BOLD | COLOR_PAIR(color_pair_color)); 
 }
+void Display::place(int window, std::string output, int x, int y, int color_pair_color) {
+	if(!(window<(signed)windows.size())) return;
+	//printw("This should be printed in black with a red background!\n");
+	WINDOW * win = windows[window];
+	wattron(win,COLOR_PAIR(color_pair_color));
+	wmove(win, y, x);
+   	waddstr(win, output.c_str()); 
+}
+
 void Display::write(int window, char output, int x, int y, int color_pair_color) {
+	Display::place(window, output, x, y, color_pair_color);
+	Display::refresh(window);
+}
+void Display::write(int window, std::string output, int x, int y, int color_pair_color) {
 	Display::place(window, output, x, y, color_pair_color);
 	Display::refresh(window);
 }
@@ -104,7 +156,10 @@ void Display::inputBlock(int win) {
 			break;
 		}
 	}
-	exit();
+}
+void Display::blockExit(int win) {
+	Display::inputBlock(win);
+	Display::exit();
 }
 void Display::exit() {
 	endwin();

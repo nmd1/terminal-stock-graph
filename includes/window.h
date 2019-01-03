@@ -4,10 +4,16 @@
 #include <vector>
 #include <unistd.h> //for sleeping
 #include <curses.h> 
+#include <string>
 
 namespace window {
 	void test();
 }
+
+struct point {
+	double x;
+	double y;
+};
 
 class Display {
 	public:
@@ -16,16 +22,30 @@ class Display {
 		int newWindow(int, int, int, int);
 		// turns on borders
 		void debugSwitch();
-		// places a char without refreshing
+		// places a char/string without refreshing
 		void place(int, char, int, int, int=0);
-		// places a char then refreshes
+		void place(int, std::string, int, int, int=0);
+		// places a char/string then refreshes
 		void write(int, char, int, int, int=0);
+		void write(int, std::string, int, int, int=0);
 		// refreshes all windows
 		void refresh();
 		// refreshes a specified window
 		void refresh(int);
-		// process input. for now just exit
+		// process input.
 		void inputBlock(int);
+		// starts a writer for output 
+		void resize(int, int, int);
+		// advances writer and places character
+		void start(int&, int&);
+		// resize wrapper
+		bool next(int, char, int&, int&, int=0);
+		// Advances writer
+		bool next(int, int&, int&);
+		// checks validiity of cursor
+		bool isValidCursor(int, int, int);
+		// will exit upon input
+		void blockExit(int);
 		// exit the display
 		void exit();
 		~Display();

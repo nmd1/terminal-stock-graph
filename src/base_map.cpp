@@ -1,5 +1,5 @@
 #include "base_map.h"
-
+#include <unistd.h>
 /*
    <--------------length (j)----------->
 /\
@@ -13,9 +13,10 @@ width (i) * * * * * * * * * * * * * * *
 \/
 */
 
-Map::Map(int l, int w) {
+Map::Map(int l, int w, Display * dis) {
 	length = l;
 	width = w;
+	display = dis;
 	// Shift the center of the Y axis because of the label size
 	yaxisloc = (length-1)/2;
 	xaxisloc = width/2;
@@ -25,7 +26,7 @@ Map::Map(int l, int w) {
 	yzero = xaxisloc-1;
 
 
-	// characters to use in graphs
+	// Characters to use in graphs
 	space = '.';
 	xline = '_';
 	yline = '|';
@@ -36,6 +37,12 @@ Map::Map(int l, int w) {
 
 	scalex = 1;
 	scaley = 1;
+
+	padding=1;
+	// Set up the window
+	window = display->newWindow(2*w,2*l,0,0);
+
+
 }
 
 void Map::create() {
@@ -50,7 +57,7 @@ void Map::create() {
 				if (i==xaxisloc && j==yaxisloc) {
 					rowfill.push_back(nothing);
 				} else if (i==xaxisloc) {
-					rowfill.push_back('X');
+					rowfill.push_back(' ');
 				} else if(i==xaxisloc-1) {
 					rowfill.push_back(xline);
 				} else {
@@ -96,6 +103,64 @@ void Map::print() {
 	return;
 }
 
+void Map::updateScreen() {
+	Map::drawaxisX();
+	Map::drawaxisY();
+
+	int x_label_char_count = 0;
+	int k = 0;
+	int x, y;
+	display->start(x, y);
+
+	for(int i = 0; i < theMap.size(); i++) {
+		x = (yaxisloc-ylabelsize)+1;
+		for(int j = (yaxisloc-ylabelsize)+1; j < theMap[i].size(); j++) {
+			//std::cout<<j<<","<<i<<" "<<x<<","<<y<<" -> "<<theMap[i][j]<<std::endl;
+
+			if(x==xzero-1) {
+				x=xzero;
+			}
+			// Skip labeling completely, let the label functions handle that.
+			if(i==xaxisloc && j==yaxisloc-1) {
+				++i;
+				j=0;
+				x=yaxisloc-1;
+				y=i;
+				//display->next(window,x,y);
+				continue;
+			}
+
+			if(yaxisloc-ylabelsize+1 <= j && j <= yaxisloc) {
+				display->next(window,x,y);
+				//display->next(window, '-',x,y,1);
+				continue;
+			}
+
+			//cout<<i<<","<<j<<endl;
+
+			//display->next(window,x,y);
+			//usleep(10000);
+			display->next(window, theMap[i][j],x,y,1);
+		 	//display->refresh(window);
+			//usleep(10000);
+			display->next(window, ' ',x,y,1);
+			//display->refresh(window);
+
+			//display->blockExit(window);
+			//display->place(window, ' ',j,i,0);
+		}
+	}
+	Map::drawLabelY();
+	Map::drawLabelX();
+
+
+
+	display->refresh(window);
+	display->inputBlock(window);
+	return;
+}
+
+
 // Sets coordinates for generic map
 bool Map::setCoord(double x, double y) {
 	//cout<<xzero<<','<<yzero<<endl;
@@ -105,7 +170,7 @@ bool Map::setCoord(double x, double y) {
 	x = x/scalex;
 	y = y/scaley;
 
-	cout<<x<<" , "<<y<<endl;
+	//cout<<x<<" , "<<y<<endl;
 
 	// Skip over labels
 	if(x < 0) x-=1;
@@ -128,6 +193,49 @@ bool Map::setCoord(double x, double y) {
 	return true;
 }
 
+void Map::drawLabelX() {
+	int x = yaxisloc+ylabelsize;
+	int y = xaxisloc;
+	int spacing=1;
+	for(auto it = Xlabels.begin(); it != Xlabels.end(); it++) {
+		display->place(window, *it, x, y, 0);
+		std::string a = *it;
+		x = x + a.length() +1+spacing;
+		if(!display->isValidCursor(window, x,y)) break;
+	}
+
+
+}
+void Map::drawLabelY() {
+	int x = yaxisloc-ylabelsize+1;
+	int y = 0;
+	for(auto it = Ylabels.begin(); it != Ylabels.end(); it++) {
+		std::string a = *it;
+		display->place(window, *it, x, y, 0);
+		++y;
+		if(!display->isValidCursor(window, x,y)) break;
+	}
+
+}
+void Map::drawaxisX() {
+	//draw axis cause why not
+	int x = yaxisloc+ylabelsize-1;
+	int y = yzero;
+	for (int i = 0; i < theMap[xaxisloc].size()-ylabelsize-1; i++) {
+		display->next(window, '_',x,y,1);
+		display->next(window, '_',x,y,1);
+	}
+}
+void Map::drawaxisY() {
+	//draw axis cause why not
+	int x = ylabelsize+yaxisloc-2;
+	int y = 0;
+	for (int i = 0; i < theMap.size(); i++) {
+		display->place(window, '|',x,y,1);
+		y++;
+	}
+}
+
 // Auto label based on how many labels we have
 void Map::setLabelX(vector<std::string> labels) {
 	int len = labels.size();
@@ -143,6 +251,15 @@ void Map::setLabelX(vector<std::string> labels, double percentage) {
 }
 
 void Map::setLabelX(vector<std::string> labels, int spacing) {
+	Xlabels.clear();
+	for (int i = 0; i < theMap[xaxisloc].size(); i++) {
+		if(i < labels.size()) {
+			Xlabels.push_back(labels[i]);
+		} else {
+			Xlabels.push_back(" ");
+		}
+	}
+	return; 
 	signed int j = -1, k = -1;
 	vector<char> axis;
 	bool writing = false;
@@ -171,9 +288,19 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 		if(k>labels[j].length()) k=-1;
 	}
 	theMap[xaxisloc] = axis;
+
+
 }
 
 void Map::setLabelY(vector<std::string> labels) {
+	Ylabels.clear();
+	for (int i = 0; i < theMap.size(); i++) {
+		if(i < labels.size()) {
+			Ylabels.push_back(labels[i]);
+		} else {
+			Ylabels.push_back("");
+		}
+	}
 	int j = 0;
 
 	// find the length of the longest label
@@ -202,25 +329,11 @@ void Map::setLabelY(vector<std::string> labels) {
 		vector<char> alabel;
 
 
-		if(i !=xaxisloc) {
-			// add in blank spaces to keep rows even
-			for (int k = 0; k < longest-labels[j].length(); k++) {
-				alabel.push_back(' ');
-			}
-			// fill rest of label vector with label
-			for(int k = 0; k < labels[j].length(); k++) {
-				alabel.push_back(labels[j][k]);
-			}
-			// indicate that you should move on to the next label
-			++j;
-
-		} else {
-
-			// add in blank spaces for x axis to keep rows even
-			for (int k = 0; k < longest; k++) {
-				alabel.push_back(' ');
-			}
+		// add in blank spaces for x axis to keep rows even
+		for (int k = 0; k < longest; k++) {
+			alabel.push_back(' ');
 		}
+
 
 		// Merge 
 		result.insert(result.end(), alabel.begin(), alabel.end());
@@ -235,6 +348,8 @@ void Map::setLabelY(vector<std::string> labels) {
     yaxisloc = yaxisloc + longest - ylabelsize;
  	ylabelsize = longest;
  	xzero = yaxisloc-1;
+	display->resize(window, 2*length+longest-2,width);
+ 	length = length + longest -1;
 
 }
 
@@ -274,7 +389,7 @@ void Map::setMaxY(double max) {
 
 /*******************************************************************/
 
-CoordinateGrid::CoordinateGrid(int size) : Map(size, size) {
+CoordinateGrid::CoordinateGrid(int size, Display * dis) : Map(size, size, dis) {
 	length = size;
 	width = size;
 

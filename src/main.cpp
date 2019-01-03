@@ -3,29 +3,30 @@
 #include "time_graph.h"
 #include "yahoo_api.h"
 #include "window.h"
+#include "signal_handler.h"
 using namespace std;
 
 
 int main() {
 
+  	signal(SIGSEGV, handler);   // install our handler
 	//window::test();
-	Display d;
-	int win_numb = d.newWindow(5,5,0,0);
-	d.debugSwitch();
-	d.write(win_numb, 'A', 0,0,3);
-	d.write(win_numb, 'B', 0,1,1);
-	d.write(win_numb, 'C', 0,2,2);
-	d.write(win_numb, 'D', 0,3,2);
-	d.write(win_numb, 'E', 0,4,1);
-	d.write(win_numb, 'F', 0,5,1);
-
+	Display* d = new Display();
+	/*
+	int win_numb = d->newWindow(5,5,0,0);
+	d->debugSwitch();
+	d->write(win_numb, 'A', 0,0,3);
+	d->write(win_numb, 'B', 0,1,1);
+	d->write(win_numb, 'C', 0,2,2);
+	d->write(win_numb, 'D', 0,3,2);
+	d->write(win_numb, 'E', 0,4,1);
+	d->write(win_numb, 'F', 0,5,1);
+*/
 	// block
+	d->exit();
+	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AMD");
 
-	d.inputBlock(win_numb);
-	return 0;
-	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AAPL");
-
-	TimeGraph apple(100,40);
+	TimeGraph apple(100,40,d);
 	apple.create();
 
 	apple.scaleY((double)1/7);
@@ -43,11 +44,19 @@ int main() {
 		double difference =  difftime (t, starttime);
 		apple.setCoord(difference, point_data->close-startdata);
 	}
-	vector<std::string> aw = {"432.42","bfs","c"};
+	vector<std::string> aw;
+	for (int i = 0; i < (signed)data.size(); i++) {
+		aw.push_back("test");
+	}
+	//vector<std::string> aw = {"432.42","bfs","c"};
 	vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
+
+
 	apple.setLabelY(aw);
 	apple.setLabelX(bw);
-	apple.print();
+	//apple.print();
+	apple.updateScreen();
+	d->exit();
 	return 0;
 /* //
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
@@ -106,7 +115,7 @@ int main() {
 }
 
 /* Changelog
-	Simple window class created
-	Added debug option to makefile 
-		(The symbols are missing for some odd reason)
+	Signal handling! SEGINT is now caught, so our good old friend segfault 
+	now has more details attached to it
+	Labels now work with the new display system
 */

@@ -1,34 +1,18 @@
 #include "yahoo_api.h"
-
-
-
 /*
 	<------------time----------->
 	open					close
 			  highs/lows
 */
-void yahoo::getSnapshot(json& data) {
-
-}
-
-void yahoo::getSnapshot(json& data, std::string attribute) {
-	
-}
-
-void yahoo::getSnapshot(json& data, std::vector<std::string> attributes) {
-	
-}
-
 std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock) {
 	bool use_12_hour_time = true;
 	bool is_morning = false;
 	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+"?interval=2m";
 	json raw_data = web(api);	
 
-    std::cout << raw_data.dump(4) << std::endl;
+    //std::cout << raw_data.dump(4) << std::endl;
 
     json error = raw_data["chart"]["error"];
-	std::cout<<"hey it worked! 0 "<<std::endl;
     if(!error.empty()) {
     	std::string ecode = error["code"];
     	std::string edes = error["description"];
@@ -37,11 +21,9 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 		std::vector<std::tuple<time_t, yahoo::OHLC*> > a;
 	    return a; 
 	}
-	std::cout<<"hey it worked! 1"<<std::endl;
+
     json data = raw_data["chart"]["result"][0];
     json meta_data = data["meta"];
-   	std::cout<<"hey it worked! 2"<<std::endl;
-
    	std::vector<std::tuple<time_t, yahoo::OHLC*> > result;
     for (int i = 0; i < data["timestamp"].size(); i++) {
 
@@ -81,19 +63,25 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 		//	std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
 
 		yahoo::OHLC * ohlc = new yahoo::OHLC();
-		ohlc->volume = data["indicators"]["quote"][0]["volume"][i];
-		ohlc->open = data["indicators"]["quote"][0]["close"][i];
-		ohlc->high = data["indicators"]["quote"][0]["open"][i];
-		ohlc->low = data["indicators"]["quote"][0]["high"][i];
-		ohlc->close = data["indicators"]["quote"][0]["low"][i];
-		std::cout<<ltm<<std::endl;
+        json jquote = data["indicators"]["quote"][0];
+        if(!jquote["volume"][i].empty())
+		    ohlc->volume = jquote["volume"][i];
+        if(!jquote["close"][i].empty())
+		ohlc->open = jquote["close"][i];
+        if(!jquote["open"][i].empty())
+            ohlc->high = jquote["open"][i];
+        if(!jquote["high"][i].empty())
+    		ohlc->low = jquote["high"][i];
+        if(!jquote["low"][i].empty())
+	       ohlc->close = jquote["low"][i];
+		//std::cout<<ltm<<std::endl;
 		std::tuple<time_t, yahoo::OHLC*> organized_data(date, ohlc);
 		result.push_back(organized_data);
 
 		//std::cout<<dt<<std::endl;
 
     }
-    std::cout<<result.size()<<std::endl;
+    //std::cout<<result.size()<<std::endl;
     return result;
 
 }

@@ -2,7 +2,7 @@
 
 
 
-TimeGraph::TimeGraph(int time, int magnitude) : Map(time, magnitude) {
+TimeGraph::TimeGraph(int time, int magnitude, Display * dis) : Map(time, magnitude, dis) {
 	length = time;
 	width = magnitude;
 	xaxisloc = width/2;
@@ -28,7 +28,7 @@ int TimeGraph::getMinX(bool scale) {
 
 /**********************************************/
 
-PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude) : TimeGraph(time, magnitude) {
+PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : TimeGraph(time, magnitude, dis) {
 	length = time;
 	width = magnitude;
 	xaxisloc = magnitude-1;
