@@ -140,7 +140,16 @@ void Map::updateScreen() {
 
 			//display->next(window,x,y);
 			//usleep(10000);
-			display->next(window, theMap[i][j],x,y,1);
+
+			// Coloring 
+			if(theMap[i][j]==point) {
+				if(i>yzero)
+					display->next(window, theMap[i][j],x,y,2);
+				else if(i<yzero)
+					display->next(window, theMap[i][j],x,y,1);
+			} else {
+				display->next(window, theMap[i][j],x,y,0);
+			}
 		 	//display->refresh(window);
 			//usleep(10000);
 			display->next(window, ' ',x,y,1);
