@@ -1,5 +1,9 @@
 #include "base_map.h"
 #include <unistd.h>
+
+#include <iostream>
+#include <fstream>
+
 /*
    <--------------length (j)----------->
 /\
@@ -107,41 +111,52 @@ void Map::updateScreen() {
 	Map::drawaxisX();
 	Map::drawaxisY();
 
-	int x_label_char_count = 0;
-	int k = 0;
+  	ofstream myfile;
+  	myfile.open ("/dev/pts/4");
+
+	display->inputBlock(window);
+
+	//int x_label_char_count = 0;
+	//int k = 0;
 	int x, y;
 	display->start(x, y);
 
-	for(int i = 0; i < theMap.size(); i++) {
+	for(unsigned int i = 0; i < theMap.size(); i++) {
 		x = (yaxisloc-ylabelsize)+1;
 		for(int j = (yaxisloc-ylabelsize)+1; j < theMap[i].size(); j++) {
-			//std::cout<<j<<","<<i<<" "<<x<<","<<y<<" -> "<<theMap[i][j]<<std::endl;
+			myfile<<"\n("<<j<<","<<i<<")\n{"<<std::endl;
 
 			if(x==xzero-1) {
 				x=xzero;
+				myfile<<"Condition 1"<<std::endl;
 			}
 			// Skip labeling completely, let the label functions handle that.
 			if(i==xaxisloc && j==yaxisloc-1) {
+				myfile<<"Condition 2"<<std::endl;
 				++i;
 				j=0;
-				x=yaxisloc-1;
-				y=i;
+				x=yaxisloc-6;//yaxisloc-1;
+				y=i; //++i;
 				//display->next(window,x,y);
+				myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
 				continue;
 			}
 
 			if(yaxisloc-ylabelsize+1 <= j && j <= yaxisloc) {
+				myfile<<"Condition 3"<<std::endl;
 				display->next(window,x,y);
 				//display->next(window, '-',x,y,1);
+				myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
 				continue;
 			}
 
 			//cout<<i<<","<<j<<endl;
 
 			//display->next(window,x,y);
-			//usleep(10000);
+			usleep(1000);
 
 			// Coloring 
+			myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<std::endl;
 			if(theMap[i][j]==point) {
 				if(i>yzero)
 					display->next(window, theMap[i][j],x,y,2);
@@ -152,8 +167,11 @@ void Map::updateScreen() {
 			}
 		 	//display->refresh(window);
 			//usleep(10000);
-			display->next(window, ' ',x,y,1);
-			//display->refresh(window);
+			display->next(window, ' ',x,y,1); //gives controversial extra space
+			display->refresh(window);
+
+			myfile<<"}"<<std::endl;
+			//display->inputBlock(window);
 
 			//display->blockExit(window);
 			//display->place(window, ' ',j,i,0);
@@ -161,14 +179,39 @@ void Map::updateScreen() {
 	}
 	Map::drawLabelY();
 	Map::drawLabelX();
+	Map::drawaxisX();
+	Map::drawaxisY();
 
 
+  	myfile.close();
 
 	display->refresh(window);
 	display->inputBlock(window);
 	return;
 }
 
+void Map::showDebugScreen() {
+	Map::drawaxisX();
+	Map::drawaxisY();
+
+	for(int i = 0; i < theMap[0].size(); i++) {
+		for(int j = 0; j < theMap.size(); j++) {
+			if(i==yaxisloc)
+				display->place(window, '|', i, j, 2);
+			if(i==xzero)
+				display->place(window, 'X', i, j, 1);
+			if(j==xaxisloc)
+				display->place(window, '_', i, j, 2);
+			if(j==yzero)
+				display->place(window, 'Y', i, j, 1);
+		}
+	}
+	Map::drawLabelY();
+	Map::drawLabelX();
+
+	display->refresh(window);
+	display->inputBlock(window);
+}
 
 // Sets coordinates for generic map
 bool Map::setCoord(double x, double y) {
@@ -203,7 +246,7 @@ bool Map::setCoord(double x, double y) {
 }
 
 void Map::drawLabelX() {
-	int x = yaxisloc+ylabelsize;
+	int x = yaxisloc+4;
 	int y = xaxisloc;
 	int spacing=1;
 	for(auto it = Xlabels.begin(); it != Xlabels.end(); it++) {
@@ -228,7 +271,7 @@ void Map::drawLabelY() {
 }
 void Map::drawaxisX() {
 	//draw axis cause why not
-	int x = yaxisloc+ylabelsize-1;
+	int x = ylabelsize+2;
 	int y = yzero;
 	for (int i = 0; i < theMap[xaxisloc].size()-ylabelsize-1; i++) {
 		display->next(window, '_',x,y,1);
@@ -237,7 +280,7 @@ void Map::drawaxisX() {
 }
 void Map::drawaxisY() {
 	//draw axis cause why not
-	int x = ylabelsize+yaxisloc-2;
+	int x = ylabelsize+1;
 	int y = 0;
 	for (int i = 0; i < theMap.size(); i++) {
 		display->place(window, '|',x,y,1);
@@ -269,6 +312,7 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 		}
 	}
 	return; 
+
 	signed int j = -1, k = -1;
 	vector<char> axis;
 	bool writing = false;

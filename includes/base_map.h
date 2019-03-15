@@ -25,6 +25,9 @@ class Map {
 		// display in ncurses window
 		void updateScreen();
 
+		// display skelington in ncurses window
+		void showDebugScreen();
+
 		// set a coordinate in the map
 		bool setCoord(double x, double y);
 

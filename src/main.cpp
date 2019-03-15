@@ -29,7 +29,7 @@ int main() {
 	d->exit();
 	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SP");
 
-	TimeGraph apple(100,40,d);
+	TimeGraph apple(50,20,d);
 	apple.create();
 	
 
@@ -76,6 +76,7 @@ int main() {
 	apple.setLabelX(bw);
 	//apple.print();
 	apple.updateScreen();
+	//apple.showDebugScreen();
 	d->exit();
 	return 0;
 /* //
@@ -135,6 +136,10 @@ int main() {
 }
 
 /* Changelog
-	Added simple way to generate label values (for debug purposes)
-	Added coloring for points: green if positive, red if negative
+	Imporiving graphs: labeling/axis location
+	------------------------------------------
+	Added debug function for this purpose
+	debug data is send to alternate tty 
+	
+
 */
