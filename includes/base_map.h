@@ -61,7 +61,13 @@ class Map {
 		// Set scaling factor based on what the max values should be
 		void setMaxX(double);
 		void setMaxY(double);
-	
+
+		// Setters for the axis (can be removed later?)
+		void setXaxis(int);
+		void setYaxis(int);
+		void setYLabelSize(int);
+		void literalPrint();
+		int getNumberOfYLabels();
 	protected:
 		// Graph Arrays
 		vector< vector<char> > theMap;

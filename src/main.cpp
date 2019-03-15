@@ -5,8 +5,13 @@
 #include "yahoo_api.h"
 #include "window.h"
 #include "signal_handler.h"
+
+#include <iostream>
+#include <fstream>
+
 using namespace std;
 
+ofstream debugf;
 
 int main() {
 
@@ -25,14 +30,34 @@ int main() {
 
 
 */
+
+
+  	debugf.open("/dev/pts/4");
+
+
 	// block
 	d->exit();
 	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SP");
 
-	TimeGraph apple(50,20,d);
+	//PositiveTimeGraph apple(50,20,d);
+	Map apple(50,20,d);
 	apple.create();
-	
 
+	vector<string> newl;
+	for(int i = 0; i < apple.getNumberOfYLabels(); i++) {
+		string a = "label" +  to_string(i);
+		newl.push_back(a);
+	}
+	vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
+
+
+	apple.setLabelY(newl);	
+	apple.setLabelX(bw);
+
+	apple.literalPrint();
+
+
+	return 0;
 	apple.scaleY((double)1/7);
 	apple.scaleX((double)230);
 	time_t starttime = get<0>(data[0]);
@@ -68,7 +93,7 @@ int main() {
 		aw.push_back(str);
 	}
 	//vector<std::string> aw = {"432.42","bfs","c"};
-	vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
+	//vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
 
 
 
@@ -78,6 +103,8 @@ int main() {
 	apple.updateScreen();
 	//apple.showDebugScreen();
 	d->exit();
+
+	debugf.close();
 	return 0;
 /* //
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
@@ -138,8 +165,13 @@ int main() {
 /* Changelog
 	Imporiving graphs: labeling/axis location
 	------------------------------------------
-	Added debug function for this purpose
-	debug data is send to alternate tty 
-	
+	theMap now contains EVERYTHING: labels, points and all
+	Labels redone: x and y labels work, simply
+	Debugf is now global: can send debug output to alternate terminal
+	literalprint prints what's literally in theMap
+
+	TODO: add an x label anywhere on the x axis
+	TODO: delete bloat - old code that's been made irrelevant
+
 
 */

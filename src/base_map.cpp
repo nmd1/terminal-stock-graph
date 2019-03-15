@@ -17,13 +17,28 @@ width (i) * * * * * * * * * * * * * * *
 \/
 */
 
+/*
+         <---length (j)--->
+       /\
+       |*******************
+       |*******************
+       |******************* 
+width (i)****************** 
+       |*******************
+       |******************* 
+       |******************* 
+       \/
+*/
+
+extern ofstream debugf;
+
 Map::Map(int l, int w, Display * dis) {
 	length = l;
 	width = w;
 	display = dis;
 	// Shift the center of the Y axis because of the label size
 	yaxisloc = (length-1)/2;
-	xaxisloc = width/2;
+	xaxisloc = (width/2);
 
 	// Set where zero is
 	xzero = yaxisloc+1;
@@ -44,7 +59,7 @@ Map::Map(int l, int w, Display * dis) {
 
 	padding=1;
 	// Set up the window
-	window = display->newWindow(2*w,2*l,0,0);
+	window = display->newWindow(w,l,0,0);
 
 
 }
@@ -75,6 +90,15 @@ void Map::create() {
 	//std::cout<<"size of map is "<<theMap.size()<<std::endl;
 	return;
 }
+void Map::literalPrint() {
+	for(int i = 0; i < width; i++) {
+		for(int j = 0; j < length; j++) {
+			std::cout<<theMap[i][j];
+		}
+		std::cout<<endl;
+	}
+}
+
 void Map::print() {
 	int x_label_char_count = 0;
 	int k = 0;
@@ -111,9 +135,6 @@ void Map::updateScreen() {
 	Map::drawaxisX();
 	Map::drawaxisY();
 
-  	ofstream myfile;
-  	myfile.open ("/dev/pts/4");
-
 	display->inputBlock(window);
 
 	//int x_label_char_count = 0;
@@ -124,29 +145,29 @@ void Map::updateScreen() {
 	for(unsigned int i = 0; i < theMap.size(); i++) {
 		x = (yaxisloc-ylabelsize)+1;
 		for(int j = (yaxisloc-ylabelsize)+1; j < theMap[i].size(); j++) {
-			myfile<<"\n("<<j<<","<<i<<")\n{"<<std::endl;
+			debugf<<"\n("<<j<<","<<i<<")\n{"<<std::endl;
 
 			if(x==xzero-1) {
 				x=xzero;
-				myfile<<"Condition 1"<<std::endl;
+				debugf<<"Condition 1"<<std::endl;
 			}
 			// Skip labeling completely, let the label functions handle that.
 			if(i==xaxisloc && j==yaxisloc-1) {
-				myfile<<"Condition 2"<<std::endl;
+				debugf<<"Condition 2"<<std::endl;
 				++i;
 				j=0;
 				x=yaxisloc-6;//yaxisloc-1;
 				y=i; //++i;
 				//display->next(window,x,y);
-				myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
+				debugf<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
 				continue;
 			}
 
 			if(yaxisloc-ylabelsize+1 <= j && j <= yaxisloc) {
-				myfile<<"Condition 3"<<std::endl;
+				debugf<<"Condition 3"<<std::endl;
 				display->next(window,x,y);
 				//display->next(window, '-',x,y,1);
-				myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
+				debugf<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<"\n}"<<std::endl;
 				continue;
 			}
 
@@ -156,7 +177,7 @@ void Map::updateScreen() {
 			usleep(1000);
 
 			// Coloring 
-			myfile<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<std::endl;
+			debugf<<"("<<x<<","<<y<<") -> "<<theMap[i][j]<<std::endl;
 			if(theMap[i][j]==point) {
 				if(i>yzero)
 					display->next(window, theMap[i][j],x,y,2);
@@ -170,7 +191,7 @@ void Map::updateScreen() {
 			display->next(window, ' ',x,y,1); //gives controversial extra space
 			display->refresh(window);
 
-			myfile<<"}"<<std::endl;
+			debugf<<"}"<<std::endl;
 			//display->inputBlock(window);
 
 			//display->blockExit(window);
@@ -182,8 +203,6 @@ void Map::updateScreen() {
 	Map::drawaxisX();
 	Map::drawaxisY();
 
-
-  	myfile.close();
 
 	display->refresh(window);
 	display->inputBlock(window);
@@ -304,16 +323,28 @@ void Map::setLabelX(vector<std::string> labels, double percentage) {
 
 void Map::setLabelX(vector<std::string> labels, int spacing) {
 	Xlabels.clear();
-	for (int i = 0; i < theMap[xaxisloc].size(); i++) {
+	for (int i = 0; i < theMap[yzero+1].size(); i++) {
 		if(i < labels.size()) {
 			Xlabels.push_back(labels[i]);
 		} else {
 			Xlabels.push_back(" ");
 		}
 	}
+
+	// Fill in the map with the labels
+	int j = 0;
+	for(int i = 0; i < labels.size(); i++) {
+		int k = 0;
+		for (; k < labels[i].size(); j++, k++) {
+			theMap[yzero+1][j] = labels[i][k];
+		}
+		theMap[yzero+1][++j] = ' ';
+	}
+
+
 	return; 
 
-	signed int j = -1, k = -1;
+	j = -1; int k = -1;
 	vector<char> axis;
 	bool writing = false;
 	cout<<labels.size()<<endl;
@@ -341,20 +372,11 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 		if(k>labels[j].length()) k=-1;
 	}
 	theMap[xaxisloc] = axis;
-
-
 }
 
 void Map::setLabelY(vector<std::string> labels) {
 	Ylabels.clear();
-	for (int i = 0; i < theMap.size(); i++) {
-		if(i < labels.size()) {
-			Ylabels.push_back(labels[i]);
-		} else {
-			Ylabels.push_back("");
-		}
-	}
-	int j = 0;
+
 
 	// find the length of the longest label
     int longest = 0;
@@ -364,10 +386,22 @@ void Map::setLabelY(vector<std::string> labels) {
         }
     }
 
+    // Fill!
+    int j = 0;
+	for (int i = 0; i < theMap.size(); i++) {
+		if(i < labels.size() && i!=yzero+1) {
+			Ylabels.push_back(labels[j]);
+			j++;
+		} else {
+			std::string blanks(longest, ' ');
+			Ylabels.push_back(blanks);
+		}
+	}
+
+    cout<<"longest is "<<longest<<endl;
+
     for(int i = 0; i < theMap.size(); i++) {
     	vector<char> row = theMap[i];
-		if(j>=labels.size()) break;
-
 
 		// Split the current row into two vectors,
 		// Generate a new vector<char> that is made up
@@ -387,6 +421,13 @@ void Map::setLabelY(vector<std::string> labels) {
 			alabel.push_back(' ');
 		}
 
+		// add in label, character by character
+		j = 0;
+		for(int k = longest-Ylabels[i].size(); k < longest; k++) {
+			if(!Ylabels[i][j]) break;
+			alabel[k] = Ylabels[i][j++];
+		}
+
 
 		// Merge 
 		result.insert(result.end(), alabel.begin(), alabel.end());
@@ -398,12 +439,8 @@ void Map::setLabelY(vector<std::string> labels) {
     }
 
     // We just fundumentally changed the map, we need to edit some variables
-    yaxisloc = yaxisloc + longest - ylabelsize;
- 	ylabelsize = longest;
- 	xzero = yaxisloc-1;
+    setYLabelSize(longest);
 	display->resize(window, 2*length+longest-2,width);
- 	length = length + longest -1;
-
 }
 
 int Map::getMaxX(bool scale) {
@@ -439,7 +476,9 @@ void Map::setMaxY(double max) {
 	scaley = max / getMaxY(false);
 }
 
-
+int Map::getNumberOfYLabels() {
+	return length - 2;
+}
 /*******************************************************************/
 
 CoordinateGrid::CoordinateGrid(int size, Display * dis) : Map(size, size, dis) {
