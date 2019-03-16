@@ -232,10 +232,7 @@ void Map::showDebugScreen() {
 	display->inputBlock(window);
 }
 
-// Sets coordinates for generic map
-bool Map::setCoord(double x, double y) {
-	//cout<<xzero<<','<<yzero<<endl;
-
+bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
 	x = x/scalex;
@@ -259,9 +256,16 @@ bool Map::setCoord(double x, double y) {
 	if(finaly>=theMap.size()) return false;
 	if(finalx>=theMap[finaly].size()) return false;
 
-	// Set Coordinate
-	theMap[finaly][finalx] = point;	
+	x = finalx;
+	y = finaly;
 	return true;
+
+}
+// Sets coordinates for generic map
+bool Map::setCoord(double x, double y) {
+	bool returnval = getRawCoord(x, y);
+	theMap[y][x] = point;	
+	return returnval;
 }
 
 void Map::drawLabelX() {
@@ -321,6 +325,7 @@ void Map::setLabelX(vector<std::string> labels, double percentage) {
 	Map::setLabelX(labels, result);
 }
 
+// Use this for setting labels
 void Map::setLabelX(vector<std::string> labels, int spacing) {
 	Xlabels.clear();
 	for (int i = 0; i < theMap[yzero+1].size(); i++) {
@@ -372,6 +377,18 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 		if(k>labels[j].length()) k=-1;
 	}
 	theMap[xaxisloc] = axis;
+}
+
+void Map::setLabelX(std::string label, double xin) {
+	double y = 0;
+	getRawCoord(xin, y);
+	int x = (int)xin;
+	y++;
+
+	// Fill in the row with the label
+	for (int k =0; k < label.size(); x++, k++) {
+		theMap[y][x] = label[k];
+	}
 }
 
 void Map::setLabelY(vector<std::string> labels) {

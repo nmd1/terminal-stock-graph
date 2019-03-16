@@ -39,8 +39,8 @@ int main() {
 	d->exit();
 	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SP");
 
-	//PositiveTimeGraph apple(50,20,d);
-	Map apple(50,20,d);
+	TimeGraph apple(50,20,d);
+	//Map apple(50,20,d);
 	apple.create();
 
 	vector<string> newl;
@@ -53,7 +53,8 @@ int main() {
 
 	apple.setLabelY(newl);	
 	apple.setLabelX(bw);
-
+	apple.setLabelX("hello", 0.0);
+	apple.setCoord(0,4);
 	apple.literalPrint();
 
 
@@ -98,7 +99,9 @@ int main() {
 
 
 	apple.setLabelY(aw);
-	apple.setLabelX(bw);
+	//apple.setLabelX(bw);
+
+	//string fda = "hello"
 	//apple.print();
 	apple.updateScreen();
 	//apple.showDebugScreen();
@@ -165,13 +168,7 @@ int main() {
 /* Changelog
 	Imporiving graphs: labeling/axis location
 	------------------------------------------
-	theMap now contains EVERYTHING: labels, points and all
-	Labels redone: x and y labels work, simply
-	Debugf is now global: can send debug output to alternate terminal
-	literalprint prints what's literally in theMap
-
-	TODO: add an x label anywhere on the x axis
-	TODO: delete bloat - old code that's been made irrelevant
+	X labels can be placed at a paticular point now
 
 
 */

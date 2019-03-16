@@ -38,6 +38,8 @@ class Map {
 		void setLabelX(vector<std::string>, double);
 		// Set X label spacing as int many spaces between each label
 		void setLabelX(vector<std::string>, int);
+		// Set an X label based on it's coordinate
+		void setLabelX(std::string, double);
 		void setLabelY(vector<std::string>);
 
 		// Draw labels on ncurses window
@@ -69,6 +71,8 @@ class Map {
 		void literalPrint();
 		int getNumberOfYLabels();
 	protected:
+		// Return where on the map a coordinate would be placed
+		bool getRawCoord(double &, double &);
 		// Graph Arrays
 		vector< vector<char> > theMap;
 		vector<  std::string > Xlabels;
