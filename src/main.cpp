@@ -8,10 +8,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+
 
 using namespace std;
 
 ofstream debugf;
+ofstream graphwin;
 
 int main() {
 
@@ -33,53 +36,109 @@ int main() {
 
 
   	debugf.open("/dev/pts/4");
-
+	graphwin.open("/dev/pts/8");
 
 	// block
 	d->exit();
-	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SP");
 
-	TimeGraph apple(50,20,d);
+	// Time zone set
+	tzset();
+	// Obtain data
+	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SPY");
+
+	// Graph it
+	TimeGraph apple(195,40,d);
 	//Map apple(50,20,d);
 	apple.create();
 
+	// Clear out the verticle labels
 	vector<string> newl;
 	for(int i = 0; i < apple.getNumberOfYLabels(); i++) {
-		string a = "label" +  to_string(i);
+		string a = "      ";
 		newl.push_back(a);
 	}
-	vector<std::string> bw = {"org","app","tag","yam","sto","exch"};
-
 
 	apple.setLabelY(newl);	
-	apple.setLabelX(bw);
-	apple.setLabelX("hello", 0.0);
+	//apple.setLabelX(bw);
+	//apple.setLabelX("hello", 0.0);
 	apple.setCoord(0,4);
-	apple.literalPrint();
 
 
-	return 0;
-	apple.scaleY((double)1/7);
-	apple.scaleX((double)230);
+	//apple.scaleY((double)1/7);
+	//apple.scaleX((double)230);
 	time_t starttime = get<0>(data[0]);
 	double startdata = get<1>(data[0])->close;
-	double maxdiff = difftime(get<0>(data[data.size()-1]), starttime);
-	cout<<"maxdiff: "<<maxdiff<<endl;
 
+	double maxdiff = difftime(get<0>(data[data.size()-1]), starttime);
+
+	// Find the Max/Min stock value
 	double max = 0;
 	double min = 10000000;
+	double maxtime = 1;
+	for (int i = 0; i < (signed)data.size(); i++) {
+		yahoo::OHLC* point_data = get<1>(data[i]);
+		double test = point_data->close-startdata;
+
+		if(test > max) max = test;
+		if(test < min) min = test;
+		maxtime =  difftime (get<0>(data[i]), starttime);
+	}
+	debugf<<"max: "<<max<<endl;
+	debugf<<"min: "<<min<<endl;
+
+	if(-min > max) max = min;
+	apple.scaleY(max);
+	//apple.setMinY(min);
+	apple.scaleX(maxtime);
 
 	for (int i = 0; i < (signed)data.size(); i++) {
 		//tie(i_val,ignore,f_val) = tup1; 
+
 		time_t t = get<0>(data[i]);
 		yahoo::OHLC* point_data = get<1>(data[i]);
-		double difference =  difftime (t, starttime);
-		apple.setCoord(difference, point_data->close-startdata);
+		double tdifference =  difftime (t, starttime);
+		double value = point_data->close-startdata;
+		debugf<<"Time Difference: "<<tdifference<<"\n";
+
+		apple.setCoord(tdifference, value);
+		// This is for the cool graph effect
+		if(value>0) {
+			for(double j=value; j > 0; j=j-0.01) {
+				apple.setCoord(tdifference, j);
+			}
+		}
+		else
+		{
+			for(double j=value; j < 0; j=j+0.01) {
+				apple.setCoord(tdifference, j);
+			}
+		}
 		
-		double test = point_data->close;
-		if(test > max) max = test;
-		if(test < min) min = test;
+
+
+
+		tm * t_s = localtime(&t);
+
+		std:string the_hour;
+		if(t_s->tm_hour > 12) the_hour = std::to_string(t_s->tm_hour-12);
+		else the_hour = std::to_string(t_s->tm_hour);
+
+		std::stringstream time_stream;
+		time_stream << std::setw (2) << std::setfill('0') << the_hour << ":" << std::setw (2) << std::setfill('0') << std::to_string(t_s->tm_min);
+		std::string time = time_stream.str();
+
+		// Sets labels as you fill in points
+		std::string name = std::to_string(value + startdata); 
+		apple.setLabelY(name, value);
+		apple.setLabelX(time, tdifference);
+
+		//usleep(100000);
+		//apple.literalPrint();
+
 	}
+	apple.literalPrint();
+	//while(true);
+	return 0;
 
 	// Very basic and inaccurante way of creating labels
 	double add = (max - min)/40;
@@ -108,6 +167,7 @@ int main() {
 	d->exit();
 
 	debugf.close();
+	graphwin.close();
 	return 0;
 /* //
 	int x[] = {1,2,3,4,5,6,7,8,9,10};
@@ -168,7 +228,15 @@ int main() {
 /* Changelog
 	Imporiving graphs: labeling/axis location
 	------------------------------------------
-	X labels can be placed at a paticular point now
+	Fixed test graph X axis labeling
+	Test graph now checks for the max abs of max and min, 
+	 which fixed issue with wonky looking graphs
+	Added cool bar graph effect to test graph, also makes it easier to see
+	Y labels can be placed at a paticular point now
+	Fixed X label positioning
+	Began revamping getRawCoord and set Max/Min/Scale functions
+	X axis now draws time of stock price
+	Y labels feature the actual stock price
 
 
 */

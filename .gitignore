@@ -4,3 +4,4 @@ test
 extra/
 bin/
 build/
+.vscode/

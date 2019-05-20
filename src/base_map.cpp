@@ -31,7 +31,7 @@ width (i)******************
 */
 
 extern ofstream debugf;
-
+extern ofstream graphwin;
 Map::Map(int l, int w, Display * dis) {
 	length = l;
 	width = w;
@@ -91,11 +91,12 @@ void Map::create() {
 	return;
 }
 void Map::literalPrint() {
+	graphwin<<endl<<endl;
 	for(int i = 0; i < width; i++) {
 		for(int j = 0; j < length; j++) {
-			std::cout<<theMap[i][j];
+			graphwin<<theMap[i][j];
 		}
-		std::cout<<endl;
+		graphwin<<endl;
 	}
 }
 
@@ -235,19 +236,27 @@ void Map::showDebugScreen() {
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
+
+	// REDO THIS ENTIRE SYSTEM (SHOULD BE DEPENDENT ON MAP TYPE)
 	x = x/scalex;
 	y = y/scaley;
 
-	//cout<<x<<" , "<<y<<endl;
+
+	int maxyboard = (width  - 2)/2;
+	int maxxboard = (length - 2)/2;
+
+	y=y*maxyboard;
+	x=x*maxxboard*1.7;
+
+	debugf<<x<<" , "<<y<<endl;
 
 	// Skip over labels
-	if(x < 0) x-=1;
-	if(y < 0) y-=1;
+	if(x < 0) x-=2;
+	if(y < 0) y-=2;
 
 	// Translate to map coordinates
-	int finaly = (int)yzero-y;
-	int finalx = (int)xzero+x;
-
+	int finaly = (int)(yzero-y);
+	int finalx = (int)(xzero+x);
 	//cout<<scalex<<" , "<<scaley<<endl;
 
 	// check bounds 
@@ -264,7 +273,10 @@ bool Map::getRawCoord(double &x, double &y) {
 // Sets coordinates for generic map
 bool Map::setCoord(double x, double y) {
 	bool returnval = getRawCoord(x, y);
-	theMap[y][x] = point;	
+	int xin = (int)x;
+	int yin = (int)y;
+	debugf<<"("<<xin<<","<<yin<<")"<<endl;
+	if(returnval) theMap[yin][xin] = point;	
 	return returnval;
 }
 
@@ -337,7 +349,7 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 	}
 
 	// Fill in the map with the labels
-	int j = 0;
+	int j = xzero;
 	for(int i = 0; i < labels.size(); i++) {
 		int k = 0;
 		for (; k < labels[i].size(); j++, k++) {
@@ -380,14 +392,33 @@ void Map::setLabelX(vector<std::string> labels, int spacing) {
 }
 
 void Map::setLabelX(std::string label, double xin) {
+	int label_length = 6; //includes spacing
 	double y = 0;
-	getRawCoord(xin, y);
+	if(!getRawCoord(xin, y)) return;
 	int x = (int)xin;
 	y++;
+	if((x-1)%label_length) return;
 
 	// Fill in the row with the label
 	for (int k =0; k < label.size(); x++, k++) {
 		theMap[y][x] = label[k];
+	}
+}
+
+void Map::setLabelY(std::string label, double yin) {
+	double x = 0;
+	if(!getRawCoord(x, yin)) return;
+
+	int y = (int)yin;
+	x = 0;
+
+
+	// Fill in the row with the label
+	for (int k =0; k < label.size(); x++, k++) {
+		if(x>yaxisloc) break;
+		theMap[y][x] = label[k];
+
+		//debugf<<"fillin in"<<endl;
 	}
 }
 
@@ -487,10 +518,16 @@ void Map::scaleY(double value) {
 }
 
 void Map::setMaxX(double max) {
-	scalex = max / getMaxX(false);
+	scalex = max ;// getMaxX(false);
 }
 void Map::setMaxY(double max) {
-	scaley = max / getMaxY(false);
+	scaley = max ;// getMaxY(false);
+}
+void Map::setMinX(double min) {
+	scalex = min ;// getMinX(false);
+}
+void Map::setMinY(double min) {
+	scaley = min ;// getMinY(false);
 }
 
 int Map::getNumberOfYLabels() {

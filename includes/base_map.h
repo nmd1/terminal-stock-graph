@@ -40,6 +40,9 @@ class Map {
 		void setLabelX(vector<std::string>, int);
 		// Set an X label based on it's coordinate
 		void setLabelX(std::string, double);
+		// Set an Y label based on it's coordinate
+
+		void setLabelY(std::string, double);
 		void setLabelY(vector<std::string>);
 
 		// Draw labels on ncurses window
@@ -63,6 +66,10 @@ class Map {
 		// Set scaling factor based on what the max values should be
 		void setMaxX(double);
 		void setMaxY(double);
+
+			// Set scaling factor based on what the min values should be
+		void setMinX(double);
+		void setMinY(double);
 
 		// Setters for the axis (can be removed later?)
 		void setXaxis(int);
