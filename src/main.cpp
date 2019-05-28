@@ -21,7 +21,7 @@ int main() {
   	signal(SIGSEGV, handler);   // install our handler
 	//window::test();
 	Display* d = new Display();
-	/*
+	
 	int win_numb = d->newWindow(5,5,0,0);
 	d->debugSwitch();
 	d->write(win_numb, 'A', 0,0,3);
@@ -32,22 +32,18 @@ int main() {
 	d->write(win_numb, 'F', 0,5,1);
 
 
-*/
-
-
-  	debugf.open("/dev/pts/4");
-	graphwin.open("/dev/pts/8");
+  	debugf.open("/dev/pts/5");
+	graphwin.open("/dev/pts/7");
 
 	// block
 	d->exit();
 
 	// Time zone set
 	tzset();
-	// Obtain data
-	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("SPY");
+
 
 	// Graph it
-	TimeGraph apple(195,40,d);
+	TimeGraph apple(200,40,d);
 	//Map apple(50,20,d);
 	apple.create();
 
@@ -63,6 +59,8 @@ int main() {
 	//apple.setLabelX("hello", 0.0);
 	apple.setCoord(0,4);
 
+	// Obtain data
+	std::vector<std::tuple<time_t, yahoo::OHLC*> > data = yahoo::getOHLC("AMD");
 
 	//apple.scaleY((double)1/7);
 	//apple.scaleX((double)230);
@@ -83,38 +81,43 @@ int main() {
 		if(test < min) min = test;
 		maxtime =  difftime (get<0>(data[i]), starttime);
 	}
-	debugf<<"max: "<<max<<endl;
-	debugf<<"min: "<<min<<endl;
+	//debugf<<"max: "<<max<<endl;
+	//adebugf<<"min: "<<min<<endl;
 
 	if(-min > max) max = min;
 	apple.scaleY(max);
 	//apple.setMinY(min);
-	apple.scaleX(maxtime);
-
+	apple.scaleX(19800);  // the difference between 9:30am and 4pm
+	
+	debugf<<endl;
 	for (int i = 0; i < (signed)data.size(); i++) {
 		//tie(i_val,ignore,f_val) = tup1; 
+
+
 
 		time_t t = get<0>(data[i]);
 		yahoo::OHLC* point_data = get<1>(data[i]);
 		double tdifference =  difftime (t, starttime);
 		double value = point_data->close-startdata;
-		debugf<<"Time Difference: "<<tdifference<<"\n";
+
+
 
 		apple.setCoord(tdifference, value);
+
+		/*
 		// This is for the cool graph effect
 		if(value>0) {
-			for(double j=value; j > 0; j=j-0.01) {
+			for(double j=value; j > 0; j=j-0.001) {
 				apple.setCoord(tdifference, j);
 			}
 		}
 		else
 		{
-			for(double j=value; j < 0; j=j+0.01) {
+			for(double j=value; j < 0; j=j+0.001) {
 				apple.setCoord(tdifference, j);
 			}
 		}
-		
-
+		*/
 
 
 		tm * t_s = localtime(&t);
@@ -126,6 +129,8 @@ int main() {
 		std::stringstream time_stream;
 		time_stream << std::setw (2) << std::setfill('0') << the_hour << ":" << std::setw (2) << std::setfill('0') << std::to_string(t_s->tm_min);
 		std::string time = time_stream.str();
+ 
+		//debugf<<"("<<time<<", "<<point_data->close<<")"<<endl;
 
 		// Sets labels as you fill in points
 		std::string name = std::to_string(value + startdata); 
@@ -133,10 +138,12 @@ int main() {
 		apple.setLabelX(time, tdifference);
 
 		//usleep(100000);
+		apple.updateScreen(false);
 		//apple.literalPrint();
 
 	}
 	apple.literalPrint();
+	apple.updateScreen();
 	//while(true);
 	return 0;
 
@@ -226,17 +233,11 @@ int main() {
 }
 
 /* Changelog
-	Imporiving graphs: labeling/axis location
+	Imporiving graphs: integration with ncurses
 	------------------------------------------
-	Fixed test graph X axis labeling
-	Test graph now checks for the max abs of max and min, 
-	 which fixed issue with wonky looking graphs
-	Added cool bar graph effect to test graph, also makes it easier to see
-	Y labels can be placed at a paticular point now
-	Fixed X label positioning
-	Began revamping getRawCoord and set Max/Min/Scale functions
-	X axis now draws time of stock price
-	Y labels feature the actual stock price
-
+	Simplified UpdateScreen(), now all it has to do is write
+	 the data in theMap[][]
+	Fixed issue where graph would sometimes flatline
+	Other display bugs fixed (graph starts at 9:30, y=0 values shown, etc.)
 
 */

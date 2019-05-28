@@ -61,9 +61,10 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 		//if(i==0) std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
 		//if(i==data["timestamp"].size()-1) 
 		//	std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
-
 		yahoo::OHLC * ohlc = new yahoo::OHLC();
         json jquote = data["indicators"]["quote"][0];
+
+
         if(!jquote["volume"][i].empty())
 		    ohlc->volume = jquote["volume"][i];
         if(!jquote["close"][i].empty())
@@ -74,6 +75,12 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
     		ohlc->low = jquote["high"][i];
         if(!jquote["low"][i].empty())
 	       ohlc->close = jquote["low"][i];
+		else 
+
+		// Sometimes the api returns 0 for a close value
+		// In these situations, just don't add the data point.
+		// In the future find a better way to handle this situation
+			continue;
 		//std::cout<<ltm<<std::endl;
 		std::tuple<time_t, yahoo::OHLC*> organized_data(date, ohlc);
 		result.push_back(organized_data);

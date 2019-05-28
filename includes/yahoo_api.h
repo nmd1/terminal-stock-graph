@@ -13,6 +13,7 @@ using json = nlohmann::json;
 
 namespace yahoo {
 struct OHLC {
+    //std::string time; // Add this 
 	double open;
 	double high;
 	double low;

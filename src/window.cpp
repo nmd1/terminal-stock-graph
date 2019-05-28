@@ -137,6 +137,10 @@ void Display::debugSwitch() {
     	wborder(*it, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
 }
+void apples() {
+	return;
+}
+
 void Display::inputBlock(int win) {
 	int ch = wgetch(windows[win]);
 	switch (ch) {

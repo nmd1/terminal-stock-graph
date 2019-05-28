@@ -23,7 +23,7 @@ class Map {
 		void print();
 
 		// display in ncurses window
-		void updateScreen();
+		void updateScreen(bool=true);
 
 		// display skelington in ncurses window
 		void showDebugScreen();

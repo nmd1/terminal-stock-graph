@@ -132,6 +132,31 @@ void Map::print() {
 	return;
 }
 
+
+void Map::updateScreen(bool blockexit) {
+	for(int i = 0; i < width; i++) {
+		for(int j = 0; j < length; j++) {
+
+			if(theMap[i][j]==point) {
+				if(i>yzero)
+					display->place(window, theMap[i][j],j,i,2);
+				else if(i<yzero)
+					display->place(window, theMap[i][j],j,i,1);
+				else
+					display->place(window, theMap[i][j],j,i,1);
+				
+			} else {
+				display->place(window, theMap[i][j],j,i,0);
+			}
+
+		}
+	}
+	display->refresh(window);
+	if(blockexit) display->blockExit(window);
+}
+
+
+/*
 void Map::updateScreen() {
 	Map::drawaxisX();
 	Map::drawaxisY();
@@ -209,7 +234,7 @@ void Map::updateScreen() {
 	display->inputBlock(window);
 	return;
 }
-
+*/
 void Map::showDebugScreen() {
 	Map::drawaxisX();
 	Map::drawaxisY();
@@ -248,7 +273,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	y=y*maxyboard;
 	x=x*maxxboard*1.7;
 
-	debugf<<x<<" , "<<y<<endl;
+	//debugf<<x<<" , "<<y<<endl;
 
 	// Skip over labels
 	if(x < 0) x-=2;
@@ -275,7 +300,7 @@ bool Map::setCoord(double x, double y) {
 	bool returnval = getRawCoord(x, y);
 	int xin = (int)x;
 	int yin = (int)y;
-	debugf<<"("<<xin<<","<<yin<<")"<<endl;
+	//debugf<<"("<<xin<<","<<yin<<")"<<endl;
 	if(returnval) theMap[yin][xin] = point;	
 	return returnval;
 }
@@ -397,7 +422,7 @@ void Map::setLabelX(std::string label, double xin) {
 	if(!getRawCoord(xin, y)) return;
 	int x = (int)xin;
 	y++;
-	if((x-1)%label_length) return;
+	if((x)%label_length) return;
 
 	// Fill in the row with the label
 	for (int k =0; k < label.size(); x++, k++) {
