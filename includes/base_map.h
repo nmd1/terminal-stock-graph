@@ -17,77 +17,91 @@ class Map {
 
 	public:
 		Map(int,int, Display*);
-		void draw();
+		// Initalize everything needed for graph
 		void create();
-		// print to stdout
-		void print();
+		/* drawing */
+		// print to stdout (debug)
+		void literalPrint();
 
-		// display in ncurses window
+		// display in ncurses window (if true, block)
 		void updateScreen(bool=true);
-
-		// display skelington in ncurses window
-		void showDebugScreen();
 
 		// set a coordinate in the map
 		bool setCoord(double x, double y);
 
-		// labeling
-		// Auto label based on how many labels we have
-		void setLabelX(vector<std::string>);
-		// Set X label spacing as a percentage of the whole width
-		void setLabelX(vector<std::string>, double);
-		// Set X label spacing as int many spaces between each label
-		void setLabelX(vector<std::string>, int);
+
+
+		/* labeling */				
 		// Set an X label based on it's coordinate
 		void setLabelX(std::string, double);
 		// Set an Y label based on it's coordinate
-
 		void setLabelY(std::string, double);
+
+		// Auto label based on how many labels we have
+		void setLabelX(vector<std::string>);
 		void setLabelY(vector<std::string>);
 
-		// Draw labels on ncurses window
-		void drawLabelX();
-		void drawLabelY();
+		// Change how many X axis characters you can have before the next spacing 
+		void resizeLabelX(int);
+		// Change the width of the Ylabel column for labeling
+		void resizeLabelY(unsigned int);
 
-		// Draw axis
-		void drawaxisX();
-		void drawaxisY();
 
-		// Get extremes of a graph
-		int getMaxX(bool=true);
-		int getMinX(bool=true);
-		int getMaxY(bool=true);
-		int getMinY(bool=true);
 
-		// Change scaling factor for graph
-		void scaleX(double);
-		void scaleY(double);
 
-		// Set scaling factor based on what the max values should be
+
+		/* MAX/MIN Getters and Setters */
+		// Get extremes of a graph in real coordinates
+		double getMaxX();
+		double getMinX();
+		double getMaxY();
+		double getMinY();
+
+		// Set max/min value for x/y 
 		void setMaxX(double);
 		void setMaxY(double);
-
-			// Set scaling factor based on what the min values should be
 		void setMinX(double);
 		void setMinY(double);
 
-		// Setters for the axis (can be removed later?)
+		// Set max and min simultaneously and equally
+		void setExtremeX(double);
+		void setExtremeY(double);
+
+
+
+
+		/* Setters for the axis (can be removed later?) */
 		void setXaxis(int);
 		void setYaxis(int);
 		void setYLabelSize(int);
-		void literalPrint();
-		int getNumberOfYLabels();
+
 	protected:
-		// Return where on the map a coordinate would be placed
-		bool getRawCoord(double &, double &);
 		// Graph Arrays
 		vector< vector<char> > theMap;
 		vector<  std::string > Xlabels;
 		vector<  std::string > Ylabels;
 
+
+		// Return where on the map a coordinate would be placed
+		bool getRawCoord(double &, double &);
+		// Get extremes of a graph:
+		//  if true, get it in real coordinates
+		//  if false, get it in internal coordinates
+		double getMaxX(bool);
+		double getMinX(bool);
+		double getMaxY(bool);
+		double getMinY(bool);
+		// Get length of actual drawing area
+		int xBoardLength();
+		int yBoardLength();
+
+
+
 		// ncurses display data
 		Display * display;
 		int window;
+
+
 
 		// map meta information
 		int length;
@@ -96,10 +110,21 @@ class Map {
 		int yaxisloc;
 		int xzero;
 		int yzero;
-		double scalex;
-		double scaley;
+
+		// Extremes for real values 
+		double maxxval;
+		double maxyval;
+		double minxval;
+		double minyval;
+
+
+		// for readability in calling max/min functions
+		const bool gM_internal = false;
+		const bool gM_real = true;
+
+		// Max char length of labels 
 		int ylabelsize;
-		int padding;
+		int xlabelsize;
 
 		// characters to use in graphs
 		char space;

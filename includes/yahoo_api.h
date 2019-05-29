@@ -27,18 +27,10 @@ json web(const std::string, const int = 10);
 std::vector<std::tuple<time_t, yahoo::OHLC*> > getOHLC(const std::string stock);
 
 }
-namespace
+
+namespace cb
 {
-    std::size_t callback(
-            const char* in,
-            std::size_t size,
-            std::size_t num,
-            std::string* out)
-    {
-        const std::size_t totalBytes(size * num);
-        out->append(in, totalBytes);
-        return totalBytes;
-    }
+    extern std::size_t callback(const char*, std::size_t, std::size_t, std::string*);
 }
 
 #endif

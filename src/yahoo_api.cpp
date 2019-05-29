@@ -4,6 +4,21 @@
 	open					close
 			  highs/lows
 */
+
+namespace cb
+{
+    std::size_t callback(
+            const char* in,
+            std::size_t size,
+            std::size_t num,
+            std::string* out)
+    {
+        const std::size_t totalBytes(size * num);
+        out->append(in, totalBytes);
+        return totalBytes;
+    }
+}
+
 std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock) {
 	bool use_12_hour_time = true;
 	bool is_morning = false;
@@ -25,20 +40,23 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
     json data = raw_data["chart"]["result"][0];
     json meta_data = data["meta"];
    	std::vector<std::tuple<time_t, yahoo::OHLC*> > result;
-    for (int i = 0; i < data["timestamp"].size(); i++) {
+    for (unsigned i = 0; i < data["timestamp"].size(); i++) {
 
     	// This next part is just parsing time.
     	// It should honestly be in it's own function
     	time_t date = data["timestamp"][i];
     	tm *ltm = new tm();
     	ltm = localtime(&date);
-
+/*
 		int year =  1900 + ltm->tm_year;
 		int month =  1 + ltm->tm_mon;
 		int day =  ltm->tm_mday;
-		int hours = ltm->tm_hour;
+		
 		int minutes = 1 + ltm->tm_min;
 		int seconds =  1 + ltm->tm_sec;
+*/
+		int hours = ltm->tm_hour;
+
 		std::string hour_indicator = "";
 		if(use_12_hour_time) {
 			if (!(hours > 24) && (hours > 12)) {
@@ -115,7 +133,7 @@ json yahoo::web(const std::string url, const int timeout) {
     int httpCode = 0;
 
     // Hook up data handling function.
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, cb::callback);
 
     // Hook up data container (will be passed as the last parameter to the
     // callback handling function).  Can be any pointer type, since it will

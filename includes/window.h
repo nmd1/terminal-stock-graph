@@ -20,7 +20,7 @@ class Display {
 		Display();
 		// create a new window
 		int newWindow(int, int, int, int);
-		// turns on borders
+		// turns on borders for all windows
 		void debugSwitch();
 		// places a char/string without refreshing
 		void place(int, char, int, int, int=0);

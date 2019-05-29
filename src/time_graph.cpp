@@ -10,6 +10,13 @@ TimeGraph::TimeGraph(int time, int magnitude, Display * dis) : Map(time, magnitu
 
 	xzero = yaxisloc+1;
 	yzero = xaxisloc-1;
+
+	maxxval = xBoardLength();
+	minxval = 0;
+	maxyval = yBoardLength()/2;
+	minyval = -yBoardLength()/2;
+
+	if(width < 4 || length < 3) throw "Object Failed";
 }
 
 bool TimeGraph::setCoord(double t, double y) {
@@ -18,12 +25,8 @@ bool TimeGraph::setCoord(double t, double y) {
 	return true;
 }
 
-int TimeGraph::getMaxX(bool scale) {
-	return scale ? (length - 2)*scalex : length - 2;
-}
-int TimeGraph::getMinX(bool scale) {
-	return 0;
-}
+
+
 
 
 /**********************************************/
@@ -37,7 +40,15 @@ PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : T
 	xzero = yaxisloc+1;
 	yzero = xaxisloc-1;
 
+	maxxval = xBoardLength();
+	minxval = 0;
+	maxyval = yBoardLength();
+	minyval = 0;
+
+	if(width < 3 || length < 3) throw "Object Failed";
+
 }
+
 
 
 bool PositiveTimeGraph::setCoord(double t, double y) {
@@ -46,9 +57,3 @@ bool PositiveTimeGraph::setCoord(double t, double y) {
 	return true;
 }
 
-int PositiveTimeGraph::getMaxY(bool scale) {
-	return scale ? (width - 2)*scaley : width - 2;
-}
-int PositiveTimeGraph::getMinY(bool scale) {
-	return 0;
-}
