@@ -25,11 +25,11 @@ int main() {
 	tzset();
 
 	// Set Debug ttys
-  	debugf.open("/dev/pts/5");
-	graphwin.open("/dev/pts/10");
+  	debugf.open("/dev/pts/10");
+	graphwin.open("/dev/pts/11");
 
 	graph_sin();
-
+	return 0;
 	//window::test();
 	Display* d = new Display();
 	
@@ -69,12 +69,20 @@ int main() {
 
 	if(-min > max) max = -min;
 	debugf<<max<<" "<<min<<endl;
-	try {apple.setExtremeY(max);}
-	catch (char const* a) {
-		debugf<<max<<endl;
-		cout<<"["<<a<<"]"<<endl;
-		}
-	//apple.setMinY(min);
+
+	/*
+	apple.setExtremeY(max);
+	apple.setMaxY();
+	apple.setMinY();
+
+
+	// start here. 
+
+	for(int i = 0; i < apple.numbofYlabels()/2; i++) {
+		apple.setLabelY(name, value);
+		apple.setLabelY(name, value);
+	}
+	*/
 	apple.setMinX(get<0>(data[0]));
 	apple.setMaxX(get<0>(data[data.size()-1]));  // the difference between 9:30am and 4pm
 	
@@ -144,16 +152,29 @@ int main() {
 }
 
 /* Changelog
-	Bug Smashing and Scale Adjusting
+	Enhanced(tm) Labeling
 	------------------------------------------
-	Y and X Label size can now be altered whenever 
-	Added sin_graph debug function for debugging graph stuff
-	Fixed Positive Time Graph scaling
-	Deleted some old defunct functions
-	Completely fixed and revamped scaling functions
-	Changed rawCoord (got rid of disgusting 1.7 hack)
-	Also computed points from rawcoord are now rounded 
-	  instead of casted directed into ints (and thus floored)
-	threw in some try catch statements in areas that needed them
-	Fixed all warnings
-*/
+	A newer, better labeling system is upon us!
+	the new pair of functions have the following features:
+	--Depending on the set max and min it will generate 
+	  the labels
+	--Labeling can be switched to be only integers
+	--Labeling can how be rounded off to any arbitrary decimal!
+	--Labels can start at any value of zero 
+	  -- This does not change the zero axis 
+	  -- Nor does it actually change where zero when graphing
+	--about rounding:
+	---negative values will be rounded off one more than
+	      positive ones (b/c of negative sign)
+	---there will still be cases where a number gets cutoff
+	    and will thus show an awkward decimal place (1. or 3.)
+	--yaxislabeling has support for adding in a center-of-map
+	  placeholder (or corner/edge for timegraphs)
+	--commas now denote where each xlabel value is referencing 
+	--There are now a couple of helper rounding functions to deal
+	  with the floats needed in both labeling functions
+
+	--the old labelingfunctions still work, but are not really recommended anymore
+	--Note: the max/min graph values should be specified BEFORE labeling
+
+*/	

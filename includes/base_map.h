@@ -12,6 +12,9 @@ using namespace std;
 // This is the map base class
 // Every map type extends this class (or a class that extends this class)
 // ya know, standard oop stuff
+double roundToPlace(const double&, const int&);
+double roundToDPlace(const double&, const double&);
+bool areSame(double, double, double=__DBL_EPSILON__);
 
 class Map {
 
@@ -68,12 +71,17 @@ class Map {
 		void setExtremeY(double);
 
 
+		// Auto set labels 
+		void autoLabelX(double, bool, double=0);
+		void autoLabelY(double, bool, double=0);
 
 
 		/* Setters for the axis (can be removed later?) */
 		void setXaxis(int);
 		void setYaxis(int);
 		void setYLabelSize(int);
+
+		int numbofYlabels() {return width-2;}
 
 	protected:
 		// Graph Arrays

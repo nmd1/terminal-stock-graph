@@ -16,7 +16,7 @@ public:
 	void setMinX(double);
 	// Set max and min simultaneously and equally
 	void setExtremeX(double);
-s
+
 protected:
 	double getMinX(bool=true);
 	int time;

@@ -9,7 +9,7 @@ DIR_CREATE = @mkdir -p
 
 CC=g++
 CL=clang++
-DEBUG=gdb
+DEBUG=gdb -tui
 CFLAGS=-I$(INCLUDES) -g -std=c++11 -Wall -Wextra -pedantic
 LIBS= -lcurl -lncurses -rdynamic
 

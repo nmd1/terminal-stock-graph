@@ -15,25 +15,32 @@ void graph_sin() {
     Display* d = new Display();
 
 	// Create a graph with that display
-	TimeGraph sinwave(200,39,d);
+	Map sinwave(22,22,d);
     sinwave.create();
     // Set max Y label sizes
-    sinwave.resizeLabelY(6);
-    sinwave.resizeLabelX(6);
+    sinwave.resizeLabelY(4);
+    sinwave.resizeLabelX(5);
     // Scale 
-    sinwave.setExtremeY(1); // go from 1 to -1
-    sinwave.setExtremeX(2*M_PI); // go from 0 to 2*PI
+    sinwave.setExtremeY(20); // go from 1 to -1
+    sinwave.setExtremeX(20); // go from 0 to 2*PI
+    sinwave.autoLabelX(0, false);
+    sinwave.autoLabelY(0, false);
+
+    sinwave.setCoord(5, 5);
 
 
-    for (double x = 0; x < sinwave.getMaxX(); x=x+0.01) {
-        double y = sin(x);
-        sinwave.setCoord(x, y);
-        sinwave.setLabelY(std::to_string(y), y);
-        sinwave.setLabelX(std::to_string(x), x);
-
+/*
+    for (double x = -20; x < 20; x=x+1) {
+        //double y = x;
+        double y2 = -x;
+        //sinwave.setCoord(x, y);
+        sinwave.setCoord(x, y2);
+        //sinwave.setLabelY(std::to_string(y), y);
+        //sinwave.setLabelX(std::to_string(x), x);
+        sinwave.updateScreen(false);
+        usleep(1000);
     }
-
-    debugf<<sinwave.getMaxX()<<endl;
+*/
     sinwave.literalPrint();
 
     sinwave.updateScreen(true);

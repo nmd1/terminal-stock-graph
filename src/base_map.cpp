@@ -131,7 +131,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	//debugf<<x<<" , "<<y<<endl;
 
 	// Skip over labels
-	if(x < 0) x-=2;
+	if(x < 0) x-=(ylabelsize+1);
 	if(y < 0) y-=2;
 
 	// Translate to map coordinates
@@ -195,24 +195,269 @@ void Map::setLabelX(std::string label, double xin) {
 	int x = (int)xin;
 	y++;
 
+	debugf<<"x: "<<x<<endl<<"Result: "<<xlabelsize<<endl;
 
 	if((x)%(xlabelsize)) {return;}
-	if(!((x+xlabelsize)< getMaxX(gM_internal) )) {return;}
+	//if(!((x+xlabelsize)< getMaxX(gM_internal) )) {return;}
 	// Ensure there's a space between each label
 	label[xlabelsize-1] = ' ';
 
 	// Fill in the row with the label
-	for (unsigned k =0; k < label.size(); x++, k++) {
+	for (unsigned k =0; k < xlabelsize; x++, k++) {
 		theMap[y][x] = label[k];
 	}
 }
 
+void Map::autoLabelX(double zero, bool integer, double delta_override) {
+
+	// For positive values
+	double delta = getMaxX(gM_real) / (xBoardLength());
+	double yin = 0, xin = 0;
+
+	//for testing sameness
+	std::string prevl = "";
+	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
+	int y = (int)(++yin);
+	int x = (int)(xin);
+	int wherexiszero = x;
+	//the loop
+	for(int i = x; i<=(int)getMaxX(gM_internal); i++) {
+
+		// Based on where we are on the graph
+		// Calculate what the x value should be
+		double dlabel = zero + ( (i-x)*delta);
+
+		// Neatly round off numbers based on delta_override value
+		// Default behavior is to give raw calculated values from above
+		if(delta_override) {
+			double roundedv = roundToDPlace(dlabel, delta_override);
+			//debugf<<"Value: "<<dlabel<<endl<<"Rounded: "<<roundedv<<endl<<"["<<areSame(dlabel, roundedv, delta)<<"]"<<endl<<endl;
+			if(areSame(dlabel, roundedv, delta)) {
+				dlabel = roundedv;
+			} else continue;
+		}
+
+		// Round to integer if we only want integer labels
+		// Round to size of label otherwise. Either way generate string
+		std::string label; 
+		if(integer) label = std::to_string((int)round(dlabel));
+		else {
+			int roundoff = xlabelsize;
+			//roundoff one less if you're negative (b/c sign)
+			if(dlabel<0) --roundoff;
+			label = std::to_string(roundToPlace(dlabel,roundoff));
+		}
+
+		// skip label if same as last time
+		if(label == prevl) continue; 
+
+		// Put label on x axis
+		theMap[y-1][i]=',';
+		for (unsigned k =0; k < xlabelsize-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
+			if(k<label.size()) theMap[y][i] = label[k];
+		}
+
+
+		prevl = label;
+
+	}
+	//the negative loop
+	//yin = 0, xin = -1;
+	//if(!getRawCoord(xin, yin)) return; //There's no -1, so I assume it's a pos graph
+	
+	//y = (int)(++yin);
+	int xstart = wherexiszero-ylabelsize-1;
+
+	debugf<<"("<<xstart<<","<<y<<")"<<endl<<endl;
+	bool cleared_for_labeling = false;
+	prevl = "";
+	int last_valid_i = 0;
+	// i loops from 0 --> negative end of graph (real values)
+	// xi loops from [where x=-1] --> negative end of graph (internal values)
+	for(int xi = xstart, i = 0; xi>getMinX(gM_internal); xi--, i++) {
+
+		// Check if you're gtg for labeling
+		// (also fix this check it's logically messy)
+		if(!cleared_for_labeling) {
+			cleared_for_labeling = ((i-last_valid_i)%xlabelsize)==(xlabelsize-1);
+		}
+		if(!cleared_for_labeling) continue;
+
+
+
+		//debugf<<"Cleared for Labeling!: x="<<xi-xstart-1<<endl;
+		
+		// Based on where we are on the graph
+		// Calculate what the x value should be
+		double dlabel = zero + ((xi-xstart-1)*delta);
+
+		// Neatly round off numbers based on delta_override value
+		// Default behavior is to give raw calculated values from above
+		if(delta_override) {
+			double roundedv = roundToDPlace(dlabel, delta_override);
+			if(areSame(dlabel, roundedv, delta)) {
+				dlabel = roundedv;
+				//debugf<<"Delta Override approved!"<<endl;
+			} else {
+				continue;
+			}
+		}
+
+
+		// Round to integer if we only want integer labels
+		// Round to size of label otherwise. Either way generate string
+		std::string label; 
+		if(integer) label = std::to_string(round(dlabel));
+		else {
+			int roundoff = xlabelsize;
+			//roundoff one less if you're negative (b/c sign)
+			if(dlabel<0) --roundoff;
+			label = std::to_string(roundToPlace(dlabel,roundoff));
+		}
+		
+		// skip label if same as last time
+		if(label == prevl) continue;
+
+		// Alright, all checks have been done, we're going to label:
+		theMap[y-1][xi]=',';
+		for (unsigned k=xi, j=0; j < (xlabelsize-1); k++, j++) {
+			//unsigned reverse_k = label.size() - 1 - k;
+			//debugf<<"k:"<<k<<" x:"<<(int)k-xstart<<" i:"<<i<<" ("<<label[j]<<")"<<endl;
+			if(j<label.size()) theMap[y][k] = label[j];
+		}
+		last_valid_i = i+1;
+		// We just labeled, move away to create some space for the new label
+		cleared_for_labeling = false; 
+		prevl = label;
+
+	}
+}
+
+
+void Map::autoLabelY(double zero, bool integer, double delta_override) {
+	
+	// For positive values
+	double delta = getMaxY(gM_real) / (yBoardLength());
+
+	/*  Solution for the Cross Crisis
+	double halfboard = yBoardLength() / 2;
+	double ndelta = (zero - getMinY(gM_real)) / halfboard;
+	double pdelta = (getMaxY(gM_real) - zero) / (halfboard - (yBoardLength()%2));
+
+	debugf<<"nd: "<<ndelta<<endl;
+	debugf<<"pd: "<<pdelta<<endl;
+	*/
+
+	double yin = 0, xin = 0;
+
+	// Test for sameness
+	std::string prevl = "";
+
+
+	
+	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
+	int whereyiszero = (int)(yin);
+	int x = (int)(xin) - ylabelsize;
+
+	// Shift down y values when y is negative
+	int shiftwhenneg = 0;
+
+	//the loop (top to bottom)
+	for(int i = getMaxY(gM_internal); i<=getMinY(gM_internal); i++) {
+		// Based on where we are on the graph
+		// Calculate what the y value should be
+		int y = -(i-whereyiszero);
+		debugf<<"y: "<<y<<endl;
+
+		// skip over x axis (maybe put something in middle of map?)
+		if(y==-1) shiftwhenneg = 1;
+		y = y+shiftwhenneg;
+
+		double dlabel = zero + ( (y)*delta);
+
+		// Neatly round off numbers based on delta_override value
+		// Default behavior is to give raw calculated values from above
+		if(delta_override) {
+			double roundedv = roundToDPlace(dlabel, delta_override);
+			if(areSame(dlabel, roundedv, delta)) {
+				dlabel = roundedv;
+			} else continue;
+		}
+
+		// Round to integer if we only want integer labels
+		// Round to size of label otherwise. Either way generate string
+		std::string label; 
+		if(integer) label = std::to_string((int)round(dlabel));
+		else {
+			int roundoff = ylabelsize;
+			//roundoff one less if you're negative (b/c sign)
+			if(dlabel<0) --roundoff;
+			label = std::to_string(roundToPlace(dlabel,roundoff));
+		}
+
+		// Handle duplicates
+		if(label == prevl) {
+			if (y < 0) {
+				// Clear out the previous label
+				for (unsigned k=x; k < x+ylabelsize; k++) 
+					theMap[i+1][k] = ' ';
+			} else {
+				// Clear out this label
+				label = "";
+			}
+			continue;
+		}
+
+		// Put label on y axis
+		// First write in empty spaces
+		unsigned xwrite = x + ylabelsize - label.size();
+		// Then write in characters
+		for (unsigned k=x, l=0; k < x+ylabelsize; k++) {
+			if(k<xwrite) {
+				theMap[i][k] = ' ';
+			} else {
+				theMap[i][k] = label[l];
+				l++;
+			}
+		}
+
+		prevl = label;
+
+
+	}
+	return;
+}
+
+
+double roundToPlace(const double& x, const int& numDecimals) {
+    int y=x;
+    double z=x-y;
+    double m=pow(10,numDecimals);
+    double q=z*m;
+    double r=round(q);
+
+    return static_cast<double>(y)+(1.0/m)*r;
+}
+
+
+double roundToDPlace(const double& x, const double& position) {
+	if(!position) throw "Can't use zero!";
+	double place = 1/position;
+	return round(x*place)/place;
+}
+bool areSame(double a, double b, double strength)
+{
+	//debugf<<fabs(a - b)<<endl;
+    return fabs(a - b) < strength;
+}
+
+
 void Map::setLabelY(std::string label, double yin) {
-	double x = 0;
+	double x = 0;//
 	if(!getRawCoord(x, yin)) return;
 
 	int y = (int)yin;
-	x = 0;
+	x = yaxisloc-ylabelsize+1;
 
 
 	// Fill in the row with the label

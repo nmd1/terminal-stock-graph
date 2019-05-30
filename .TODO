@@ -1,0 +1,51 @@
+TODO:
+Add in coordinate struct
+auto update window when? 
+Debug logs should be saved in files, and shown on screen when needed
+Debug coordinate values that show range (not value) when you're at a specific location
+____*
+    | system for id'ing a point
+    |
+of course a shell
+one should be able to call this program from command line
+notifications, for when a stock price goes above/below a certain limit
+
+
+//O P T I O N S
+//Chain
+//https://query1.finance.yahoo.com/v7/finance/options/AMD
+//Example: //https://query2.finance.yahoo.com/v8/finance/chart/ACAD160805C00029000
+//Specific option
+//Naming convention:
+// Name + YY + MM + DD + (C/P) + Strike Price (#####.###)
+// AMD190614C00029000
+
+
+// (((FUTURES)))
+// [NAME]=F
+// GC=F (Gold futures)
+
+// ~Bonds~
+// ^IRX
+// There are others too
+
+// $CURRENCY$
+// EURUSD=X
+
+// [METALS]
+// in off hours it only gives you the current price, no chart...
+// Gold   XAUUSD=X
+// Silver XAGUSD=X
+
+// GREEEEEKS (You'll have to calculate them):
+// Theoretical 
+//https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/option-greeks/
+
+//Black-Scholes Formulas:
+//https://www.macroption.com/black-scholes-excel/
+//https://www.macroption.com/option-greeks-excel/
+
+//Want MOAR Formulas?
+//http://docs.fincad.com/support/developerfunc/mathref/greeks.htm
+
+
