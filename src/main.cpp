@@ -152,29 +152,10 @@ int main() {
 }
 
 /* Changelog
-	Enhanced(tm) Labeling
+	Fixed Cross Bug (Scaling issues)
 	------------------------------------------
-	A newer, better labeling system is upon us!
-	the new pair of functions have the following features:
-	--Depending on the set max and min it will generate 
-	  the labels
-	--Labeling can be switched to be only integers
-	--Labeling can how be rounded off to any arbitrary decimal!
-	--Labels can start at any value of zero 
-	  -- This does not change the zero axis 
-	  -- Nor does it actually change where zero when graphing
-	--about rounding:
-	---negative values will be rounded off one more than
-	      positive ones (b/c of negative sign)
-	---there will still be cases where a number gets cutoff
-	    and will thus show an awkward decimal place (1. or 3.)
-	--yaxislabeling has support for adding in a center-of-map
-	  placeholder (or corner/edge for timegraphs)
-	--commas now denote where each xlabel value is referencing 
-	--There are now a couple of helper rounding functions to deal
-	  with the floats needed in both labeling functions
-
-	--the old labelingfunctions still work, but are not really recommended anymore
-	--Note: the max/min graph values should be specified BEFORE labeling
-
+	--There's a known bug where if you graph a cross (y=x, y=-x), 
+       the x and y values don't exactly line up, but only in the 
+	   2 and 4th quadrants of a map. This bug is fixed now.
+	--Also fixed major bug where y labels wouldn't show on TimeGraphs 
 */	

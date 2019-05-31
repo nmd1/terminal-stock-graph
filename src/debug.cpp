@@ -15,7 +15,7 @@ void graph_sin() {
     Display* d = new Display();
 
 	// Create a graph with that display
-	Map sinwave(22,22,d);
+	Map sinwave(202,41,d);
     sinwave.create();
     // Set max Y label sizes
     sinwave.resizeLabelY(4);
@@ -23,24 +23,20 @@ void graph_sin() {
     // Scale 
     sinwave.setExtremeY(20); // go from 1 to -1
     sinwave.setExtremeX(20); // go from 0 to 2*PI
-    sinwave.autoLabelX(0, false);
-    sinwave.autoLabelY(0, false);
+    sinwave.autoLabelX(0, false, 0.5);
+    sinwave.autoLabelY(0, false, 0.5);
 
-    sinwave.setCoord(5, 5);
-
-
-/*
-    for (double x = -20; x < 20; x=x+1) {
-        //double y = x;
+    for (double x = -20; x <= 20; x=x+0.1) {
+        double y = x;
         double y2 = -x;
-        //sinwave.setCoord(x, y);
+        sinwave.setCoord(x, y);
         sinwave.setCoord(x, y2);
         //sinwave.setLabelY(std::to_string(y), y);
         //sinwave.setLabelX(std::to_string(x), x);
         sinwave.updateScreen(false);
         usleep(1000);
     }
-*/
+
     sinwave.literalPrint();
 
     sinwave.updateScreen(true);

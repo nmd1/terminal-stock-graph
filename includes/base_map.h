@@ -60,6 +60,10 @@ class Map {
 		double getMaxY();
 		double getMinY();
 
+		// Get the graph scale
+		virtual double getScaleX();
+		virtual double getScaleY();
+
 		// Set max/min value for x/y 
 		void setMaxX(double);
 		void setMaxY(double);

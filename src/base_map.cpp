@@ -119,11 +119,15 @@ void Map::updateScreen(bool blockexit) {
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
-	double xscale = maxxval - minxval;
-	double yscale = maxyval - minyval; 
+	double xscale = getScaleX();
+	double yscale = getScaleY();
 
 	if(xscale!=0) x /= xscale;
 	if(yscale!=0) y /= yscale;
+
+	debugf<<"x scale to: "<<xscale<<endl;
+	debugf<<"y scale to: "<<yscale<<endl;
+
 
 	y=y*yBoardLength();
 	x=x*xBoardLength();
@@ -334,40 +338,28 @@ void Map::autoLabelX(double zero, bool integer, double delta_override) {
 }
 
 
-void Map::autoLabelY(double zero, bool integer, double delta_override) {
-	
+void Map::autoLabelY(double zero, bool integer, double delta_override) {	
 	// For positive values
 	double delta = getMaxY(gM_real) / (yBoardLength());
-
-	/*  Solution for the Cross Crisis
-	double halfboard = yBoardLength() / 2;
-	double ndelta = (zero - getMinY(gM_real)) / halfboard;
-	double pdelta = (getMaxY(gM_real) - zero) / (halfboard - (yBoardLength()%2));
-
-	debugf<<"nd: "<<ndelta<<endl;
-	debugf<<"pd: "<<pdelta<<endl;
-	*/
 
 	double yin = 0, xin = 0;
 
 	// Test for sameness
 	std::string prevl = "";
 
-
-	
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
 	int whereyiszero = (int)(yin);
 	int x = (int)(xin) - ylabelsize;
 
 	// Shift down y values when y is negative
 	int shiftwhenneg = 0;
-
 	//the loop (top to bottom)
 	for(int i = getMaxY(gM_internal); i<=getMinY(gM_internal); i++) {
+		
 		// Based on where we are on the graph
 		// Calculate what the y value should be
 		int y = -(i-whereyiszero);
-		debugf<<"y: "<<y<<endl;
+		//debugf<<"y: "<<y<<endl;
 
 		// skip over x axis (maybe put something in middle of map?)
 		if(y==-1) shiftwhenneg = 1;
@@ -410,10 +402,10 @@ void Map::autoLabelY(double zero, bool integer, double delta_override) {
 
 		// Put label on y axis
 		// First write in empty spaces
-		unsigned xwrite = x + ylabelsize - label.size();
+		int xwrite = x + ylabelsize - label.size();
 		// Then write in characters
 		for (unsigned k=x, l=0; k < x+ylabelsize; k++) {
-			if(k<xwrite) {
+			if((int)k<xwrite) {
 				theMap[i][k] = ' ';
 			} else {
 				theMap[i][k] = label[l];

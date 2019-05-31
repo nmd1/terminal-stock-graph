@@ -16,6 +16,8 @@ public:
 	void setMinX(double);
 	// Set max and min simultaneously and equally
 	void setExtremeX(double);
+	// Get scale of graph
+	virtual double getScaleX();
 
 protected:
 	double getMinX(bool=true);
@@ -37,7 +39,8 @@ public:
 	void setMinY(double);
 	// Set max and min simultaneously and equally
 	void setExtremeY(double);
-
+	// Get scale of graph
+	double getScaleY();
 protected:
 	/* MAX/MIN Getters and Setters */
 	// Get extremes of a graph in real coordinates

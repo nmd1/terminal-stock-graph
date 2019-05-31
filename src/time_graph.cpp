@@ -29,6 +29,7 @@ bool TimeGraph::setCoord(double t, double y) {
 
 
 
+
 /**********************************************/
 
 PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : TimeGraph(time, magnitude, dis) {
