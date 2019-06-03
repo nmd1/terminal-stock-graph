@@ -19,6 +19,7 @@ width (i)******************
 extern ofstream debugf;
 extern ofstream graphwin;
 
+
 Map::Map(int l, int w, Display * dis) {
 	length = l;
 	width = w;
@@ -28,8 +29,8 @@ Map::Map(int l, int w, Display * dis) {
 	xaxisloc = (width/2);
 
 	// Set where zero is
-	xzero = yaxisloc+1;
-	yzero = xaxisloc-1;
+	xzero = yaxisloc;
+	yzero = xaxisloc;
 
 
 	// Characters to use in graphs
@@ -119,30 +120,103 @@ void Map::updateScreen(bool blockexit) {
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
-	double xscale = getScaleX();
-	double yscale = getScaleY();
-
-	if(xscale!=0) x /= xscale;
-	if(yscale!=0) y /= yscale;
-
-	debugf<<"x scale to: "<<xscale<<endl;
-	debugf<<"y scale to: "<<yscale<<endl;
+	// First, some metadata about what type of graph you are:
+	bool timegraph = false;
+	bool ptimegraph = false;
 
 
-	y=y*yBoardLength();
-	x=x*xBoardLength();
+	if(getMinX(gM_internal)==ylabelsize) { // we're in a TimeGraph
+		timegraph = true;
+		if(getMinY(gM_internal)==width-2)  // we're in a PosTimeGraph
+			ptimegraph = true;
+	}
 
-	//debugf<<x<<" , "<<y<<endl;
+	if(timegraph) yaxisloc++; // hack, yaxisloc everywhere else is wrong. Fix later.
+
+	// Turn on debug print statements
+	bool localdebug = true;
+
+	// Calculate Zeros (aka midpoints)
+	double realxzero = (getMaxX(gM_real) + getMinX(gM_real))/2;
+	double realyzero = (getMaxY(gM_real) + getMinY(gM_real))/2;
+
+	// Calculate Ranges
+	double rangex = (getMaxX(gM_real) - getMinX(gM_real));
+	double rangey = (getMaxY(gM_real) - getMinY(gM_real));
+
+	// Are you split in half? no? then double.
+	double halvedx = 2;
+	double halvedy = 2;
+
+	if(timegraph) halvedx=1;
+	if(ptimegraph) halvedy=1;
+
+	// [Balance]
+	double x1 = x - realxzero;
+	double y1 = y - realyzero;
+
+	// [(Negative) Normalization]
+	double x2 = ( 1) * (x1 / (rangex/halvedx));
+	double y2 = (-1) * (y1 / (rangey/halvedy));
+
+	// [Scale]
+	double x3 = x2 * (xBoardLength()/halvedx);
+	double y3 = y2 * (yBoardLength()/halvedy);
+
+	//debugf<<"axisloc: "   <<yaxisloc+1<< " , "<<(xaxisloc-1)<<endl;
+
+	// [Reposition]
+	int reposition_offsetx = yaxisloc+1;
+	int reposition_offsety = (xaxisloc-1);
+
+	if(timegraph) { // we're in a TimeGraph
+		reposition_offsetx = -(getMinX(gM_real)-realxzero)*(xBoardLength()/rangex);
+		if(localdebug) debugf<<"we're in a timegraph! (offsetx = "<<reposition_offsetx<<")";
+		if(ptimegraph) { // we're in a PosTimeGraph
+			reposition_offsety = -(getMinY(gM_real)-realyzero)*(yBoardLength()/rangey);
+			if(localdebug) debugf<<" A Positive one! (offsety = "<<reposition_offsety<<")";
+		}
+		if(localdebug) debugf<<endl;
+	}
+	
+
+	double x4 = x3 + reposition_offsetx;
+	double y4 = y3 + reposition_offsety;
+
+	if(localdebug) debugf<<"Input: "   <<x<< " , "<<y<<endl;
+	if(localdebug) debugf<<"Balance: " <<x1<<" , "<<y1<<endl;
+	if(localdebug) debugf<<"Norm: "    <<x2<<" , "<<y2<<endl;
+	if(localdebug) debugf<<"Scale: "   <<x3<<" , "<<y3<<endl;
+	if(localdebug) debugf<<"Respos: "  <<x4<<" , "<<y4<<endl;
+
+
+
+	if(localdebug) debugf<<endl;
+	if(localdebug) debugf<<"(yaxisl: "<<yaxisloc<<")"<<endl;
+	if(localdebug) debugf<<"(xaxisl: "<<xaxisloc<<")"<<endl;
+	if(localdebug) debugf<<endl;
+	
+	// Round
+	int finaly = round(y4);
+	int finalx = round(x4);
+
+	if(localdebug) debugf<<"Round: "   <<finalx<<" , "<<finaly<<endl;
 
 	// Skip over labels
-	if(x < 0) x-=(ylabelsize+1);
-	if(y < 0) y-=2;
 
-	// Translate to map coordinates
-	int finaly = round(yzero-y);
-	int finalx = round(xzero+x);
+	// push y down
+	if(!ptimegraph)	if(finaly >= xaxisloc) finaly+=1;
+	if(timegraph) {
+		// push x forward, always
+		finalx+=ylabelsize; 
+	} else {
+		// push x backwards, if past certain point
+		if(finalx <= yaxisloc) finalx-=ylabelsize;
+	}
 
-	//debugf<<scalex<<" , "<<scaley<<endl;
+
+
+	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<endl;
 
 	// check bounds 
 	if(finaly<0) return false;
@@ -152,6 +226,11 @@ bool Map::getRawCoord(double &x, double &y) {
 
 	x = finalx;
 	y = finaly;
+
+	if(localdebug) debugf<<"Success!"<<endl;
+	if(localdebug) debugf<<"--------------------------"<<endl;
+
+	if(timegraph) yaxisloc--; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 	return true;
 
@@ -212,7 +291,7 @@ void Map::setLabelX(std::string label, double xin) {
 	}
 }
 
-void Map::autoLabelX(double zero, bool integer, double delta_override) {
+void Map::autoLabelX(double zero, int type, double delta_override) {
 
 	// For positive values
 	double delta = getMaxX(gM_real) / (xBoardLength());
@@ -244,13 +323,29 @@ void Map::autoLabelX(double zero, bool integer, double delta_override) {
 		// Round to integer if we only want integer labels
 		// Round to size of label otherwise. Either way generate string
 		std::string label; 
-		if(integer) label = std::to_string((int)round(dlabel));
-		else {
-			int roundoff = xlabelsize;
-			//roundoff one less if you're negative (b/c sign)
-			if(dlabel<0) --roundoff;
-			label = std::to_string(roundToPlace(dlabel,roundoff));
+		switch(type) {
+			// Integer
+			case 1: {
+				label = std::to_string((int)round(dlabel));
+				break;
+			}
+
+			// Time
+			case 2: {
+				label = makeTime((time_t)round(dlabel));
+				break;
+			}
+
+			// Default, normal behavior
+			case 0:
+			default:
+				int roundoff = xlabelsize;
+				//roundoff one less if you're negative (b/c sign)
+				if(dlabel<0) --roundoff;
+				label = std::to_string(roundToPlace(dlabel,roundoff));
+				break;
 		}
+
 
 		// skip label if same as last time
 		if(label == prevl) continue; 
@@ -272,7 +367,7 @@ void Map::autoLabelX(double zero, bool integer, double delta_override) {
 	//y = (int)(++yin);
 	int xstart = wherexiszero-ylabelsize-1;
 
-	debugf<<"("<<xstart<<","<<y<<")"<<endl<<endl;
+	//debugf<<"("<<xstart<<","<<y<<")"<<endl<<endl;
 	bool cleared_for_labeling = false;
 	prevl = "";
 	int last_valid_i = 0;
@@ -311,14 +406,31 @@ void Map::autoLabelX(double zero, bool integer, double delta_override) {
 		// Round to integer if we only want integer labels
 		// Round to size of label otherwise. Either way generate string
 		std::string label; 
-		if(integer) label = std::to_string(round(dlabel));
-		else {
-			int roundoff = xlabelsize;
-			//roundoff one less if you're negative (b/c sign)
-			if(dlabel<0) --roundoff;
-			label = std::to_string(roundToPlace(dlabel,roundoff));
+		switch(type) {
+			// Integer
+			case 1: {
+				label = std::to_string((int)round(dlabel));
+				break;
+			}
+
+			// Time
+			case 2: {
+				label = makeTime((time_t)round(dlabel));
+				break;
+			}
+
+			// Default, normal behavior
+			case 0:
+			default:
+				int roundoff = xlabelsize;
+				//roundoff one less if you're negative (b/c sign)
+				if(dlabel<0) --roundoff;
+				label = std::to_string(roundToPlace(dlabel,roundoff));
+				break;
 		}
-		
+
+
+
 		// skip label if same as last time
 		if(label == prevl) continue;
 
@@ -338,7 +450,7 @@ void Map::autoLabelX(double zero, bool integer, double delta_override) {
 }
 
 
-void Map::autoLabelY(double zero, bool integer, double delta_override) {	
+void Map::autoLabelY(double zero, int type, double delta_override) {	
 	// For positive values
 	double delta = getMaxY(gM_real) / (yBoardLength());
 
@@ -379,12 +491,22 @@ void Map::autoLabelY(double zero, bool integer, double delta_override) {
 		// Round to integer if we only want integer labels
 		// Round to size of label otherwise. Either way generate string
 		std::string label; 
-		if(integer) label = std::to_string((int)round(dlabel));
-		else {
-			int roundoff = ylabelsize;
-			//roundoff one less if you're negative (b/c sign)
-			if(dlabel<0) --roundoff;
-			label = std::to_string(roundToPlace(dlabel,roundoff));
+
+		switch(type) {
+			// Integer
+			case 1: {
+				label = std::to_string((int)round(dlabel));
+				break;
+			}
+
+			// Default, normal behavior
+			case 0:
+			default:
+				int roundoff = ylabelsize;
+				//roundoff one less if you're negative (b/c sign)
+				if(dlabel<0) --roundoff;
+				label = std::to_string(roundToPlace(dlabel,roundoff));
+				break;
 		}
 
 		// Handle duplicates
@@ -418,29 +540,6 @@ void Map::autoLabelY(double zero, bool integer, double delta_override) {
 
 	}
 	return;
-}
-
-
-double roundToPlace(const double& x, const int& numDecimals) {
-    int y=x;
-    double z=x-y;
-    double m=pow(10,numDecimals);
-    double q=z*m;
-    double r=round(q);
-
-    return static_cast<double>(y)+(1.0/m)*r;
-}
-
-
-double roundToDPlace(const double& x, const double& position) {
-	if(!position) throw "Can't use zero!";
-	double place = 1/position;
-	return round(x*place)/place;
-}
-bool areSame(double a, double b, double strength)
-{
-	//debugf<<fabs(a - b)<<endl;
-    return fabs(a - b) < strength;
 }
 
 

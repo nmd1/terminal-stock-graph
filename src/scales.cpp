@@ -27,7 +27,7 @@ double Map::getScaleY() { return (maxyval - minyval)/2; }
 //////////////////////////////////////
 
 double TimeGraph::getMinX(bool real) {
-    return real ? 0 : ylabelsize;
+    return real ? minxval : ylabelsize;
 }
 double TimeGraph::getMinX() { return TimeGraph::getMinX(true); }
 
@@ -36,7 +36,7 @@ double TimeGraph::getScaleX() { return 2*Map::getScaleX(); }
 //////////////////////////////////////
 
 double PositiveTimeGraph::getMinY(bool real) {
-	return real ? 0 : width-2;
+	return real ? minyval : width-2;
 }
 double PositiveTimeGraph::getMinY() { return PositiveTimeGraph::getMinY(true); }
 
@@ -67,12 +67,12 @@ double NegativeTimeGraph::getMinY() { NegativeTimeGraph::getMinY(true); }
 
 /******************* "Scaling" *******************/
 void Map::setExtremeX(double value) {
-	Map::setMaxX(value*2);
-    Map::setMinX(-value*2);
+	Map::setMaxX(value);
+    Map::setMinX(-value);
 }
 void Map::setExtremeY(double value) {
-	Map::setMaxY(value*2);
-    Map::setMinY(-value*2);
+	Map::setMaxY(value);
+    Map::setMinY(-value);
 }
 
 //////////////////////////////////////

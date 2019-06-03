@@ -9,7 +9,7 @@ void Map::setXaxis(int val) {
 
 void Map::setYaxis(int val) {
 	yaxisloc = val;
-	xzero = val+1;
+	xzero = val;
 }
 
 void Map::setYLabelSize(int val) {

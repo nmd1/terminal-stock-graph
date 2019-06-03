@@ -5,16 +5,13 @@
 #include <vector>
 #include <cmath>
 #include "window.h"
-
+#include "extra.h"
 using namespace std;
 
 
 // This is the map base class
 // Every map type extends this class (or a class that extends this class)
 // ya know, standard oop stuff
-double roundToPlace(const double&, const int&);
-double roundToDPlace(const double&, const double&);
-bool areSame(double, double, double=__DBL_EPSILON__);
 
 class Map {
 
@@ -76,8 +73,9 @@ class Map {
 
 
 		// Auto set labels 
-		void autoLabelX(double, bool, double=0);
-		void autoLabelY(double, bool, double=0);
+		// Future: use enum instead of int
+		void autoLabelX(double, int, double=0);
+		void autoLabelY(double, int, double=0);
 
 
 		/* Setters for the axis (can be removed later?) */
@@ -99,10 +97,10 @@ class Map {
 		// Get extremes of a graph:
 		//  if true, get it in real coordinates
 		//  if false, get it in internal coordinates
-		double getMaxX(bool);
-		double getMinX(bool);
-		double getMaxY(bool);
-		double getMinY(bool);
+		double getMaxX(bool=true);
+		virtual double getMinX(bool=true);
+		double getMaxY(bool=true);
+		virtual double getMinY(bool=true);
 		// Get length of actual drawing area
 		int xBoardLength();
 		int yBoardLength();

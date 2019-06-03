@@ -51,11 +51,28 @@ int main() {
 
 	// Find the Max/Min stock value
 	time_t starttime = get<0>(data[0]);
-	double startdata = get<1>(data[0])->close;
+	//double startdata = get<1>(data[0])->close;
 
 
 	double max = 0;
 	double min = 10000000;
+	for (int i = 0; i < (signed)data.size(); i++) {
+		yahoo::OHLC* point_data = get<1>(data[i]);
+		double test = point_data->close;
+
+		if(test > max) max = test;
+		if(test < min) min = test;
+	}
+
+	//if(-min > max) max = -min;
+	debugf<<max<<" "<<min<<endl;
+	double startdata = (max + min) / 2;
+	debugf<<"max2: "<<max<<endl;
+
+
+
+	max = -10000000;
+	min = 10000000;
 	for (int i = 0; i < (signed)data.size(); i++) {
 		yahoo::OHLC* point_data = get<1>(data[i]);
 		double test = point_data->close-startdata;
@@ -64,28 +81,24 @@ int main() {
 		if(test < min) min = test;
 	}
 
-	//debugf<<"max: "<<max<<endl;
-	//debugf<<"min: "<<min<<endl;
 
-	if(-min > max) max = -min;
-	debugf<<max<<" "<<min<<endl;
-
-	/*
-	apple.setExtremeY(max);
-	apple.setMaxY();
-	apple.setMinY();
-
-
-	// start here. 
-
-	for(int i = 0; i < apple.numbofYlabels()/2; i++) {
-		apple.setLabelY(name, value);
-		apple.setLabelY(name, value);
-	}
-	*/
+try{
 	apple.setMinX(get<0>(data[0]));
 	apple.setMaxX(get<0>(data[data.size()-1]));  // the difference between 9:30am and 4pm
 	
+	debugf<<"max: "<<startdata+max<<endl;
+	debugf<<"min: "<<startdata+min<<endl;
+
+	apple.setMaxY(startdata+max);
+	apple.setMinY(startdata+min);
+	//apple.setMaxY(max);
+	//apple.setMinY(min);
+
+	apple.autoLabelX(starttime, 2, 1);
+	apple.autoLabelY(0, 0, 0.001);
+} catch (const char * test) {
+	debugf<<"ERROR: "<<test<<endl;
+}
 	// Place the points on the Graph
 	debugf<<endl;
 	for (int i = 0; i < (signed)data.size(); i++) {
@@ -96,7 +109,7 @@ int main() {
 		time_t t = get<0>(data[i]);
 		yahoo::OHLC* point_data = get<1>(data[i]);
 		double tdifference =  difftime (t, starttime);
-		double value = point_data->close-startdata;
+		double value = point_data->close;
 
 
 
@@ -118,25 +131,16 @@ int main() {
 		*/
 
 
-		tm * t_s = localtime(&t);
 
-		std::string the_hour;
-		if(t_s->tm_hour > 12) the_hour = std::to_string(t_s->tm_hour-12);
-		else the_hour = std::to_string(t_s->tm_hour);
-
-		std::stringstream time_stream;
-		time_stream << std::setw (2) << std::setfill('0') << the_hour << ":" << std::setw (2) << std::setfill('0') << std::to_string(t_s->tm_min);
-		std::string time = time_stream.str();
  
 		//debugf<<"("<<time<<", "<<point_data->close<<")"<<endl;
 
 		// Sets labels as you fill in points
 		std::string name = std::to_string(value + startdata); 
-		apple.setLabelY(name, value);
-		apple.setLabelX(time, tdifference);
+		//apple.setLabelY(name, value);
+		//apple.setLabelX(time, tdifference);
 
 		//usleep(100000);
-		apple.updateScreen(false);
 		//apple.literalPrint();
 
 	}
@@ -152,10 +156,15 @@ int main() {
 }
 
 /* Changelog
-	Fixed Cross Bug (Scaling issues)
+	New Labeling and old Stocks
+	Huge Raw coord overhaul
 	------------------------------------------
-	--There's a known bug where if you graph a cross (y=x, y=-x), 
-       the x and y values don't exactly line up, but only in the 
-	   2 and 4th quadrants of a map. This bug is fixed now.
-	--Also fixed major bug where y labels wouldn't show on TimeGraphs 
+	--Integrating new labeling system with stock market
+	--Now, via switch statement, you can determine how exactly
+	  a numeric label should be formatted. Still no string
+	--Moved extra functions to it's own file
+	--getRawCoord() saw a huge overhaul. how positions are
+	  calculated are now more explicit, and conditions are 
+	  in place for different types of maps
+
 */	

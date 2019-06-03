@@ -20,7 +20,7 @@ public:
 	virtual double getScaleX();
 
 protected:
-	double getMinX(bool=true);
+	virtual double getMinX(bool=true);
 	int time;
 };
 
@@ -44,7 +44,7 @@ public:
 protected:
 	/* MAX/MIN Getters and Setters */
 	// Get extremes of a graph in real coordinates
-	double getMinY(bool=true);
+	virtual double getMinY(bool=true);
 
 };
 

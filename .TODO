@@ -1,6 +1,6 @@
-TODO:
-Add in coordinate struct
-auto update window when? 
+/* TODO:
+***FEATURES***
+Auto update window when? 
 Debug logs should be saved in files, and shown on screen when needed
 Debug coordinate values that show range (not value) when you're at a specific location
 ____*
@@ -11,41 +11,57 @@ one should be able to call this program from command line
 notifications, for when a stock price goes above/below a certain limit
 
 
-//O P T I O N S
-//Chain
-//https://query1.finance.yahoo.com/v7/finance/options/AMD
-//Example: //https://query2.finance.yahoo.com/v8/finance/chart/ACAD160805C00029000
-//Specific option
-//Naming convention:
-// Name + YY + MM + DD + (C/P) + Strike Price (#####.###)
-// AMD190614C00029000
+\/\/\/Under the hood\/\/\/
+Change the vector of OHLC tuples to a vector of OHLC+T values
+for the love of all things holy add a coordinate point class
+enums for autolabel formatting 
+Reorganize files (api/, label.cpp)
+find a better name than extra.cpp for program wide functions 
+
+When adding a label using autolabel, save the x axis positions
+So that if the label needs to be updated later it can.
+maybe? split x autolabel into two functions:
+   one for finding x coordinate points for labeling
+   (resulting in a vector of points+what values they represent)
+
+   One for filling in labels with actual points
 
 
-// (((FUTURES)))
-// [NAME]=F
-// GC=F (Gold futures)
-
-// ~Bonds~
-// ^IRX
-// There are others too
-
-// $CURRENCY$
-// EURUSD=X
-
-// [METALS]
-// in off hours it only gives you the current price, no chart...
-// Gold   XAUUSD=X
-// Silver XAGUSD=X
-
-// GREEEEEKS (You'll have to calculate them):
-// Theoretical 
-//https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/option-greeks/
-
-//Black-Scholes Formulas:
-//https://www.macroption.com/black-scholes-excel/
-//https://www.macroption.com/option-greeks-excel/
-
-//Want MOAR Formulas?
-//http://docs.fincad.com/support/developerfunc/mathref/greeks.htm
+O P T I O N S
+Chain
+https://query1.finance.yahoo.com/v7/finance/options/AMD
+Example: //https://query2.finance.yahoo.com/v8/finance/chart/ACAD160805C00029000
+Specific option
+Naming convention:
+Name + YY + MM + DD + (C/P) + Strike Price (#####.###)
+AMD190614C00029000
 
 
+(((FUTURES)))
+[NAME]=F
+GC=F (Gold futures)
+
+~Bonds~
+^IRX
+There are others too
+
+$CURRENCY$
+EURUSD=X
+
+[METALS]
+in off hours it only gives you the current price, no chart...
+Gold   XAUUSD=X
+Silver XAGUSD=X
+
+GREEEEEKS (You'll have to calculate them):
+Theoretical 
+https://corporatefinanceinstitute.com/resources/knowledge/trading-investing/option-greeks/
+
+Black-Scholes Formulas:
+https://www.macroption.com/black-scholes-excel/
+https://www.macroption.com/option-greeks-excel/
+
+Want MOAR Formulas?
+http://docs.fincad.com/support/developerfunc/mathref/greeks.htm
+
+*/
