@@ -7,7 +7,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "debug.h"
 
-void handler(int);
+void segfaultbackTrace(int);
+void sigintDefault(int);
 
 #endif

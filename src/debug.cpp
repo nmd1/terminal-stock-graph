@@ -1,14 +1,5 @@
 #include "debug.h"
 
-#include <iostream>
-#include <cmath>
-#include <fstream>
-
-#include "time_graph.h"
-
-extern ofstream debugf;
-
-
 void graph_sin() {
     
     // Make a new display
@@ -16,10 +7,10 @@ void graph_sin() {
 
 	// Create a graph with that display
 	//Map sinwave(202,41,d);
-    Map sinwave(22,22,d);
+    Map sinwave(202,41,d);
     sinwave.create();
     // Set max Y label sizes
-    sinwave.resizeLabelY(4);
+    sinwave.resizeLabelY(6);
     sinwave.resizeLabelX(5);
     // Scale 
     sinwave.setExtremeY(20); // go from 1 to -1

@@ -9,6 +9,8 @@ ____*
 of course a shell
 one should be able to call this program from command line
 notifications, for when a stock price goes above/below a certain limit
+Graph overlay! create a new object that can take in multiple graph objects,
+  add them together, and display a nice output.
 
 
 \/\/\/Under the hood\/\/\/
@@ -25,7 +27,7 @@ maybe? split x autolabel into two functions:
    (resulting in a vector of points+what values they represent)
 
    One for filling in labels with actual points
-
+convert all those <ctime> time_ts to <chrono> objects
 
 O P T I O N S
 Chain
@@ -63,5 +65,12 @@ https://www.macroption.com/option-greeks-excel/
 
 Want MOAR Formulas?
 http://docs.fincad.com/support/developerfunc/mathref/greeks.htm
+
+
+// Alternate APIs
+https://www.quandl.com/ - Other finance data
+https://www.alphavantage.co/documentation/ - alternative to yahoo api
+https://iextrading.com/developer/docs/#stocks - amazing, 500,000 req a month, but 
+  that means you can ask minute by minute trading data for a stock ~64 times a day.
 
 */

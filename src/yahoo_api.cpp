@@ -19,27 +19,27 @@ namespace cb
     }
 }
 
-std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock) {
+std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
 	bool use_12_hour_time = true;
 	bool is_morning = false;
 	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+"?interval=2m";
 	json raw_data = web(api);	
 
-    //std::cout << raw_data.dump(4) << std::endl;
+    //debugf << raw_data.dump(4) << std::endl;
 
     json error = raw_data["chart"]["error"];
     if(!error.empty()) {
     	std::string ecode = error["code"];
     	std::string edes = error["description"];
-    	std::cout<<"API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
+    	debugf<<"API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
     	//TODO: replace this with exception handling 
-		std::vector<std::tuple<time_t, yahoo::OHLC*> > a;
+		std::vector<yahoo::OHLC*> a;
 	    return a; 
 	}
 
     json data = raw_data["chart"]["result"][0];
     json meta_data = data["meta"];
-   	std::vector<std::tuple<time_t, yahoo::OHLC*> > result;
+   	std::vector<yahoo::OHLC*> result;
     for (unsigned i = 0; i < data["timestamp"].size(); i++) {
 
     	// This next part is just parsing time.
@@ -75,18 +75,18 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 		}
 
 
-		//if(i%10)  std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
-		//if(i==0) std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		//if(i%10)  debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		//if(i==0) debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
 		//if(i==data["timestamp"].size()-1) 
-		//	std::cout<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		//	debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
 		yahoo::OHLC * ohlc = new yahoo::OHLC();
         json jquote = data["indicators"]["quote"][0];
 
-
+		if(date) ohlc->time = date;
         if(!jquote["volume"][i].empty())
 		    ohlc->volume = jquote["volume"][i];
         if(!jquote["close"][i].empty())
-		ohlc->open = jquote["close"][i];
+			ohlc->open = jquote["close"][i];
         if(!jquote["open"][i].empty())
             ohlc->high = jquote["open"][i];
         if(!jquote["high"][i].empty())
@@ -99,14 +99,13 @@ std::vector<std::tuple<time_t, yahoo::OHLC*> > yahoo::getOHLC(std::string stock)
 		// In these situations, just don't add the data point.
 		// In the future find a better way to handle this situation
 			continue;
-		//std::cout<<ltm<<std::endl;
-		std::tuple<time_t, yahoo::OHLC*> organized_data(date, ohlc);
-		result.push_back(organized_data);
+		//debugf<<ltm<<std::endl;
+		result.push_back(ohlc);
 
-		//std::cout<<dt<<std::endl;
+		//debugf<<dt<<std::endl;
 
     }
-    //std::cout<<result.size()<<std::endl;
+    //debugf<<result.size()<<std::endl;
     return result;
 
 }
@@ -149,18 +148,18 @@ json yahoo::web(const std::string url, const int timeout) {
     // My modifications
     switch (httpCode) {
     	case (200): {
-    		std::cout<<"Got a successful response from " << url << std::endl;
-    		//std::cout<<*raw_json<<endl;
+    		debugf<<"Got a successful response from " << url << std::endl;
+    		//debugf<<*raw_json<<endl;
     		break;
     	}
     	case 404: {
-    		std::cout<<"Error "<<httpCode<<": " << url << " not found" << std::endl;
-    		std::cout<<"Check your stock symbol?"<< std::endl;
+    		debugf<<"Error "<<httpCode<<": " << url << " not found" << std::endl;
+    		debugf<<"Check your stock symbol?"<< std::endl;
     		break;
     	}
     	default: {
-    		std::cout<<"Something went wrong :("<<std::endl;
-    		std::cout<<"Got error "<<httpCode<<" when querying " << url << std::endl;
+    		debugf<<"Something went wrong :("<<std::endl;
+    		debugf<<"Got error "<<httpCode<<" when querying " << url << std::endl;
     		break;
     	}
     }

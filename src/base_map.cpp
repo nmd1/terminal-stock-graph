@@ -1,7 +1,5 @@
 #include "base_map.h"
-#include <unistd.h>
-#include <iostream>
-#include <fstream>
+
 
 /*
          <---length (j)--->
@@ -16,10 +14,6 @@ width (i)******************
        \/
 */
 
-extern ofstream debugf;
-extern ofstream graphwin;
-
-
 Map::Map(int l, int w, Display * dis) {
 	length = l;
 	width = w;
@@ -32,6 +26,8 @@ Map::Map(int l, int w, Display * dis) {
 	xzero = yaxisloc;
 	yzero = xaxisloc;
 
+	quadrantnx = 2;
+	quadrantny = 2;
 
 	// Characters to use in graphs
 	space = '.';
@@ -120,6 +116,9 @@ void Map::updateScreen(bool blockexit) {
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
+	// Turn on debug print statements
+	bool localdebug = false;
+
 	// First, some metadata about what type of graph you are:
 	bool timegraph = false;
 	bool ptimegraph = false;
@@ -131,10 +130,9 @@ bool Map::getRawCoord(double &x, double &y) {
 			ptimegraph = true;
 	}
 
-	if(timegraph) yaxisloc++; // hack, yaxisloc everywhere else is wrong. Fix later.
+	if(timegraph) yaxisloc+=1; // hack, yaxisloc everywhere else is wrong. Fix later.
 
-	// Turn on debug print statements
-	bool localdebug = true;
+
 
 	// Calculate Zeros (aka midpoints)
 	double realxzero = (getMaxX(gM_real) + getMinX(gM_real))/2;
@@ -144,24 +142,17 @@ bool Map::getRawCoord(double &x, double &y) {
 	double rangex = (getMaxX(gM_real) - getMinX(gM_real));
 	double rangey = (getMaxY(gM_real) - getMinY(gM_real));
 
-	// Are you split in half? no? then double.
-	double halvedx = 2;
-	double halvedy = 2;
-
-	if(timegraph) halvedx=1;
-	if(ptimegraph) halvedy=1;
-
 	// [Balance]
 	double x1 = x - realxzero;
 	double y1 = y - realyzero;
 
 	// [(Negative) Normalization]
-	double x2 = ( 1) * (x1 / (rangex/halvedx));
-	double y2 = (-1) * (y1 / (rangey/halvedy));
+	double x2 = ( 1) * (x1 / (rangex/quadrantnx));
+	double y2 = (-1) * (y1 / (rangey/quadrantny));
 
 	// [Scale]
-	double x3 = x2 * (xBoardLength()/halvedx);
-	double y3 = y2 * (yBoardLength()/halvedy);
+	double x3 = x2 * (xBoardLength()/quadrantnx);
+	double y3 = y2 * (yBoardLength()/quadrantny);
 
 	//debugf<<"axisloc: "   <<yaxisloc+1<< " , "<<(xaxisloc-1)<<endl;
 
@@ -183,31 +174,31 @@ bool Map::getRawCoord(double &x, double &y) {
 	double x4 = x3 + reposition_offsetx;
 	double y4 = y3 + reposition_offsety;
 
-	if(localdebug) debugf<<"Input: "   <<x<< " , "<<y<<endl;
-	if(localdebug) debugf<<"Balance: " <<x1<<" , "<<y1<<endl;
-	if(localdebug) debugf<<"Norm: "    <<x2<<" , "<<y2<<endl;
-	if(localdebug) debugf<<"Scale: "   <<x3<<" , "<<y3<<endl;
-	if(localdebug) debugf<<"Respos: "  <<x4<<" , "<<y4<<endl;
 
-
-
-	if(localdebug) debugf<<endl;
-	if(localdebug) debugf<<"(yaxisl: "<<yaxisloc<<")"<<endl;
-	if(localdebug) debugf<<"(xaxisl: "<<xaxisloc<<")"<<endl;
-	if(localdebug) debugf<<endl;
 	
 	// Round
 	int finaly = round(y4);
 	int finalx = round(x4);
 
-	if(localdebug) debugf<<"Round: "   <<finalx<<" , "<<finaly<<endl;
+	if(localdebug) { 
+		debugf<<"Input: "   <<x<< " , "<<y<<endl;
+		debugf<<"Balance: " <<x1<<" , "<<y1<<endl;
+		debugf<<"Norm: "    <<x2<<" , "<<y2<<endl;
+		debugf<<"Scale: "   <<x3<<" , "<<y3<<endl;
+		debugf<<"Respos: "  <<x4<<" , "<<y4<<endl;
+		debugf<<endl;
+		debugf<<"(yaxisl: "<<yaxisloc<<")"<<endl;
+		debugf<<"(xaxisl: "<<xaxisloc<<")"<<endl;
+		debugf<<endl;
+		debugf<<"Round: "   <<finalx<<" , "<<finaly<<endl;
+	}
 
 	// Skip over labels
 
 	// push y down
 	if(!ptimegraph)	if(finaly >= xaxisloc) finaly+=1;
 	if(timegraph) {
-		// push x forward, always
+		// push x forward, 
 		finalx+=ylabelsize; 
 	} else {
 		// push x backwards, if past certain point
@@ -215,8 +206,13 @@ bool Map::getRawCoord(double &x, double &y) {
 	}
 
 
+	if(timegraph) yaxisloc-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
+
 
 	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<endl;
+
+
+
 
 	// check bounds 
 	if(finaly<0) return false;
@@ -230,7 +226,6 @@ bool Map::getRawCoord(double &x, double &y) {
 	if(localdebug) debugf<<"Success!"<<endl;
 	if(localdebug) debugf<<"--------------------------"<<endl;
 
-	if(timegraph) yaxisloc--; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 	return true;
 
@@ -291,16 +286,18 @@ void Map::setLabelX(std::string label, double xin) {
 	}
 }
 
-void Map::autoLabelX(double zero, int type, double delta_override) {
+void Map::autoLabelX(double zero, double zeroy, int type, double delta_override) {
 
 	// For positive values
-	double delta = getMaxX(gM_real) / (xBoardLength());
-	double yin = 0, xin = 0;
+	// this calculation changes depending on what graph you are.
+	double delta = (quadrantnx*(getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
+	debugf<<"del:"<<delta<<endl;
+	double yin = zeroy, xin = zero;
 
 	//for testing sameness
 	std::string prevl = "";
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int y = (int)(++yin);
+	int y = xaxisloc;
 	int x = (int)(xin);
 	int wherexiszero = x;
 	//the loop
@@ -351,7 +348,7 @@ void Map::autoLabelX(double zero, int type, double delta_override) {
 		if(label == prevl) continue; 
 
 		// Put label on x axis
-		theMap[y-1][i]=',';
+		if(i!=wherexiszero) theMap[y-1][i]=',';
 		for (unsigned k =0; k < xlabelsize-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
 			if(k<label.size()) theMap[y][i] = label[k];
 		}
@@ -450,17 +447,20 @@ void Map::autoLabelX(double zero, int type, double delta_override) {
 }
 
 
-void Map::autoLabelY(double zero, int type, double delta_override) {	
+void Map::autoLabelY(double zerox, double zero, int type, double delta_override) {	
 	// For positive values
-	double delta = getMaxY(gM_real) / (yBoardLength());
 
-	double yin = 0, xin = 0;
+	// TODO: This calculation should change depending on what graph you are
+	double delta = (1*(getMaxY(gM_real)-getMinY(gM_real))) / (yBoardLength());
+	
+
+	double yin = zero, xin = zerox;
 
 	// Test for sameness
 	std::string prevl = "";
 
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int whereyiszero = (int)(yin);
+	int whereyiszero = (int)(xaxisloc-1);
 	int x = (int)(xin) - ylabelsize;
 
 	// Shift down y values when y is negative
@@ -521,7 +521,6 @@ void Map::autoLabelY(double zero, int type, double delta_override) {
 			}
 			continue;
 		}
-
 		// Put label on y axis
 		// First write in empty spaces
 		int xwrite = x + ylabelsize - label.size();
@@ -544,7 +543,7 @@ void Map::autoLabelY(double zero, int type, double delta_override) {
 
 
 void Map::setLabelY(std::string label, double yin) {
-	double x = 0;//
+	double x = 0;
 	if(!getRawCoord(x, yin)) return;
 
 	int y = (int)yin;

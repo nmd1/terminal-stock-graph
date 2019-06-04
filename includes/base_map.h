@@ -4,8 +4,15 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+
+#include <unistd.h>
+#include <iostream>
+#include <fstream>
+
 #include "window.h"
 #include "extra.h"
+
+
 using namespace std;
 
 
@@ -74,8 +81,8 @@ class Map {
 
 		// Auto set labels 
 		// Future: use enum instead of int
-		void autoLabelX(double, int, double=0);
-		void autoLabelY(double, int, double=0);
+		void autoLabelX(double, double, int, double=0);
+		void autoLabelY(double, double, int, double=0);
 
 
 		/* Setters for the axis (can be removed later?) */
@@ -126,6 +133,10 @@ class Map {
 		double maxyval;
 		double minxval;
 		double minyval;
+ 
+		// How many quadrants Does the map have for an x/y direction?
+		int quadrantnx;
+		int quadrantny;
 
 
 		// for readability in calling max/min functions
@@ -149,5 +160,8 @@ class CoordinateGrid : public Map {
 public:
 	CoordinateGrid(int, Display*);
 };
+
+#include "debug.h"
+
 
 #endif

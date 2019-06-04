@@ -8,6 +8,9 @@ TimeGraph::TimeGraph(int time, int magnitude, Display * dis) : Map(time, magnitu
 	xaxisloc = width/2;
 	yaxisloc = 0; // !!! Should be 1! Fix program when you make this change!!!
 
+	quadrantnx = 1;
+	quadrantny = 2;
+
 	xzero = yaxisloc;
 	yzero = xaxisloc;
 
@@ -37,6 +40,9 @@ PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : T
 	width = magnitude;
 	xaxisloc = magnitude-1;
 	yaxisloc = 0; // !!! Should be 1! Fix program when you make this change!!!
+
+	quadrantnx = 1;
+	quadrantny = 1;
 
 	xzero = yaxisloc+1;
 	yzero = xaxisloc-1;
