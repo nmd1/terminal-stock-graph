@@ -19,8 +19,8 @@ Map::Map(int l, int w, Display * dis) {
 	width = w;
 	display = dis;
 	// Shift the center of the Y axis because of the label size
-	yaxisloc = (length-1)/2;
-	xaxisloc = (width/2);
+	yaxisloc = (length)/2;
+	xaxisloc = (width-1)/2;
 
 	// Set where zero is
 	xzero = yaxisloc;
@@ -57,16 +57,16 @@ void Map::create() {
 	for(int i = 0; i < width; i++) {
 		vector<char> rowfill;
 		for(int j = 0; j < length; j++) {
-			if(j==yaxisloc && i != xaxisloc) {
+			if(j==yaxisloc-1 && i != xaxisloc) {
 				rowfill.push_back(temp_char_label[0]);
-			} else if(j==yaxisloc+1) {
+			} else if(j==yaxisloc) {
 				rowfill.push_back(yline);
 			} else {
-				if (i==xaxisloc && j==yaxisloc) {
+				if (i==xaxisloc && j==yaxisloc-1) {
 					rowfill.push_back(nothing);
-				} else if (i==xaxisloc) {
+				} else if (i==xaxisloc+1) {
 					rowfill.push_back(' ');
-				} else if(i==xaxisloc-1) {
+				} else if(i==xaxisloc) {
 					rowfill.push_back(xline);
 				} else {
 					rowfill.push_back(space);				
@@ -80,6 +80,7 @@ void Map::create() {
 	//std::cout<<"size of map is "<<theMap.size()<<std::endl;
 	return;
 }
+
 void Map::literalPrint() {
 	graphwin<<endl<<endl;
 	for(int i = 0; i < width; i++) {
@@ -117,7 +118,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
 	// Turn on debug print statements
-	bool localdebug = false;
+	bool localdebug = true;
 
 	// First, some metadata about what type of graph you are:
 	bool timegraph = false;
@@ -130,7 +131,7 @@ bool Map::getRawCoord(double &x, double &y) {
 			ptimegraph = true;
 	}
 
-	if(timegraph) yaxisloc+=1; // hack, yaxisloc everywhere else is wrong. Fix later.
+	///////if(timegraph) yaxisloc+=1; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 
 
@@ -146,6 +147,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	double x1 = x - realxzero;
 	double y1 = y - realyzero;
 
+	debugf<<"xlen rangex: "<<xBoardLength()<<" "<<rangex<<endl;
 	// [(Negative) Normalization]
 	double x2 = ( 1) * (x1 / (rangex/quadrantnx));
 	double y2 = (-1) * (y1 / (rangey/quadrantny));
@@ -157,8 +159,8 @@ bool Map::getRawCoord(double &x, double &y) {
 	//debugf<<"axisloc: "   <<yaxisloc+1<< " , "<<(xaxisloc-1)<<endl;
 
 	// [Reposition]
-	int reposition_offsetx = yaxisloc+1;
-	int reposition_offsety = (xaxisloc-1);
+	int reposition_offsetx = yaxisloc;
+	int reposition_offsety = xaxisloc;
 
 	if(timegraph) { // we're in a TimeGraph
 		reposition_offsetx = -(getMinX(gM_real)-realxzero)*(xBoardLength()/rangex);
@@ -196,17 +198,17 @@ bool Map::getRawCoord(double &x, double &y) {
 	// Skip over labels
 
 	// push y down
-	if(!ptimegraph)	if(finaly >= xaxisloc) finaly+=1;
+	if(!ptimegraph)	if(finaly > xaxisloc) finaly+=1;
 	if(timegraph) {
 		// push x forward, 
 		finalx+=ylabelsize; 
 	} else {
 		// push x backwards, if past certain point
-		if(finalx <= yaxisloc) finalx-=ylabelsize;
+		if(finalx < yaxisloc) finalx-=ylabelsize;
 	}
 
 
-	if(timegraph) yaxisloc-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
+	////////if(timegraph) yaxisloc-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 
 	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<endl;
@@ -225,7 +227,6 @@ bool Map::getRawCoord(double &x, double &y) {
 
 	if(localdebug) debugf<<"Success!"<<endl;
 	if(localdebug) debugf<<"--------------------------"<<endl;
-
 
 	return true;
 
@@ -290,14 +291,15 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 
 	// For positive values
 	// this calculation changes depending on what graph you are.
-	double delta = (quadrantnx*(getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
+	double delta = ((getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
+
 	debugf<<"del:"<<delta<<endl;
 	double yin = zeroy, xin = zero;
 
 	//for testing sameness
 	std::string prevl = "";
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int y = xaxisloc;
+	int y = xaxisloc+1;
 	int x = (int)(xin);
 	int wherexiszero = x;
 	//the loop
@@ -451,8 +453,8 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 	// For positive values
 
 	// TODO: This calculation should change depending on what graph you are
-	double delta = (1*(getMaxY(gM_real)-getMinY(gM_real))) / (yBoardLength());
-	
+	double delta = ((getMaxY(gM_real)-getMinY(gM_real))) / (yBoardLength());
+
 
 	double yin = zero, xin = zerox;
 
@@ -460,7 +462,7 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 	std::string prevl = "";
 
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int whereyiszero = (int)(xaxisloc-1);
+	int whereyiszero = (int)(xaxisloc);
 	int x = (int)(xin) - ylabelsize;
 
 	// Shift down y values when y is negative
@@ -547,12 +549,12 @@ void Map::setLabelY(std::string label, double yin) {
 	if(!getRawCoord(x, yin)) return;
 
 	int y = (int)yin;
-	x = yaxisloc-ylabelsize+1;
+	x = yaxisloc-ylabelsize;
 
 
 	// Fill in the row with the label
 	for (unsigned k =0; k < label.size(); x++, k++) {
-		if(x>yaxisloc) break;
+		if(!(x<yaxisloc)) break;
 		theMap[y][x] = label[k];
 
 		//debugf<<"fillin in"<<endl;
@@ -577,8 +579,8 @@ void Map::resizeLabelY(unsigned int s) {
 		// the three 
     	
     	// Split
-    	std::vector<char> result(row.begin(), row.begin() + yaxisloc + 1 - ylabelsize);
-		std::vector<char> split_hi(row.begin() + yaxisloc + 1 - ylabelsize + 1, row.end());			
+    	std::vector<char> result(row.begin(), row.begin() + yaxisloc - ylabelsize);
+		std::vector<char> split_hi(row.begin()+yaxisloc, row.end());			
 		
 		// Create char label vector
 		vector<char> alabel;
@@ -609,7 +611,7 @@ void Map::resizeLabelY(unsigned int s) {
 
     // We just fundumentally changed the map, we need to edit some variables
     setYLabelSize(longest);
-	display->resize(window, 2*length+longest-2,width);
+	display->resize(window,length,width);
 }
 
 
@@ -689,9 +691,6 @@ void Map::setLabelY(vector<std::string> labels) {
 CoordinateGrid::CoordinateGrid(int size, Display * dis) : Map(size, size, dis) {
 	length = size;
 	width = size;
-
-	xzero = yaxisloc+1;
-	yzero = xaxisloc-1;
 
 	if(size < 4) throw "Object Failed";
 

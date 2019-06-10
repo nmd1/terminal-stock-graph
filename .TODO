@@ -11,7 +11,7 @@ one should be able to call this program from command line
 notifications, for when a stock price goes above/below a certain limit
 Graph overlay! create a new object that can take in multiple graph objects,
   add them together, and display a nice output.
-
+Audio stream (CNBC, publically available!)
 
 \/\/\/Under the hood\/\/\/
 Change the vector of OHLC tuples to a vector of OHLC+T values
@@ -72,5 +72,7 @@ https://www.quandl.com/ - Other finance data
 https://www.alphavantage.co/documentation/ - alternative to yahoo api
 https://iextrading.com/developer/docs/#stocks - amazing, 500,000 req a month, but 
   that means you can ask minute by minute trading data for a stock ~64 times a day.
+
+
 
 */

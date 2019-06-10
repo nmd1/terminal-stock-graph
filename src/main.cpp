@@ -26,12 +26,12 @@ int main() {
 	tzset();
 
 	// Set Debug ttys
-  	debugf.open("/dev/pts/10");
-	graphwin.open("/dev/pts/11");
+  	debugf.open("/dev/pts/5");
+	graphwin.open("/dev/pts/10");
 
-	//graph_sin();
-	stockDraw("AMD");
-	stockDrawFull("AMD");
+	graph_sin();
+	//stockDraw("AMD");
+	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
 	//stockDraw("SPY");
 	//stockDraw("AMD190614C00029000");
@@ -42,15 +42,8 @@ int main() {
 
 
 /* Changelog
-	Stocks, Live!
+	Fixed the axisloc problem
 	------------------------------------------
-	-- Wrong autolabel values for maps that had negative x/y quadrants fixed
-	-- Finally changed that weird vector of tuples of time and ohlc with a vector of ohlc structs
-	   Time was added as a struct value
-	-- Centralized the debug file output streams declarations in the debug.h file
-	-- autolabels can't assume where zero is (yet), so dummy info had to be added
-	-- Stocks now continuously update!! woo! (very simplistic)
-	-- stockDraw and stockDrawFull work fine
-	-- stockDrawWithPast broken, which is indicative of deeper issues with the 
-	-- map library that I'll be working on for the next commit 
+	-- There is no difference between yaxisloc and the actual
+	   location of the yaxis (same with xaxisloc and xaxis)
 */	
