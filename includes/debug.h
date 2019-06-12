@@ -7,8 +7,8 @@
 #include <iomanip>
 #include <cmath>
 
-#include "base_map.h"
-#include "time_graph.h"
+#include "map/base.h"
+#include "map/time.h"
 
 extern std::ofstream debugf;
 extern std::ofstream graphwin;

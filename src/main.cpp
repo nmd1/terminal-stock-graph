@@ -4,12 +4,12 @@
 #include <iomanip>
 
 #include "debug.h"
-#include "base_map.h"
-#include "time_graph.h"
-#include "yahoo_api.h"
-#include "window.h"
+#include "map/base.h"
+#include "map/time.h"
+#include "api/yahoo.h"
+#include "render/window.h"
 #include "signal_handler.h"
-#include "stock_draw.h"
+#include "stock/draw.h"
 
 using namespace std;
 
@@ -42,8 +42,10 @@ int main() {
 
 
 /* Changelog
-	Fixed the axisloc problem
+	Directory restructuring 
 	------------------------------------------
-	-- There is no difference between yaxisloc and the actual
-	   location of the yaxis (same with xaxisloc and xaxis)
+	Restructured entire src directory
+	Edited Makefile to match changes
+		make also only updates headers that affect specific files 
+		due to implimented auto dependency generator
 */	

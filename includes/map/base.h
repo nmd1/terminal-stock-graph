@@ -9,9 +9,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "window.h"
+#include "render/window.h"
 #include "extra.h"
-
 
 using namespace std;
 

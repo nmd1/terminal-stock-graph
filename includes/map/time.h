@@ -1,7 +1,7 @@
 #ifndef TIME_GRAPH_H
 #define TIME_GRAPH_H
 
-#include "base_map.h"
+#include "map/base.h"
 
 class Display;
 

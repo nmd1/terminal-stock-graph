@@ -9,10 +9,10 @@
 #include <ctime>
 
 #include "debug.h"
-#include "base_map.h"
-#include "time_graph.h"
-#include "yahoo_api.h"
-#include "window.h"
+#include "map/base.h"
+#include "map/time.h"
+#include "api/yahoo.h"
+#include "render/window.h"
 #include "signal_handler.h"
 
 void stockDraw(std::string);

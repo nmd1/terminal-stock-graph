@@ -1,4 +1,4 @@
-#include "base_map.h"
+#include "map/base.h"
 
 // Axis getters and setters
 
@@ -27,6 +27,7 @@ void Map::setYLabelSize(int val) {
 	length = length + shift;
 
 }
+
 
 
 /*
