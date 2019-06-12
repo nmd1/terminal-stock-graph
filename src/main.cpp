@@ -10,6 +10,7 @@
 #include "render/window.h"
 #include "signal_handler.h"
 #include "stock/draw.h"
+#include "map/point.h"
 
 using namespace std;
 
@@ -26,10 +27,15 @@ int main() {
 	tzset();
 
 	// Set Debug ttys
-  	debugf.open("/dev/pts/5");
+	debugf.open("/dev/pts/5");
 	graphwin.open("/dev/pts/10");
 
-	graph_sin();
+	Point p(1,1);
+	Point q(2,2);
+	q.roundoffCoords(1);
+	debugf<<(p+q)<<endl;
+
+	//graph_sin();
 	//stockDraw("AMD");
 	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
@@ -42,10 +48,7 @@ int main() {
 
 
 /* Changelog
-	Directory restructuring 
+	Point Class
 	------------------------------------------
-	Restructured entire src directory
-	Edited Makefile to match changes
-		make also only updates headers that affect specific files 
-		due to implimented auto dependency generator
+	Should make it much easier to handle coordinates
 */	

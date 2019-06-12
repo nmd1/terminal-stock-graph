@@ -36,7 +36,9 @@ Example: //https://query2.finance.yahoo.com/v8/finance/chart/ACAD160805C00029000
 Specific option
 Naming convention:
 Name + YY + MM + DD + (C/P) + Strike Price (#####.###)
+
 AMD190614C00029000
+AMD190614C00032000
 
 
 (((FUTURES)))
@@ -72,7 +74,9 @@ https://www.quandl.com/ - Other finance data
 https://www.alphavantage.co/documentation/ - alternative to yahoo api
 https://iextrading.com/developer/docs/#stocks - amazing, 500,000 req a month, but 
   that means you can ask minute by minute trading data for a stock ~64 times a day.
+https://tradingeconomics.com/api/?source=footer - information
 
+Somehow get investopedia on this thing...
 
 
 */
