@@ -10,9 +10,6 @@
 #include "render/window.h"
 #include "signal_handler.h"
 #include "stock/draw.h"
-#include "map/point.h"
-
-using namespace std;
 
 std::ofstream debugf;
 std::ofstream graphwin;
@@ -30,12 +27,7 @@ int main() {
 	debugf.open("/dev/pts/5");
 	graphwin.open("/dev/pts/10");
 
-	Point p(1,1);
-	Point q(2,2);
-	q.roundoffCoords(1);
-	debugf<<(p+q)<<endl;
-
-	//graph_sin();
+	graph_sin();
 	//stockDraw("AMD");
 	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
@@ -48,7 +40,18 @@ int main() {
 
 
 /* Changelog
-	Point Class
+	Map uses xy structs 
+	Expanded point class
 	------------------------------------------
-	Should make it much easier to handle coordinates
+	Realized Point class was an overengineered problem for 
+		storing variables for the map class. I instead used structs.
+		However, the point class will remain as it can be very useful to 
+		store points
+
+	--Point class now differentiates between different types of 1D coordinates
+	--"using namespace std;" Removed everywhere
+	--Point class has full support for integers (not well tested!)
+	--Map how has xy structs to store data that has an x and y component
+	
+
 */	

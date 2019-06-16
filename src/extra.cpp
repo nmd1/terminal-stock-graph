@@ -14,10 +14,10 @@ std::string makeTime(time_t t) {
 	return time;
 }
 
-double roundToPlace(const double& x, const int& numDecimals) {
+double roundToPlace(const double& x, const int& decimalPlaces) {
     int y=x;
     double z=x-y;
-    double m=pow(10,numDecimals);
+    double m=pow(10,decimalPlaces);
     double q=z*m;
     double r=round(q);
 
@@ -25,8 +25,8 @@ double roundToPlace(const double& x, const int& numDecimals) {
 }
 
 
-double roundToDPlace(const double& x, const double& position) {
-	if(!position) throw "Can't use zero!";
+double roundToNearest(const double& x, const double& position) {
+	if(!position) return x;
 	double place = 1/position;
 	return round(x*place)/place;
 }

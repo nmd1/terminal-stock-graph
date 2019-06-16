@@ -19,15 +19,15 @@ Map::Map(int l, int w, Display * dis) {
 	width = w;
 	display = dis;
 	// Shift the center of the Y axis because of the label size
-	yaxisloc = (length)/2;
-	xaxisloc = (width-1)/2;
+	axisloc.y = (length)/2;
+	axisloc.x = (width-1)/2;
 
 	// Set where zero is
-	xzero = yaxisloc;
-	yzero = xaxisloc;
+	zero.x = axisloc.y;
+	zero.y = axisloc.x;
 
-	quadrantnx = 2;
-	quadrantny = 2;
+	quadrantn.x = 2;
+	quadrantn.y = 2;
 
 	// Characters to use in graphs
 	space = '.';
@@ -36,14 +36,14 @@ Map::Map(int l, int w, Display * dis) {
 	nothing = ' ';
 	point = '#';
 
-	ylabelsize = 1;
-	xlabelsize = 1;
+	labelsize.y = 1;
+	labelsize.x = 1;
 
 
-	maxxval = xBoardLength()/2;
-	minxval = -xBoardLength()/2;
-	maxyval = yBoardLength()/2;
-	minyval = -yBoardLength()/2;
+	maxval.x = xBoardLength()/2;
+	minval.x = -xBoardLength()/2;
+	maxval.y = yBoardLength()/2;
+	minval.y = -yBoardLength()/2;
 
 	// Set up the window
 	window = display->newWindow(w,l,0,0);
@@ -55,18 +55,18 @@ Map::Map(int l, int w, Display * dis) {
 void Map::create() {
 	std::string temp_char_label = " ";
 	for(int i = 0; i < width; i++) {
-		vector<char> rowfill;
+		std::vector<char> rowfill;
 		for(int j = 0; j < length; j++) {
-			if(j==yaxisloc-1 && i != xaxisloc) {
+			if(j==axisloc.y-1 && i != axisloc.x) {
 				rowfill.push_back(temp_char_label[0]);
-			} else if(j==yaxisloc) {
+			} else if(j==axisloc.y) {
 				rowfill.push_back(yline);
 			} else {
-				if (i==xaxisloc && j==yaxisloc-1) {
+				if (i==axisloc.x && j==axisloc.y-1) {
 					rowfill.push_back(nothing);
-				} else if (i==xaxisloc+1) {
+				} else if (i==axisloc.x+1) {
 					rowfill.push_back(' ');
-				} else if(i==xaxisloc) {
+				} else if(i==axisloc.x) {
 					rowfill.push_back(xline);
 				} else {
 					rowfill.push_back(space);				
@@ -82,12 +82,12 @@ void Map::create() {
 }
 
 void Map::literalPrint() {
-	graphwin<<endl<<endl;
+	graphwin<<std::endl<<std::endl;
 	for(int i = 0; i < width; i++) {
 		for(int j = 0; j < length; j++) {
 			graphwin<<theMap[i][j];
 		}
-		graphwin<<endl;
+		graphwin<<std::endl;
 	}
 }
 
@@ -97,9 +97,9 @@ void Map::updateScreen(bool blockexit) {
 		for(int j = 0; j < length; j++) {
 
 			if(theMap[i][j]==point) {
-				if(i>yzero)
+				if(i>zero.y)
 					display->place(window, theMap[i][j],j,i,2);
-				else if(i<yzero)
+				else if(i<zero.y)
 					display->place(window, theMap[i][j],j,i,1);
 				else
 					display->place(window, theMap[i][j],j,i,0);
@@ -125,7 +125,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	bool ptimegraph = false;
 
 
-	if(getMinX(gM_internal)==ylabelsize) { // we're in a TimeGraph
+	if(getMinX(gM_internal)==labelsize.y) { // we're in a TimeGraph
 		timegraph = true;
 		if(getMinY(gM_internal)==width-2)  // we're in a PosTimeGraph
 			ptimegraph = true;
@@ -147,20 +147,20 @@ bool Map::getRawCoord(double &x, double &y) {
 	double x1 = x - realxzero;
 	double y1 = y - realyzero;
 
-	debugf<<"xlen rangex: "<<xBoardLength()<<" "<<rangex<<endl;
+	debugf<<"xlen rangex: "<<xBoardLength()<<" "<<rangex<<std::endl;
 	// [(Negative) Normalization]
-	double x2 = ( 1) * (x1 / (rangex/quadrantnx));
-	double y2 = (-1) * (y1 / (rangey/quadrantny));
+	double x2 = ( 1) * (x1 / (rangex/quadrantn.x));
+	double y2 = (-1) * (y1 / (rangey/quadrantn.y));
 
 	// [Scale]
-	double x3 = x2 * (xBoardLength()/quadrantnx);
-	double y3 = y2 * (yBoardLength()/quadrantny);
+	double x3 = x2 * (xBoardLength()/quadrantn.x);
+	double y3 = y2 * (yBoardLength()/quadrantn.y);
 
-	//debugf<<"axisloc: "   <<yaxisloc+1<< " , "<<(xaxisloc-1)<<endl;
+	//debugf<<"axisloc: "   <<yaxisloc+1<< " , "<<(axisloc.x-1)<<std::endl;
 
 	// [Reposition]
-	int reposition_offsetx = yaxisloc;
-	int reposition_offsety = xaxisloc;
+	int reposition_offsetx = axisloc.y;
+	int reposition_offsety = axisloc.x;
 
 	if(timegraph) { // we're in a TimeGraph
 		reposition_offsetx = -(getMinX(gM_real)-realxzero)*(xBoardLength()/rangex);
@@ -169,7 +169,7 @@ bool Map::getRawCoord(double &x, double &y) {
 			reposition_offsety = -(getMinY(gM_real)-realyzero)*(yBoardLength()/rangey);
 			if(localdebug) debugf<<" A Positive one! (offsety = "<<reposition_offsety<<")";
 		}
-		if(localdebug) debugf<<endl;
+		if(localdebug) debugf<<std::endl;
 	}
 	
 
@@ -183,35 +183,35 @@ bool Map::getRawCoord(double &x, double &y) {
 	int finalx = round(x4);
 
 	if(localdebug) { 
-		debugf<<"Input: "   <<x<< " , "<<y<<endl;
-		debugf<<"Balance: " <<x1<<" , "<<y1<<endl;
-		debugf<<"Norm: "    <<x2<<" , "<<y2<<endl;
-		debugf<<"Scale: "   <<x3<<" , "<<y3<<endl;
-		debugf<<"Respos: "  <<x4<<" , "<<y4<<endl;
-		debugf<<endl;
-		debugf<<"(yaxisl: "<<yaxisloc<<")"<<endl;
-		debugf<<"(xaxisl: "<<xaxisloc<<")"<<endl;
-		debugf<<endl;
-		debugf<<"Round: "   <<finalx<<" , "<<finaly<<endl;
+		debugf<<"Input: "   <<x<< " , "<<y<<std::endl;
+		debugf<<"Balance: " <<x1<<" , "<<y1<<std::endl;
+		debugf<<"Norm: "    <<x2<<" , "<<y2<<std::endl;
+		debugf<<"Scale: "   <<x3<<" , "<<y3<<std::endl;
+		debugf<<"Respos: "  <<x4<<" , "<<y4<<std::endl;
+		debugf<<std::endl;
+		debugf<<"(yaxisl: "<<axisloc.y<<")"<<std::endl;
+		debugf<<"(xaxisl: "<<axisloc.x<<")"<<std::endl;
+		debugf<<std::endl;
+		debugf<<"Round: "   <<finalx<<" , "<<finaly<<std::endl;
 	}
 
 	// Skip over labels
 
 	// push y down
-	if(!ptimegraph)	if(finaly > xaxisloc) finaly+=1;
+	if(!ptimegraph)	if(finaly > axisloc.x) finaly+=1;
 	if(timegraph) {
 		// push x forward, 
-		finalx+=ylabelsize; 
+		finalx+=labelsize.y; 
 	} else {
 		// push x backwards, if past certain point
-		if(finalx < yaxisloc) finalx-=ylabelsize;
+		if(finalx < axisloc.y) finalx-=labelsize.y;
 	}
 
 
-	////////if(timegraph) yaxisloc-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
+	////////if(timegraph) axisloc.y-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 
-	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<endl;
+	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<std::endl;
 
 
 
@@ -225,8 +225,8 @@ bool Map::getRawCoord(double &x, double &y) {
 	x = finalx;
 	y = finaly;
 
-	if(localdebug) debugf<<"Success!"<<endl;
-	if(localdebug) debugf<<"--------------------------"<<endl;
+	if(localdebug) debugf<<"Success!"<<std::endl;
+	if(localdebug) debugf<<"--------------------------"<<std::endl;
 
 	return true;
 
@@ -237,16 +237,16 @@ bool Map::setCoord(double x, double y) {
 	bool returnval = getRawCoord(x, y);
 	int xin = (int)x;
 	int yin = (int)y;
-	//debugf<<"("<<xin<<","<<yin<<")"<<endl;
+	//debugf<<"("<<xin<<","<<yin<<")"<<std::endl;
 	if(returnval) theMap[yin][xin] = point;	
 	return returnval;
 }
 
 
 // Auto label based on how many labels we have
-void Map::setLabelX(vector<std::string> labels) {
+void Map::setLabelX(std::vector<std::string> labels) {
 	Xlabels.clear();
-	for (unsigned i = 0; i < theMap[yzero+1].size(); i++) {
+	for (unsigned i = 0; i < theMap[zero.y+1].size(); i++) {
 		if(i < labels.size()) {
 			Xlabels.push_back(labels[i]);
 		} else {
@@ -255,13 +255,13 @@ void Map::setLabelX(vector<std::string> labels) {
 	}
 
 	// Fill in the map with the labels
-	int j = xzero;
+	int j = zero.x;
 	for(unsigned i = 0; i < labels.size(); i++) {
 		unsigned k = 0;
 		for (; k < labels[i].size(); j++, k++) {
-			theMap[yzero+1][j] = labels[i][k];
+			theMap[zero.y+1][j] = labels[i][k];
 		}
-		theMap[yzero+1][++j] = ' ';
+		theMap[zero.y+1][++j] = ' ';
 	}
 	return; 
 }
@@ -274,15 +274,15 @@ void Map::setLabelX(std::string label, double xin) {
 	int x = (int)xin;
 	y++;
 
-	debugf<<"x: "<<x<<endl<<"Result: "<<xlabelsize<<endl;
+	debugf<<"x: "<<x<<std::endl<<"Result: "<<labelsize.x<<std::endl;
 
-	if((x)%(xlabelsize)) {return;}
+	if((x)%(labelsize.x)) {return;}
 	//if(!((x+xlabelsize)< getMaxX(gM_internal) )) {return;}
 	// Ensure there's a space between each label
-	label[xlabelsize-1] = ' ';
+	label[labelsize.x-1] = ' ';
 
 	// Fill in the row with the label
-	for (unsigned k =0; k < xlabelsize; x++, k++) {
+	for (unsigned k =0; k < labelsize.x; x++, k++) {
 		theMap[y][x] = label[k];
 	}
 }
@@ -293,13 +293,13 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 	// this calculation changes depending on what graph you are.
 	double delta = ((getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
 
-	debugf<<"del:"<<delta<<endl;
+	debugf<<"del:"<<delta<<std::endl;
 	double yin = zeroy, xin = zero;
 
 	//for testing sameness
 	std::string prevl = "";
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int y = xaxisloc+1;
+	int y = axisloc.x+1;
 	int x = (int)(xin);
 	int wherexiszero = x;
 	//the loop
@@ -312,8 +312,8 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		// Neatly round off numbers based on delta_override value
 		// Default behavior is to give raw calculated values from above
 		if(delta_override) {
-			double roundedv = roundToDPlace(dlabel, delta_override);
-			//debugf<<"Value: "<<dlabel<<endl<<"Rounded: "<<roundedv<<endl<<"["<<areSame(dlabel, roundedv, delta)<<"]"<<endl<<endl;
+			double roundedv = roundToNearest(dlabel, delta_override);
+			//debugf<<"Value: "<<dlabel<<std::endl<<"Rounded: "<<roundedv<<std::endl<<"["<<areSame(dlabel, roundedv, delta)<<"]"<<std::endl<<std::endl;
 			if(areSame(dlabel, roundedv, delta)) {
 				dlabel = roundedv;
 			} else continue;
@@ -338,7 +338,7 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 			// Default, normal behavior
 			case 0:
 			default:
-				int roundoff = xlabelsize;
+				int roundoff = labelsize.x;
 				//roundoff one less if you're negative (b/c sign)
 				if(dlabel<0) --roundoff;
 				label = std::to_string(roundToPlace(dlabel,roundoff));
@@ -351,7 +351,7 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 
 		// Put label on x axis
 		if(i!=wherexiszero) theMap[y-1][i]=',';
-		for (unsigned k =0; k < xlabelsize-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
+		for (unsigned k =0; k < labelsize.x-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
 			if(k<label.size()) theMap[y][i] = label[k];
 		}
 
@@ -364,9 +364,9 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 	//if(!getRawCoord(xin, yin)) return; //There's no -1, so I assume it's a pos graph
 	
 	//y = (int)(++yin);
-	int xstart = wherexiszero-ylabelsize-1;
+	int xstart = wherexiszero-labelsize.y-1;
 
-	//debugf<<"("<<xstart<<","<<y<<")"<<endl<<endl;
+	//debugf<<"("<<xstart<<","<<y<<")"<<std::endl<<std::endl;
 	bool cleared_for_labeling = false;
 	prevl = "";
 	int last_valid_i = 0;
@@ -377,13 +377,13 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		// Check if you're gtg for labeling
 		// (also fix this check it's logically messy)
 		if(!cleared_for_labeling) {
-			cleared_for_labeling = ((i-last_valid_i)%xlabelsize)==(xlabelsize-1);
+			cleared_for_labeling = ((i-last_valid_i)%labelsize.x)==(labelsize.x-1);
 		}
 		if(!cleared_for_labeling) continue;
 
 
 
-		//debugf<<"Cleared for Labeling!: x="<<xi-xstart-1<<endl;
+		//debugf<<"Cleared for Labeling!: x="<<xi-xstart-1<<std::endl;
 		
 		// Based on where we are on the graph
 		// Calculate what the x value should be
@@ -392,10 +392,10 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		// Neatly round off numbers based on delta_override value
 		// Default behavior is to give raw calculated values from above
 		if(delta_override) {
-			double roundedv = roundToDPlace(dlabel, delta_override);
+			double roundedv = roundToNearest(dlabel, delta_override);
 			if(areSame(dlabel, roundedv, delta)) {
 				dlabel = roundedv;
-				//debugf<<"Delta Override approved!"<<endl;
+				//debugf<<"Delta Override approved!"<<std::endl;
 			} else {
 				continue;
 			}
@@ -421,7 +421,7 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 			// Default, normal behavior
 			case 0:
 			default:
-				int roundoff = xlabelsize;
+				int roundoff = labelsize.x;
 				//roundoff one less if you're negative (b/c sign)
 				if(dlabel<0) --roundoff;
 				label = std::to_string(roundToPlace(dlabel,roundoff));
@@ -435,9 +435,9 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 
 		// Alright, all checks have been done, we're going to label:
 		theMap[y-1][xi]=',';
-		for (unsigned k=xi, j=0; j < (xlabelsize-1); k++, j++) {
+		for (unsigned k=xi, j=0; j < (labelsize.x-1); k++, j++) {
 			//unsigned reverse_k = label.size() - 1 - k;
-			//debugf<<"k:"<<k<<" x:"<<(int)k-xstart<<" i:"<<i<<" ("<<label[j]<<")"<<endl;
+			//debugf<<"k:"<<k<<" x:"<<(int)k-xstart<<" i:"<<i<<" ("<<label[j]<<")"<<std::endl;
 			if(j<label.size()) theMap[y][k] = label[j];
 		}
 		last_valid_i = i+1;
@@ -462,8 +462,8 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 	std::string prevl = "";
 
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
-	int whereyiszero = (int)(xaxisloc);
-	int x = (int)(xin) - ylabelsize;
+	int whereyiszero = (int)(axisloc.x);
+	int x = (int)(xin) - labelsize.y;
 
 	// Shift down y values when y is negative
 	int shiftwhenneg = 0;
@@ -473,7 +473,7 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		// Based on where we are on the graph
 		// Calculate what the y value should be
 		int y = -(i-whereyiszero);
-		//debugf<<"y: "<<y<<endl;
+		//debugf<<"y: "<<y<<std::endl;
 
 		// skip over x axis (maybe put something in middle of map?)
 		if(y==-1) shiftwhenneg = 1;
@@ -484,7 +484,7 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		// Neatly round off numbers based on delta_override value
 		// Default behavior is to give raw calculated values from above
 		if(delta_override) {
-			double roundedv = roundToDPlace(dlabel, delta_override);
+			double roundedv = roundToNearest(dlabel, delta_override);
 			if(areSame(dlabel, roundedv, delta)) {
 				dlabel = roundedv;
 			} else continue;
@@ -504,7 +504,7 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 			// Default, normal behavior
 			case 0:
 			default:
-				int roundoff = ylabelsize;
+				int roundoff = labelsize.y;
 				//roundoff one less if you're negative (b/c sign)
 				if(dlabel<0) --roundoff;
 				label = std::to_string(roundToPlace(dlabel,roundoff));
@@ -515,7 +515,7 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		if(label == prevl) {
 			if (y < 0) {
 				// Clear out the previous label
-				for (unsigned k=x; k < x+ylabelsize; k++) 
+				for (unsigned k=x; k < x+labelsize.y; k++) 
 					theMap[i+1][k] = ' ';
 			} else {
 				// Clear out this label
@@ -525,9 +525,9 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		}
 		// Put label on y axis
 		// First write in empty spaces
-		int xwrite = x + ylabelsize - label.size();
+		int xwrite = x + labelsize.y - label.size();
 		// Then write in characters
-		for (unsigned k=x, l=0; k < x+ylabelsize; k++) {
+		for (unsigned k=x, l=0; k < x+labelsize.y; k++) {
 			if((int)k<xwrite) {
 				theMap[i][k] = ' ';
 			} else {
@@ -549,20 +549,20 @@ void Map::setLabelY(std::string label, double yin) {
 	if(!getRawCoord(x, yin)) return;
 
 	int y = (int)yin;
-	x = yaxisloc-ylabelsize;
+	x = axisloc.y-labelsize.y;
 
 
 	// Fill in the row with the label
 	for (unsigned k =0; k < label.size(); x++, k++) {
-		if(!(x<yaxisloc)) break;
+		if(!(x<axisloc.y)) break;
 		theMap[y][x] = label[k];
 
-		//debugf<<"fillin in"<<endl;
+		//debugf<<"fillin in"<<std::endl;
 	}
 }
 
 void Map::resizeLabelX(int s) {
-	xlabelsize = ++s; // add one for spacing
+	labelsize.x = ++s; // add one for spacing
 }
 void Map::resizeLabelY(unsigned int s) {
 	//if(Ylabels.size()==0) return; //there are no ylabels....
@@ -571,7 +571,7 @@ void Map::resizeLabelY(unsigned int s) {
     unsigned int longest = s; //if it ain't broke don't fix it
 
     for(unsigned i = 0; i < theMap.size(); i++) {
-    	vector<char> row = theMap[i];
+    	std::vector<char> row = theMap[i];
 
 		// Split the current row into two vectors,
 		// Generate a new vector<char> that is made up
@@ -579,11 +579,11 @@ void Map::resizeLabelY(unsigned int s) {
 		// the three 
     	
     	// Split
-    	std::vector<char> result(row.begin(), row.begin() + yaxisloc - ylabelsize);
-		std::vector<char> split_hi(row.begin()+yaxisloc, row.end());			
+    	std::vector<char> result(row.begin(), row.begin() + axisloc.y - labelsize.y);
+		std::vector<char> split_hi(row.begin()+axisloc.y, row.end());			
 		
 		// Create char label vector
-		vector<char> alabel;
+		std::vector<char> alabel;
 
 
 		// add in blank spaces for x axis to keep rows even
@@ -616,7 +616,7 @@ void Map::resizeLabelY(unsigned int s) {
 
 
 
-void Map::setLabelY(vector<std::string> labels) {
+void Map::setLabelY(std::vector<std::string> labels) {
 	Ylabels.clear();
 
 
@@ -631,7 +631,7 @@ void Map::setLabelY(vector<std::string> labels) {
     // Fill! the Ylabels vector
     int j = 0;
 	for (int i = 0; i < (int)theMap.size(); i++) {
-		if(i < (int)labels.size() && i!=yzero+1) {
+		if(i < (int)labels.size() && i!=zero.y+1) {
 			Ylabels.push_back(labels[j]);
 			j++;
 		} else {
@@ -640,10 +640,10 @@ void Map::setLabelY(vector<std::string> labels) {
 		}
 	}
 
-    cout<<"longest is "<<longest<<endl;
+    std::cout<<"longest is "<<longest<<std::endl;
 
     for(unsigned i = 0; i < theMap.size(); i++) {
-    	vector<char> row = theMap[i];
+    	std::vector<char> row = theMap[i];
 
 		// Split the current row into two vectors,
 		// Generate a new vector<char> that is made up
@@ -651,11 +651,11 @@ void Map::setLabelY(vector<std::string> labels) {
 		// the three 
     	
     	// Split
-    	std::vector<char> result(row.begin(), row.begin() + yaxisloc + 1 - ylabelsize);
-		std::vector<char> split_hi(row.begin() + yaxisloc + 1 - ylabelsize + 1, row.end());			
+    	std::vector<char> result(row.begin(), row.begin() + axisloc.y + 1 - labelsize.y);
+		std::vector<char> split_hi(row.begin() + axisloc.y + 1 - labelsize.y + 1, row.end());			
 		
 		// Create char label vector
-		vector<char> alabel;
+		std::vector<char> alabel;
 
 
 		// add in blank spaces for x axis to keep rows even

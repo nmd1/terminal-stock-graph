@@ -3,25 +3,25 @@
 // Axis getters and setters
 
 void Map::setXaxis(int val) {
-	xaxisloc = val;
-	yzero = val;
+	axisloc.x = val;
+	zero.y = val;
 }
 
 void Map::setYaxis(int val) {
-	yaxisloc = val;
-	xzero = val;
+	axisloc.y = val;
+	zero.x = val;
 }
 
 void Map::setYLabelSize(int val) {
 	// the math is done verbosely here on purpose
-	int oldYlabelSize = ylabelsize;
+	int oldYlabelSize = labelsize.y;
 	int shift = val - oldYlabelSize;
 
 	// Set label size
-	ylabelsize = val;
+	labelsize.y = val;
 
 	// shift the yaxix
-	setYaxis(yaxisloc + shift);
+	setYaxis(axisloc.y + shift);
 
 	// Change the length of the window
 	length = length + shift;

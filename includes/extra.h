@@ -6,7 +6,7 @@
 #include <cmath>
 
 double roundToPlace(const double&, const int&);
-double roundToDPlace(const double&, const double&);
+double roundToNearest(const double&, const double&);
 bool areSame(double, double, double=__DBL_EPSILON__);
 std::string makeTime(time_t);
 

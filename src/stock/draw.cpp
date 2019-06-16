@@ -33,8 +33,8 @@ void stockDraw(std::string stock) {
 
         // Lots of lambdas ahead
         auto result = getOHLCminmax(sdata);
-        max = get<0>(result);
-        min = get<1>(result);
+        max = std::get<0>(result);
+        min = std::get<1>(result);
 
         double addby = std::max(ceil(max.close)-max.close, min.close - floor(min.close));
         int top = ceil(max.close);
@@ -47,11 +47,11 @@ void stockDraw(std::string stock) {
         sgraph.setMaxX(max.time);
         sgraph.setMinX(min.time);
 
-        debugf<<"maxY: "<<max.close<<" top: "<<top<<endl;
-        debugf<<"minY: "<<min.close<<" bot: "<<bot<<endl;
-        debugf<<"realdif: "<<(max.close+min.close)/2<<endl;
-        debugf<<"tbdif: "<<(top+bot)/2<<endl;
-        debugf<<endl;
+        debugf<<"maxY: "<<max.close<<" top: "<<top<<std::endl;
+        debugf<<"minY: "<<min.close<<" bot: "<<bot<<std::endl;
+        debugf<<"realdif: "<<(max.close+min.close)/2<<std::endl;
+        debugf<<"tbdif: "<<(top+bot)/2<<std::endl;
+        debugf<<std::endl;
 
 
 
@@ -64,7 +64,7 @@ void stockDraw(std::string stock) {
         sgraph.autoLabelX(zerox,zeroy,2);
 
         } catch (const char * error) {
-            debugf<<"ERROR: "<<error<<endl;
+            debugf<<"ERROR: "<<error<<std::endl;
         }
         for(std::vector<yahoo::OHLC*>::iterator it = sdata.begin(); 
             it != sdata.end(); it++) 
@@ -103,11 +103,11 @@ void stockDrawFull(std::string stock) {
 
     // Lots of lambdas ahead
     auto result = getOHLCminmax(sdata);
-    max = get<0>(result);
-    min = get<1>(result);
+    max = std::get<0>(result);
+    min = std::get<1>(result);
 
     double addby = std::max(ceil(max.close)-max.close, min.close - floor(min.close));
-    debugf<<"addbye::::"<<addby<<endl;
+    debugf<<"addbye::::"<<addby<<std::endl;
     double top = (max.close);
     double bot = (min.close);
     sgraph.setMaxY(top);
@@ -118,11 +118,11 @@ void stockDrawFull(std::string stock) {
     sgraph.setMaxX(max.time);
     sgraph.setMinX(min.time);
 
-    debugf<<"maxY: "<<max.close<<" top: "<<top<<endl;
-    debugf<<"minY: "<<min.close<<" bot: "<<bot<<endl;
-    debugf<<"realdif: "<<(max.close+min.close)/2<<endl;
-    debugf<<"tbdif: "<<(top+bot)/2<<endl;
-    debugf<<endl;
+    debugf<<"maxY: "<<max.close<<" top: "<<top<<std::endl;
+    debugf<<"minY: "<<min.close<<" bot: "<<bot<<std::endl;
+    debugf<<"realdif: "<<(max.close+min.close)/2<<std::endl;
+    debugf<<"tbdif: "<<(top+bot)/2<<std::endl;
+    debugf<<std::endl;
 
 
 
@@ -133,7 +133,7 @@ void stockDrawFull(std::string stock) {
     sgraph.autoLabelY(zerox,zeroy,0,0.001);
     sgraph.autoLabelX(zerox,zeroy,2);
     } catch (const char * error) {
-        debugf<<"ERROR: "<<error<<endl;
+        debugf<<"ERROR: "<<error<<std::endl;
     }
     
     for(std::vector<yahoo::OHLC*>::iterator it = sdata.begin(); 
@@ -171,8 +171,8 @@ void stockDrawWithPast(std::string stock, time_t center) {
 
     // Lots of lambdas ahead
     auto result = getOHLCminmax(sdata);
-    max = get<0>(result);
-    min = get<1>(result);
+    max = std::get<0>(result);
+    min = std::get<1>(result);
 
     double addby = std::max(ceil(max.close)-max.close, min.close - floor(min.close));
     int top = ceil(max.close);
@@ -185,11 +185,11 @@ void stockDrawWithPast(std::string stock, time_t center) {
     sgraph.setMaxX(max.time);
     sgraph.setMinX(min.time);
 
-    debugf<<"maxY: "<<max.close<<" top: "<<top<<endl;
-    debugf<<"minY: "<<min.close<<" bot: "<<bot<<endl;
-    debugf<<"realdif: "<<(max.close+min.close)/2<<endl;
-    debugf<<"tbdif: "<<(top+bot)/2<<endl;
-    debugf<<endl;
+    debugf<<"maxY: "<<max.close<<" top: "<<top<<std::endl;
+    debugf<<"minY: "<<min.close<<" bot: "<<bot<<std::endl;
+    debugf<<"realdif: "<<(max.close+min.close)/2<<std::endl;
+    debugf<<"tbdif: "<<(top+bot)/2<<std::endl;
+    debugf<<std::endl;
 
 
 
@@ -200,7 +200,7 @@ void stockDrawWithPast(std::string stock, time_t center) {
         sgraph.autoLabelY(zerox,zeroy,0,0.001);
         sgraph.autoLabelX(zerox,zeroy,2);
     } catch (const char * error) {
-        debugf<<"ERROR: "<<error<<endl;
+        debugf<<"ERROR: "<<error<<std::endl;
     }
 
     for(std::vector<yahoo::OHLC*>::iterator it = sdata.begin(); 

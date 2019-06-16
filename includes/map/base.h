@@ -11,14 +11,11 @@
 
 #include "render/window.h"
 #include "extra.h"
-
-using namespace std;
-
+#include "map/point.h"
 
 // This is the map base class
 // Every map type extends this class (or a class that extends this class)
 // ya know, standard oop stuff
-
 class Map {
 
 	public:
@@ -44,8 +41,8 @@ class Map {
 		void setLabelY(std::string, double);
 
 		// Auto label based on how many labels we have
-		void setLabelX(vector<std::string>);
-		void setLabelY(vector<std::string>);
+		void setLabelX(std::vector<std::string>);
+		void setLabelY(std::vector<std::string>);
 
 		// Change how many X axis characters you can have before the next spacing 
 		void resizeLabelX(int);
@@ -92,10 +89,11 @@ class Map {
 		int numbofYlabels() {return width-2;}
 
 	protected:
+		struct xy {	int x;	int y;	};
 		// Graph Arrays
-		vector< vector<char> > theMap;
-		vector<  std::string > Xlabels;
-		vector<  std::string > Ylabels;
+		std::vector< std::vector<char> > theMap;
+		std::vector<  std::string > Xlabels;
+		std::vector<  std::string > Ylabels;
 
 
 		// Return where on the map a coordinate would be placed
@@ -117,34 +115,26 @@ class Map {
 		Display * display;
 		int window;
 
-
-
 		// map meta information
 		int length;
 		int width;
-		int xaxisloc;
-		int yaxisloc;
-		int xzero;
-		int yzero;
+
+		xy axisloc;
+		xy zero;
 
 		// Extremes for real values 
-		double maxxval;
-		double maxyval;
-		double minxval;
-		double minyval;
+		xy maxval;
+		xy minval;
  
 		// How many quadrants Does the map have for an x/y direction?
-		int quadrantnx;
-		int quadrantny;
-
+		xy quadrantn;
 
 		// for readability in calling max/min functions
 		const bool gM_internal = false;
 		const bool gM_real = true;
 
 		// Max char length of labels 
-		int ylabelsize;
-		int xlabelsize;
+		xy labelsize;
 
 		// characters to use in graphs
 		char space;

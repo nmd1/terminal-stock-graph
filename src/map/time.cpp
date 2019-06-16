@@ -5,16 +5,16 @@
 TimeGraph::TimeGraph(int time, int magnitude, Display * dis) : Map(time, magnitude, dis) {
 	length = time;
 	width = magnitude;
-	xaxisloc = (width-1)/2;
-	yaxisloc = 1; // !!! Should be 1! Fix program when you make this change!!!
+	axisloc.x = (width-1)/2;
+	axisloc.y = 1; // !!! Should be 1! Fix program when you make this change!!!
 
-	quadrantnx = 1;
-	quadrantny = 2;
+	quadrantn.x = 1;
+	quadrantn.y = 2;
 
-	maxxval = xBoardLength();
-	minxval = 0;
-	maxyval = yBoardLength()/2;
-	minyval = -yBoardLength()/2;
+	maxval.x = xBoardLength();
+	minval.x = 0;
+	maxval.y = yBoardLength()/2;
+	minval.y = -yBoardLength()/2;
 
 	if(width < 4 || length < 3) throw "Object Failed";
 }
@@ -35,16 +35,16 @@ bool TimeGraph::setCoord(double t, double y) {
 PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : TimeGraph(time, magnitude, dis) {
 	length = time;
 	width = magnitude;
-	xaxisloc = magnitude-2;
-	yaxisloc = 1; // !!! Should be 1! Fix program when you make this change!!!
+	axisloc.x = magnitude-2;
+	axisloc.y = 1; // !!! Should be 1! Fix program when you make this change!!!
 
-	quadrantnx = 1;
-	quadrantny = 1;
+	quadrantn.x = 1;
+	quadrantn.y = 1;
 
-	maxxval = xBoardLength();
-	minxval = 0;
-	maxyval = yBoardLength();
-	minyval = 0;
+	maxval.x = xBoardLength();
+	minval.x = 0;
+	maxval.y = yBoardLength();
+	minval.y = 0;
 
 	if(width < 3 || length < 3) throw "Object Failed";
 

@@ -6,23 +6,22 @@
 
 #include "nlohmann/json.hpp"
 
-using namespace std;
 using json = nlohmann::json;
 
 namespace stk {
 	struct Stock {
-		string language;								//	"en-US"
-		string region;									//	"US"
-		string quoteType;								//	"EQUITY"
-		string quoteSourceName;							//	"Delayed Quote"
-		string currency;								//	"USD"
+		std::string language;								//	"en-US"
+		std::string region;									//	"US"
+		std::string quoteType;								//	"EQUITY"
+		std::string quoteSourceName;							//	"Delayed Quote"
+		std::string currency;								//	"USD"
 		long sharesOutstanding;							//	4745399808
 		long double bookValue;							//	22.534
 		long double fiftyDayAverage;					//	173.84088
 		long double fiftyDayAverageChange;				//	-17.610886
 		long double fiftyDayAverageChangePercent;		//	-0.10130463
 		long double fiftyTwoWeekLowChangePercent;		//	0.06576165
-		string fiftyTwoWeekRange;						//	"146.59 - 233.47"
+		std::string fiftyTwoWeekRange;						//	"146.59 - 233.47"
 		long double fiftyTwoWeekHighChange;				//	-77.240005
 		long double fiftyTwoWeekHighChangePercent;		//	-0.3308348
 		long double fiftyTwoWeekLow;					//	146.59
@@ -42,8 +41,8 @@ namespace stk {
 		long double forwardPE;							//	10.671448
 		double priceToBook;								//	6.933079
 		int sourceInterval;								//	15
-		string exchangeTimezoneName;					//	"America/New_York"
-		string exchangeTimezoneShortName;				//	"EST"
+		std::string exchangeTimezoneName;					//	"America/New_York"
+		std::string exchangeTimezoneShortName;				//	"EST"
 		long int gmtOffSetMilliseconds;					//	-18000000
 		bool esgPopulated;								//	false
 		bool tradeable;									//	true
@@ -52,16 +51,16 @@ namespace stk {
 		double postMarketPrice;							//	156.38
 		long double postMarketChange;					//	0.15000916
 		long double regularMarketChangePercent;			//	0.051233962
-		string regularMarketDayRange;					//	"154.55 - 158.51"
+		std::string regularMarketDayRange;					//	"154.55 - 158.51"
 		double regularMarketPreviousClose;				//	156.15
 		double bid;										//	156.32
 		double ask;										//	156.39
 		int bidSize;									//	9
 		int askSize;									//	9
-		string messageBoardId;							//	"finmb_24937"
-		string fullExchangeName;						//	"NasdaqGS"
-		string longName;								//	"Apple Inc."
-		string financialCurrency;						//	"USD"
+		std::string messageBoardId;							//	"finmb_24937"
+		std::string fullExchangeName;						//	"NasdaqGS"
+		std::string longName;								//	"Apple Inc."
+		std::string financialCurrency;						//	"USD"
 		long int averageDailyVolume3Month;				//	41502779
 		long int averageDailyVolume10Day;				//	57238028
 		long double fiftyTwoWeekLowChange;				//	9.639999
@@ -73,33 +72,33 @@ namespace stk {
 		double regularMarketDayHigh;					//	158.51
 		double regularMarketDayLow;						//	154.55
 		long int regularMarketVolume;					//	42291424
-		string marketState;								//	"CLOSED"
-		string shortName;								//	"Apple Inc."
-		string exchange;								//	"NMS"
-		string market;									//	"us_market"
+		std::string marketState;								//	"CLOSED"
+		std::string shortName;								//	"Apple Inc."
+		std::string exchange;								//	"NMS"
+		std::string market;									//	"us_market"
 		double epsTrailingTwelveMonths;					//	11.91
 		double epsForward;								//	14.64
-		string symbol;									//	"AAPL"
+		std::string symbol;									//	"AAPL"
 	};
 
 	struct Stock2 {
-		string language;								//	"en-US"
-		string region;									//	"US"
-		string quoteType;								//	"EQUITY"
-		string quoteSourceName;							//	"Delayed Quote"
-		string currency;								//	"USD"
+		std::string language;								//	"en-US"
+		std::string region;									//	"US"
+		std::string quoteType;								//	"EQUITY"
+		std::string quoteSourceName;							//	"Delayed Quote"
+		std::string currency;								//	"USD"
 		int sharesOutstanding;							//	4745399808
 		double bookValue;							//	22.534
 		double fiftyDayAverage;					//	173.84088
 		double fiftyDayAverageChange;				//	-17.610886
 		double fiftyDayAverageChangePercent;		//	-0.10130463
 		double fiftyTwoWeekLowChangePercent;		//	0.06576165
-		string fiftyTwoWeekRange;						//	"146.59 - 233.47"
+		std::string fiftyTwoWeekRange;						//	"146.59 - 233.47"
 		double fiftyTwoWeekHighChange;				//	-77.240005
 		double fiftyTwoWeekHighChangePercent;		//	-0.3308348
 		double fiftyTwoWeekLow;					//	146.59
 		double fiftyTwoWeekHigh;					//	233.47
-		string dividendDate;								//	1542240000
+		std::string dividendDate;								//	1542240000
 		int earningsTimestamp;							//	1541102400
 		int earningsTimestampStart;					//	1548882000
 		int earningsTimestampEnd;						//	1549314000
@@ -114,8 +113,8 @@ namespace stk {
 		double forwardPE;							//	10.671448
 		double priceToBook;								//	6.933079
 		int sourceInterval;								//	15
-		string exchangeTimezoneName;					//	"America/New_York"
-		string exchangeTimezoneShortName;				//	"EST"
+		std::string exchangeTimezoneName;					//	"America/New_York"
+		std::string exchangeTimezoneShortName;				//	"EST"
 		int gmtOffSetMilliseconds;					//	-18000000
 		bool esgPopulated;								//	false
 		bool tradeable;									//	true
@@ -124,16 +123,16 @@ namespace stk {
 		double postMarketPrice;							//	156.38
 		double postMarketChange;					//	0.15000916
 		double regularMarketChangePercent;			//	0.051233962
-		string regularMarketDayRange;					//	"154.55 - 158.51"
+		std::string regularMarketDayRange;					//	"154.55 - 158.51"
 		double regularMarketPreviousClose;				//	156.15
 		double bid;										//	156.32
 		double ask;										//	156.39
 		int bidSize;									//	9
 		int askSize;									//	9
-		string messageBoardId;							//	"finmb_24937"
-		string fullExchangeName;						//	"NasdaqGS"
-		string longName;								//	"Apple Inc."
-		string financialCurrency;						//	"USD"
+		std::string messageBoardId;							//	"finmb_24937"
+		std::string fullExchangeName;						//	"NasdaqGS"
+		std::string longName;								//	"Apple Inc."
+		std::string financialCurrency;						//	"USD"
 		int averageDailyVolume3Month;				//	41502779
 		int averageDailyVolume10Day;				//	57238028
 		double fiftyTwoWeekLowChange;				//	9.639999
@@ -145,13 +144,13 @@ namespace stk {
 		double regularMarketDayHigh;					//	158.51
 		double regularMarketDayLow;						//	154.55
 		int regularMarketVolume;					//	42291424
-		string marketState;								//	"CLOSED"
-		string shortName;								//	"Apple Inc."
-		string exchange;								//	"NMS"
-		string market;									//	"us_market"
+		std::string marketState;								//	"CLOSED"
+		std::string shortName;								//	"Apple Inc."
+		std::string exchange;								//	"NMS"
+		std::string market;									//	"us_market"
 		double epsTrailingTwelveMonths;					//	11.91
 		double epsForward;								//	14.64
-		string symbol;									//	"AAPL"
+		std::string symbol;									//	"AAPL"
 	};
 
 	void to_json(json& j, const Stock& p);
