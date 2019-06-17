@@ -11,10 +11,14 @@ void stopListening(int sig) {
 
 void stockDraw(std::string stock) {
     // Get a new display
-    Display* d = new Display();
+    Display d;
     
     // Create a Map
-    TimeGraph sgraph(200,40,d);
+    TimeGraph sgraph(200,40);
+    // Create window
+    Window win = d.newWindow(200,40,0,0);
+    // Associate window with map
+    d.addMap(sgraph.getMap(), win);
     sgraph.create();
 
     // Set Label Sizes (for now...)
@@ -66,6 +70,8 @@ void stockDraw(std::string stock) {
         } catch (const char * error) {
             debugf<<"ERROR: "<<error<<std::endl;
         }
+
+        sgraph.clear();
         for(std::vector<yahoo::OHLC*>::iterator it = sdata.begin(); 
             it != sdata.end(); it++) 
         {
@@ -74,19 +80,24 @@ void stockDraw(std::string stock) {
             //coolGraphEffect(point->time, point->close, zeroy, &sgraph);
         }
         
-        sgraph.updateScreen(false);
+        d.draw();
         usleep(60*1000*1000);
+
     }
     signal(SIGINT, sigintDefault);   
-    d->exit();
+    d.exit();
 }
 
 void stockDrawFull(std::string stock) {
     // Get a new display
-    Display* d = new Display();
+    Display d;
     
     // Create a Map
-    PositiveTimeGraph sgraph(200,40,d);
+    PositiveTimeGraph sgraph(200,40);
+    // Create a window
+    Window win = d.newWindow(200,40,0,0);
+    // Associate window with graph
+    d.addMap(sgraph.getMap(), win);
     sgraph.create();
 
     // Set Label Sizes (for now...)
@@ -144,17 +155,21 @@ void stockDrawFull(std::string stock) {
         //coolGraphEffect(point->time, point->close, zeroy, &sgraph);
 
     }
-    sgraph.updateScreen();
-
-    d->exit();
+    d.draw();
+    d.inputBlock(win);
+    d.exit();
 }
 
 void stockDrawWithPast(std::string stock, time_t center) {
     // Get a new display
-    Display* d = new Display();
-    
+    Display d;    
     // Create a Map
-    TimeGraph sgraph(200,40,d);
+    TimeGraph sgraph(200,40);
+    // Get a new window
+    Window win = d.newWindow(200,40,0,0);
+    // Associate map with window
+    d.addMap(sgraph.getMap(), win);
+
     sgraph.create();
 
     // Set Label Sizes (for now...)
@@ -211,9 +226,9 @@ void stockDrawWithPast(std::string stock, time_t center) {
         //coolGraphEffect(point->time, point->close, zeroy, &sgraph);
     }
     
-    sgraph.updateScreen();
-    
-    d->exit();
+    d.draw();
+    d.inputBlock(win);
+    d.exit();
 }
 
 

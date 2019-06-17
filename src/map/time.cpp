@@ -2,7 +2,7 @@
 
 
 
-TimeGraph::TimeGraph(int time, int magnitude, Display * dis) : Map(time, magnitude, dis) {
+TimeGraph::TimeGraph(int time, int magnitude) : Map(time, magnitude) {
 	length = time;
 	width = magnitude;
 	axisloc.x = (width-1)/2;
@@ -27,12 +27,14 @@ bool TimeGraph::setCoord(double t, double y) {
 
 
 
-
+TimeGraph::TimeGraph(int size,int mag, bool trans) : TimeGraph(size, mag) {
+	if(trans) space = transparent;
+}
 
 
 /**********************************************/
 
-PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude, Display * dis) : TimeGraph(time, magnitude, dis) {
+PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude) : TimeGraph(time, magnitude) {
 	length = time;
 	width = magnitude;
 	axisloc.x = magnitude-2;
@@ -58,3 +60,7 @@ bool PositiveTimeGraph::setCoord(double t, double y) {
 	return true;
 }
 
+
+PositiveTimeGraph::PositiveTimeGraph(int size,int mag, bool trans) : PositiveTimeGraph(size, mag) {
+	if(trans) space = transparent;
+}

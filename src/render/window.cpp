@@ -53,25 +53,25 @@ Display::Display() : positive_color(1), negative_color(2) {
 
    	windows.push_back(stdscr);
 }
-int Display::newWindow(int nlines, int ncols, int x0, int y0) {
+Window Display::newWindow(int ncols, int nlines, int x0, int y0) {
     WINDOW * win = newwin(nlines, ncols, y0, x0); 
     keypad(win, TRUE); 
     int result = windows.size();
     windows.push_back(win);
     return result;
 }
-void Display::resize(int window, int col, int lines) {
+void Display::resize(Window window, int col, int lines) {
 	wresize(windows[window], lines, col);
 }
 void Display::start(int& cursorx, int& cursory) {
 	cursorx = 0;
 	cursory = 0;
 }
-bool Display::next(int window, char output, int& cursorx, int& cursory, int color_pair_color) {
+bool Display::next(Window window, char output, int& cursorx, int& cursory, int color_pair_color) {
 	place(window, output, cursorx, cursory, color_pair_color);
 	return Display::next(window, cursorx, cursory);
 }
-bool Display::next(int window, int& cursorx, int& cursory) {
+bool Display::next(Window window, int& cursorx, int& cursory) {
 	int h, w;
 	cursorx+=1;
 	getmaxyx(windows[window], h, w);
@@ -86,7 +86,7 @@ bool Display::next(int window, int& cursorx, int& cursory) {
 
 	return true;
 }
-bool Display::isValidCursor(int window, int cursorx, int cursory) {
+bool Display::isValidCursor(Window window, int cursorx, int cursory) {
 	int h, w;
 	getmaxyx(windows[window], h, w);
 
@@ -99,12 +99,12 @@ bool Display::isValidCursor(int window, int cursorx, int cursory) {
 
 	return true;
 }
-void Display::place(int window, char output, int x, int y, int color_pair_color) {
+void Display::place(Window window, char output, int x, int y, int color_pair_color) {
 	if(!(window<(signed)windows.size())) return;
 	WINDOW * win = windows[window];
    	mvwaddch(win, y, x, output | A_BOLD | COLOR_PAIR(color_pair_color)); 
 }
-void Display::place(int window, std::string output, int x, int y, int color_pair_color) {
+void Display::place(Window window, std::string output, int x, int y, int color_pair_color) {
 	if(!(window<(signed)windows.size())) return;
 	//printw("This should be printed in black with a red background!\n");
 	WINDOW * win = windows[window];
@@ -113,11 +113,11 @@ void Display::place(int window, std::string output, int x, int y, int color_pair
    	waddstr(win, output.c_str()); 
 }
 
-void Display::write(int window, char output, int x, int y, int color_pair_color) {
+void Display::write(Window window, char output, int x, int y, int color_pair_color) {
 	Display::place(window, output, x, y, color_pair_color);
 	Display::refresh(window);
 }
-void Display::write(int window, std::string output, int x, int y, int color_pair_color) {
+void Display::write(Window window, std::string output, int x, int y, int color_pair_color) {
 	Display::place(window, output, x, y, color_pair_color);
 	Display::refresh(window);
 }
@@ -127,7 +127,7 @@ void Display::refresh() {
 		wrefresh(*it);
 	}
 }
-void Display::refresh(int win) {
+void Display::refresh(Window win) {
 	wrefresh(windows[win]);
 }
 void Display::debugSwitch() {
@@ -137,11 +137,8 @@ void Display::debugSwitch() {
     	wborder(*it, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
 }
-void apples() {
-	return;
-}
 
-void Display::inputBlock(int win) {
+void Display::inputBlock(Window win) {
 	int ch = wgetch(windows[win]);
 	switch (ch) {
 		case KEY_BACKSPACE: { 
@@ -161,7 +158,7 @@ void Display::inputBlock(int win) {
 		}
 	}
 }
-void Display::blockExit(int win) {
+void Display::blockExit(Window win) {
 	Display::inputBlock(win);
 	Display::exit();
 }
@@ -170,4 +167,28 @@ void Display::exit() {
 }
 Display::~Display() {
 	endwin();
+}
+
+int Display::addMap(Maps map, Window window) {
+	int result = layers.size();
+	layers.push_back(std::make_tuple(map,window));
+	return result;
+}
+
+void Display::draw() { for(int m = 0; m < layers.size(); m++) draw(m); }
+
+void Display::draw(int map) {
+	if(map < 0 || map >= layers.size()) return;
+	auto theMap = *(std::get<_map_>(layers[map]));
+	Window win = std::get<_window_>(layers[map]);
+	int i = 0;
+	for(auto jt = theMap.begin(); jt != theMap.end(); jt++, i++) {
+		auto row = *jt;
+		int j = 0;
+		for(auto point = row.begin(); point != row.end(); point++, j++) {
+			usleep(100);
+			if(*point!='X') place(win,*point,j,i,0);
+		}
+	}
+	refresh(win);
 }

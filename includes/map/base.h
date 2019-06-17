@@ -9,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "render/window.h"
 #include "extra.h"
 #include "map/point.h"
 
@@ -19,15 +18,22 @@
 class Map {
 
 	public:
-		Map(int,int, Display*);
+		Map(int,int);
+		Map(int,int,bool);
 		// Initalize everything needed for graph
 		void create();
 		/* drawing */
 		// print to stdout (debug)
 		void literalPrint();
 
-		// display in ncurses window (if true, block)
-		void updateScreen(bool=true);
+
+		// Clear the map
+		void clear();
+
+		// Return pointers to the internal
+		std::vector< std::vector<char> > const * getMap();
+		std::vector< std::vector<char> > const * getColors();
+
 
 		// set a coordinate in the map
 		bool setCoord(double x, double y);
@@ -88,10 +94,16 @@ class Map {
 
 		int numbofYlabels() {return width-2;}
 
+		
+		// Make the graph transparent
+		void makeTransparent();
+		void makeOpaque();
 	protected:
 		struct xy {	int x;	int y;	};
 		// Graph Arrays
 		std::vector< std::vector<char> > theMap;
+		std::vector< std::vector<int> > theColors;
+
 		std::vector<  std::string > Xlabels;
 		std::vector<  std::string > Ylabels;
 
@@ -108,12 +120,6 @@ class Map {
 		// Get length of actual drawing area
 		int xBoardLength();
 		int yBoardLength();
-
-
-
-		// ncurses display data
-		Display * display;
-		int window;
 
 		// map meta information
 		int length;
@@ -138,16 +144,21 @@ class Map {
 
 		// characters to use in graphs
 		char space;
+		char defaultempty;
 		char xline;
 		char yline;
 		char nothing;
 		char point;
+		char mark;
+		char transparent;
 };
 
 class CoordinateGrid : public Map {
 
 public:
-	CoordinateGrid(int, Display*);
+	CoordinateGrid(int);
+	CoordinateGrid(int,bool);
+
 };
 
 #include "debug.h"

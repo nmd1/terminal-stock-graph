@@ -3,11 +3,11 @@
 
 #include "map/base.h"
 
-class Display;
 
 class TimeGraph : public Map {
 public:
-	TimeGraph(int,int, Display*);
+	TimeGraph(int,int,bool);
+	TimeGraph(int,int);
 	bool setCoord(double, double);
 
 	// Get extremes of a graph in real coordinates
@@ -30,7 +30,8 @@ protected:
 class PositiveTimeGraph : public TimeGraph {
 
 public:
-	PositiveTimeGraph(int,int, Display*);
+	PositiveTimeGraph(int,int,bool);
+	PositiveTimeGraph(int,int);
 	bool setCoord(double, double);
 	
 	// Get extremes of a graph in real coordinates

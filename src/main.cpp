@@ -40,18 +40,17 @@ int main() {
 
 
 /* Changelog
-	Map uses xy structs 
-	Expanded point class
+	Enhanced Display and Map integration
 	------------------------------------------
-	Realized Point class was an overengineered problem for 
-		storing variables for the map class. I instead used structs.
-		However, the point class will remain as it can be very useful to 
-		store points
-
-	--Point class now differentiates between different types of 1D coordinates
-	--"using namespace std;" Removed everywhere
-	--Point class has full support for integers (not well tested!)
-	--Map how has xy structs to store data that has an x and y component
-	
+	-- Maps no longer call ncurses to draw their contents; each 
+		map is it's own independent entity
+	-- one display object can be used to create multiple different 
+	  windows
+	-- Each window can be associated with a map, so that a map
+	  can be drawn within a window
+	-- If more than one map is associated with a single window, the 
+	  new map gets layered on top of the old one(s)
+	-- if more than one window is associated with a map, the map gets
+	  drawn among multiple windows
 
 */	

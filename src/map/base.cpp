@@ -14,10 +14,12 @@ width (i)******************
        \/
 */
 
-Map::Map(int l, int w, Display * dis) {
+Map::Map(int l, int w, bool trans) : Map(l,w) {
+	if(trans) space = transparent;
+}
+Map::Map(int l, int w) {
 	length = l;
 	width = w;
-	display = dis;
 	// Shift the center of the Y axis because of the label size
 	axisloc.y = (length)/2;
 	axisloc.x = (width-1)/2;
@@ -30,12 +32,6 @@ Map::Map(int l, int w, Display * dis) {
 	quadrantn.y = 2;
 
 	// Characters to use in graphs
-	space = '.';
-	xline = '_';
-	yline = '|';
-	nothing = ' ';
-	point = '#';
-
 	labelsize.y = 1;
 	labelsize.x = 1;
 
@@ -45,8 +41,17 @@ Map::Map(int l, int w, Display * dis) {
 	maxval.y = yBoardLength()/2;
 	minval.y = -yBoardLength()/2;
 
+	space = '.';
+	defaultempty = '.';
+	xline = '_';
+	yline = '|';
+	nothing = ' ';
+	point = '#';
+	mark = ',';
+	transparent = 'X';
+
 	// Set up the window
-	window = display->newWindow(w,l,0,0);
+	//window = display->newWindow(w,l,0,0);
 	
 	if(width < 4 || length < 4) throw "Object Failed";
 
@@ -81,6 +86,7 @@ void Map::create() {
 	return;
 }
 
+
 void Map::literalPrint() {
 	graphwin<<std::endl<<std::endl;
 	for(int i = 0; i < width; i++) {
@@ -92,26 +98,22 @@ void Map::literalPrint() {
 }
 
 
-void Map::updateScreen(bool blockexit) {
-	for(int i = 0; i < width; i++) {
-		for(int j = 0; j < length; j++) {
+void Map::clear() {
+	for(int x = getMinX(gM_internal); x <= getMaxX(gM_internal); x++) {
+		for(int y = getMaxY(gM_internal); y <= getMinY(gM_internal); y++) {
+			if(y > axisloc.x && y < axisloc.x+2) continue;
+			if(x > axisloc.y-labelsize.y-1 && x < axisloc.y) continue;
 
-			if(theMap[i][j]==point) {
-				if(i>zero.y)
-					display->place(window, theMap[i][j],j,i,2);
-				else if(i<zero.y)
-					display->place(window, theMap[i][j],j,i,1);
-				else
-					display->place(window, theMap[i][j],j,i,0);
-				
-			} else {
-				display->place(window, theMap[i][j],j,i,0);
-			}
+			if(x==axisloc.y) { theMap[y][x] = yline; continue; }
+			if(y==axisloc.x) { theMap[y][x] = xline; continue; }
 
+			theMap[y][x] = space;
 		}
 	}
-	display->refresh(window);
-	if(blockexit) display->blockExit(window);
+}
+
+std::vector< std::vector<char> > const * Map::getMap() {
+	return &theMap;
 }
 
 bool Map::getRawCoord(double &x, double &y) {
@@ -350,7 +352,7 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		if(label == prevl) continue; 
 
 		// Put label on x axis
-		if(i!=wherexiszero) theMap[y-1][i]=',';
+		if(i!=wherexiszero) theMap[y-1][i]=mark;
 		for (unsigned k =0; k < labelsize.x-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
 			if(k<label.size()) theMap[y][i] = label[k];
 		}
@@ -434,7 +436,7 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		if(label == prevl) continue;
 
 		// Alright, all checks have been done, we're going to label:
-		theMap[y-1][xi]=',';
+		theMap[y-1][xi]=mark;
 		for (unsigned k=xi, j=0; j < (labelsize.x-1); k++, j++) {
 			//unsigned reverse_k = label.size() - 1 - k;
 			//debugf<<"k:"<<k<<" x:"<<(int)k-xstart<<" i:"<<i<<" ("<<label[j]<<")"<<std::endl;
@@ -611,7 +613,7 @@ void Map::resizeLabelY(unsigned int s) {
 
     // We just fundumentally changed the map, we need to edit some variables
     setYLabelSize(longest);
-	display->resize(window,length,width);
+	//display->resize(window,length,width);
 }
 
 
@@ -682,16 +684,38 @@ void Map::setLabelY(std::vector<std::string> labels) {
 
     // We just fundumentally changed the map, we need to edit some variables
     setYLabelSize(longest);
-	display->resize(window, 2*length+longest-2,width);
+	//display->resize(window, 2*length+longest-2,width);
+}
+
+void Map::makeTransparent() {
+	for(int x = getMinX(gM_internal); x <= getMaxX(gM_internal); x++) {
+		for(int y = getMaxY(gM_internal); y <= getMinY(gM_internal); y++) {
+			if(theMap[y][x] == space) theMap[y][x] = transparent;
+		}
+	}
+	space = transparent;
+}
+void Map::makeOpaque() {
+	for(int x = getMinX(gM_internal); x <= getMaxX(gM_internal); x++) {
+		for(int y = getMaxY(gM_internal); y <= getMinY(gM_internal); y++) {
+			if(theMap[y][x] == transparent) theMap[y][x] = defaultempty;
+		}
+	}
+	space = defaultempty;
 }
 
 
 /*******************************************************************/
 
-CoordinateGrid::CoordinateGrid(int size, Display * dis) : Map(size, size, dis) {
+CoordinateGrid::CoordinateGrid(int size) : Map(size, size) {
 	length = size;
 	width = size;
 
 	if(size < 4) throw "Object Failed";
 
 }
+
+CoordinateGrid::CoordinateGrid(int size, bool trans) : CoordinateGrid(size) {
+	if(trans) space = transparent;
+}
+

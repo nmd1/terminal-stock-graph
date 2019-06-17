@@ -9,6 +9,7 @@
 
 #include "map/base.h"
 #include "map/time.h"
+#include "render/window.h"
 
 extern std::ofstream debugf;
 extern std::ofstream graphwin;
