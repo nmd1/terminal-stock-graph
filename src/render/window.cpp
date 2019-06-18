@@ -15,7 +15,7 @@ void window::test() {
 
     WINDOW * win = newwin(nlines, ncols, 0, 0); 
    	WINDOW * all = stdscr;
-
+	init_color(12, 700, 0, 0);
    	// Move Cursor 
    	int x = 0, y = 0;
    	wmove(win, y, x);
@@ -47,8 +47,11 @@ Display::Display() : positive_color(1), negative_color(2) {
 	//positive_color=1;
 	//negative_color=2;
 	use_default_colors();
-   	init_pair(positive_color,COLOR_GREEN,-1);
-   	init_pair(negative_color,COLOR_RED,-1);
+	makeColors();
+
+   	init_pair(positive_color,COLOR_GREEN,COLOR_TRANSPARENT);
+   	init_pair(negative_color,COLOR_RED,COLOR_TRANSPARENT);
+
    	init_pair(3,-1,-1);
 
    	windows.push_back(stdscr);
@@ -169,9 +172,9 @@ Display::~Display() {
 	endwin();
 }
 
-int Display::addMap(Maps map, Window window) {
+int Display::addMap(Maps map, CMaps colors, Window window) {
 	int result = layers.size();
-	layers.push_back(std::make_tuple(map,window));
+	layers.push_back(std::make_tuple(map,colors, window));
 	return result;
 }
 
@@ -180,15 +183,83 @@ void Display::draw() { for(int m = 0; m < layers.size(); m++) draw(m); }
 void Display::draw(int map) {
 	if(map < 0 || map >= layers.size()) return;
 	auto theMap = *(std::get<_map_>(layers[map]));
+	auto colorMap = *(std::get<_color_>(layers[map]));
 	Window win = std::get<_window_>(layers[map]);
 	int i = 0;
+
 	for(auto jt = theMap.begin(); jt != theMap.end(); jt++, i++) {
 		auto row = *jt;
 		int j = 0;
 		for(auto point = row.begin(); point != row.end(); point++, j++) {
-			usleep(100);
-			if(*point!='X') place(win,*point,j,i,0);
+			if(*point!='X') place(win,*point,j,i,colorMap[i][j]);
+
 		}
 	}
+
 	refresh(win);
+}
+
+void makeColorFromHex(Color c, int r, int g, int b) {
+
+	double partial = r/255.0;
+	r = (int) (partial*1000);
+	partial = g/255.0;
+	g = (int) (partial*1000);
+	partial = b/255.0;
+	b = (int) (partial*1000);
+	init_color(c, r,g,b);
+	init_pair(c, c, COLOR_TRANSPARENT);
+	return;
+}
+void makeColors() {
+    
+	//init_pair(4,Colors::light_grey,COLOR_TRANSPARENT);
+	//init_pair(50,7,COLOR_TRANSPARENT);
+
+    // Reds
+    makeColorFromHex(Colors::orange_red,  255,69,0);
+    makeColorFromHex(Colors::dark_red,    139,0,0);
+    makeColorFromHex(Colors::light_red,   240,128,128);
+
+    // Greens
+    makeColorFromHex(Colors::light_green, 124,252,0);
+    makeColorFromHex(Colors::green,       50,205,50);
+    makeColorFromHex(Colors::dark_green,  0,100,50);
+
+    //Blues
+    makeColorFromHex(Colors::night,       0,0,128);
+    makeColorFromHex(Colors::sky_blue,    0,191,255);
+
+    //Shades
+    makeColorFromHex(Colors::white,       255,250,250);
+    makeColorFromHex(Colors::grey,        169,169,169);
+    makeColorFromHex(Colors::dark_grey,   128,128,128);
+    makeColorFromHex(Colors::light_grey,  240,240,240);
+    makeColorFromHex(Colors::black,       20,20,20);
+
+/*
+    A_NORMAL        Normal display (no highlight)
+    A_STANDOUT      Best highlighting mode of the terminal.
+    A_UNDERLINE     Underlining
+    A_REVERSE       Reverse video
+    A_BLINK         Blinking
+    A_DIM           Half bright
+    A_BOLD          Extra bright or bold
+    A_PROTECT       Protected mode
+    A_INVIS         Invisible or blank mode
+    A_ALTCHARSET    Alternate character set
+    A_CHARTEXT      Bit-mask to extract a character
+    COLOR_PAIR(n)   Color-pair number n 
+
+    COLOR_INVS   -1
+    COLOR_BLACK   0
+    COLOR_RED     1
+    COLOR_GREEN   2
+    COLOR_YELLOW  3
+    COLOR_BLUE    4
+    COLOR_MAGENTA 5
+    COLOR_CYAN    6
+    COLOR_WHITE   7
+
+*/
 }

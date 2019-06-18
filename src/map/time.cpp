@@ -19,9 +19,13 @@ TimeGraph::TimeGraph(int time, int magnitude) : Map(time, magnitude) {
 	if(width < 4 || length < 3) throw "Object Failed";
 }
 
-bool TimeGraph::setCoord(double t, double y) {
+bool TimeGraph::setCoord(double x, double y) {
+	return TimeGraph::setCoord(x,y,defaultColor);
+}
+
+bool TimeGraph::setCoord(double t, double y, Color color) {
 	if(t < 0) return false;
-	Map::setCoord(t,y);
+	Map::setCoord(t,y,color);
 	return true;
 }
 
@@ -53,10 +57,12 @@ PositiveTimeGraph::PositiveTimeGraph(int time, int magnitude) : TimeGraph(time, 
 }
 
 
-
-bool PositiveTimeGraph::setCoord(double t, double y) {
+bool PositiveTimeGraph::setCoord(double x, double y) {
+	return PositiveTimeGraph::setCoord(x,y,defaultColor);
+}
+bool PositiveTimeGraph::setCoord(double t, double y, Color color) {
 	if(y < 0) return false;
-	TimeGraph::setCoord(t,y);
+	TimeGraph::setCoord(t,y,color);
 	return true;
 }
 

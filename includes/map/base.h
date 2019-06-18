@@ -11,6 +11,7 @@
 
 #include "extra.h"
 #include "map/point.h"
+#include "render/color.h"
 
 // This is the map base class
 // Every map type extends this class (or a class that extends this class)
@@ -32,11 +33,12 @@ class Map {
 
 		// Return pointers to the internal
 		std::vector< std::vector<char> > const * getMap();
-		std::vector< std::vector<char> > const * getColors();
+		std::vector< std::vector<Color> > const * getColorMap();
 
 
 		// set a coordinate in the map
 		bool setCoord(double x, double y);
+		bool setCoord(double x, double y, Color color);
 
 
 
@@ -98,11 +100,12 @@ class Map {
 		// Make the graph transparent
 		void makeTransparent();
 		void makeOpaque();
+
 	protected:
 		struct xy {	int x;	int y;	};
 		// Graph Arrays
 		std::vector< std::vector<char> > theMap;
-		std::vector< std::vector<int> > theColors;
+		std::vector< std::vector<Color> > theColors;
 
 		std::vector<  std::string > Xlabels;
 		std::vector<  std::string > Ylabels;
@@ -151,6 +154,14 @@ class Map {
 		char point;
 		char mark;
 		char transparent;
+
+		// colors!;
+		Color emptyColor   = Colors::white;
+		Color defaultColor = Colors::white;
+		Color axisColor    = Colors::grey;
+		Color titleColor   = Colors::sky_blue;
+		Color labelColor   = Colors::white;
+
 };
 
 class CoordinateGrid : public Map {

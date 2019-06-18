@@ -7,6 +7,8 @@
 #include <string>
 #include <tuple>
 
+#include "render/color.h"
+
 namespace window {
 	void test();
 }
@@ -18,9 +20,13 @@ struct point {
 
 typedef int Window;
 
+void makeColors();
+void makeColorFromHex(Color, int, int, int);
 class Display {
 	private:
-		typedef const std::vector< std::vector<char> > *  Maps;
+		typedef const std::vector< std::vector<char> > * Maps;
+		typedef const std::vector< std::vector<Color> > * CMaps;
+
 	public:
 		Display();
 		// create a new window
@@ -38,7 +44,7 @@ class Display {
 		// Draws a specific map
 		void draw(int);
 		// Adds a map to this display class
-		int addMap(Maps, Window);
+		int addMap(Maps, CMaps, Window);
 		// refreshes all windows
 		void refresh();
 		// refreshes a specified window
@@ -69,10 +75,10 @@ class Display {
 
 		// Stores the references to map object's vectors
 		// The window each map should be drawn in, and the color map
-		std::vector<std::tuple<Maps, Window> > layers;
+		std::vector<std::tuple<Maps, CMaps, Window> > layers;
 
 		// Used to determine which tuple value to get 
-		enum LayerTypes {_map_=0, _window_=1, _color_=2};
+		enum LayerTypes {_map_=0, _color_=1, _window_=2};
 };	
 
 #endif 

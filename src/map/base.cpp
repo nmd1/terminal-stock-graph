@@ -61,25 +61,33 @@ void Map::create() {
 	std::string temp_char_label = " ";
 	for(int i = 0; i < width; i++) {
 		std::vector<char> rowfill;
+		std::vector<Color> rowcolors;
 		for(int j = 0; j < length; j++) {
 			if(j==axisloc.y-1 && i != axisloc.x) {
 				rowfill.push_back(temp_char_label[0]);
+				rowcolors.push_back(labelColor);
 			} else if(j==axisloc.y) {
 				rowfill.push_back(yline);
+				rowcolors.push_back(axisColor);
 			} else {
 				if (i==axisloc.x && j==axisloc.y-1) {
 					rowfill.push_back(nothing);
+					rowcolors.push_back(emptyColor);
 				} else if (i==axisloc.x+1) {
 					rowfill.push_back(' ');
+					rowcolors.push_back(labelColor);
 				} else if(i==axisloc.x) {
 					rowfill.push_back(xline);
+					rowcolors.push_back(axisColor);
 				} else {
-					rowfill.push_back(space);				
+					rowfill.push_back(space);	
+					rowcolors.push_back(defaultColor);
 				}
 			}
 		}
 		//std::cout<<"size of row i="<<i<<" is "<<rowfill.size()<<std::endl;
 		theMap.push_back(rowfill);
+		theColors.push_back(rowcolors);
 		Ylabels.push_back(temp_char_label);
 	}
 	//std::cout<<"size of map is "<<theMap.size()<<std::endl;
@@ -101,13 +109,29 @@ void Map::literalPrint() {
 void Map::clear() {
 	for(int x = getMinX(gM_internal); x <= getMaxX(gM_internal); x++) {
 		for(int y = getMaxY(gM_internal); y <= getMinY(gM_internal); y++) {
-			if(y > axisloc.x && y < axisloc.x+2) continue;
-			if(x > axisloc.y-labelsize.y-1 && x < axisloc.y) continue;
+			if(y > axisloc.x && y < axisloc.x+2) {
+				theColors[y][x] = labelColor;
+				continue;
+			}
+			if(x > axisloc.y-labelsize.y-1 && x < axisloc.y) {
+				theColors[y][x] = labelColor;
+				continue;
+			}
 
-			if(x==axisloc.y) { theMap[y][x] = yline; continue; }
-			if(y==axisloc.x) { theMap[y][x] = xline; continue; }
+			if(x==axisloc.y) { 
+				theMap[y][x] = yline; 
+				theColors[y][x] = axisColor;
+				continue; 
+			}
+			if(y==axisloc.x) { 
+				theMap[y][x] = xline;
+				theColors[y][x] = axisColor;				
+				continue; 
+			}
 
 			theMap[y][x] = space;
+			theColors[y][x] = defaultColor;
+
 		}
 	}
 }
@@ -116,11 +140,15 @@ std::vector< std::vector<char> > const * Map::getMap() {
 	return &theMap;
 }
 
+std::vector< std::vector<Color> > const * Map::getColorMap() {
+	return &theColors;
+}
+
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
 
 	// Turn on debug print statements
-	bool localdebug = true;
+	bool localdebug = false;
 
 	// First, some metadata about what type of graph you are:
 	bool timegraph = false;
@@ -149,7 +177,6 @@ bool Map::getRawCoord(double &x, double &y) {
 	double x1 = x - realxzero;
 	double y1 = y - realyzero;
 
-	debugf<<"xlen rangex: "<<xBoardLength()<<" "<<rangex<<std::endl;
 	// [(Negative) Normalization]
 	double x2 = ( 1) * (x1 / (rangex/quadrantn.x));
 	double y2 = (-1) * (y1 / (rangey/quadrantn.y));
@@ -236,14 +263,16 @@ bool Map::getRawCoord(double &x, double &y) {
 
 // Sets coordinates for generic map
 bool Map::setCoord(double x, double y) {
+	return setCoord(x,y,defaultColor);
+}
+bool Map::setCoord(double x, double y, Color color) {
 	bool returnval = getRawCoord(x, y);
 	int xin = (int)x;
 	int yin = (int)y;
 	//debugf<<"("<<xin<<","<<yin<<")"<<std::endl;
-	if(returnval) theMap[yin][xin] = point;	
+	if(returnval) { theMap[yin][xin] = point; theColors[yin][xin] = color; }	
 	return returnval;
 }
-
 
 // Auto label based on how many labels we have
 void Map::setLabelX(std::vector<std::string> labels) {
@@ -262,8 +291,11 @@ void Map::setLabelX(std::vector<std::string> labels) {
 		unsigned k = 0;
 		for (; k < labels[i].size(); j++, k++) {
 			theMap[zero.y+1][j] = labels[i][k];
+			theColors[zero.y+1][j] = labelColor;
 		}
 		theMap[zero.y+1][++j] = ' ';
+		theColors[zero.y+1][++j] = emptyColor;
+
 	}
 	return; 
 }
@@ -286,6 +318,7 @@ void Map::setLabelX(std::string label, double xin) {
 	// Fill in the row with the label
 	for (unsigned k =0; k < labelsize.x; x++, k++) {
 		theMap[y][x] = label[k];
+		theColors[y][x] = labelColor;
 	}
 }
 
@@ -295,7 +328,6 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 	// this calculation changes depending on what graph you are.
 	double delta = ((getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
 
-	debugf<<"del:"<<delta<<std::endl;
 	double yin = zeroy, xin = zero;
 
 	//for testing sameness
@@ -352,9 +384,9 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		if(label == prevl) continue; 
 
 		// Put label on x axis
-		if(i!=wherexiszero) theMap[y-1][i]=mark;
+		if(i!=wherexiszero) { theMap[y-1][i]=mark; theColors[y-1][i] = axisColor; }
 		for (unsigned k =0; k < labelsize.x-1 && i<=(int)getMaxX(gM_internal); i++, k++) {
-			if(k<label.size()) theMap[y][i] = label[k];
+			if(k<label.size()) { theMap[y][i] = label[k]; theColors[y][i] = labelColor; }
 		}
 
 
@@ -436,11 +468,11 @@ void Map::autoLabelX(double zero, double zeroy, int type, double delta_override)
 		if(label == prevl) continue;
 
 		// Alright, all checks have been done, we're going to label:
-		theMap[y-1][xi]=mark;
+		theMap[y-1][xi]=mark; theColors[y-1][xi] = axisColor;
 		for (unsigned k=xi, j=0; j < (labelsize.x-1); k++, j++) {
 			//unsigned reverse_k = label.size() - 1 - k;
 			//debugf<<"k:"<<k<<" x:"<<(int)k-xstart<<" i:"<<i<<" ("<<label[j]<<")"<<std::endl;
-			if(j<label.size()) theMap[y][k] = label[j];
+			if(j<label.size()) { theMap[y][k] = label[j]; theColors[y][k] = labelColor; }
 		}
 		last_valid_i = i+1;
 		// We just labeled, move away to create some space for the new label
@@ -517,8 +549,10 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		if(label == prevl) {
 			if (y < 0) {
 				// Clear out the previous label
-				for (unsigned k=x; k < x+labelsize.y; k++) 
+				for (unsigned k=x; k < x+labelsize.y; k++) {
 					theMap[i+1][k] = ' ';
+					theColors[i+1][k] = emptyColor;
+				}
 			} else {
 				// Clear out this label
 				label = "";
@@ -532,8 +566,11 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		for (unsigned k=x, l=0; k < x+labelsize.y; k++) {
 			if((int)k<xwrite) {
 				theMap[i][k] = ' ';
+				theColors[i][k] = emptyColor;
 			} else {
 				theMap[i][k] = label[l];
+				theColors[i][k] = labelColor;
+
 				l++;
 			}
 		}
@@ -558,7 +595,7 @@ void Map::setLabelY(std::string label, double yin) {
 	for (unsigned k =0; k < label.size(); x++, k++) {
 		if(!(x<axisloc.y)) break;
 		theMap[y][x] = label[k];
-
+		theColors[y][x] = labelColor;
 		//debugf<<"fillin in"<<std::endl;
 	}
 }
@@ -574,23 +611,26 @@ void Map::resizeLabelY(unsigned int s) {
 
     for(unsigned i = 0; i < theMap.size(); i++) {
     	std::vector<char> row = theMap[i];
-
+		std::vector<Color> crow = theColors[i];
 		// Split the current row into two vectors,
 		// Generate a new vector<char> that is made up
 		// of characters from the label, and combine 
 		// the three 
-    	
     	// Split
     	std::vector<char> result(row.begin(), row.begin() + axisloc.y - labelsize.y);
 		std::vector<char> split_hi(row.begin()+axisloc.y, row.end());			
 		
+		std::vector<Color> cresult(crow.begin(), crow.begin() + axisloc.y - labelsize.y);
+		std::vector<Color> csplit_hi(crow.begin()+axisloc.y, crow.end());
+
 		// Create char label vector
 		std::vector<char> alabel;
-
+		std::vector<Color> alabelColor;
 
 		// add in blank spaces for x axis to keep rows even
 		for (unsigned int k = 0; k < longest; k++) {
 			alabel.push_back(' ');
+			alabelColor.push_back(emptyColor);
 		}
 
 		// add in label, character by character, from Ylables
@@ -599,16 +639,20 @@ void Map::resizeLabelY(unsigned int s) {
 		for(unsigned int k = longest-Ylabels[i].size(); k < longest; k++) {
 			if(!Ylabels[i][j]) break;
 			alabel[k] = Ylabels[i][j++];
+			alabelColor[k] = axisColor;
 		}
 
 
 		// Merge 
 		result.insert(result.end(), alabel.begin(), alabel.end());
-		result.insert(result.end(), split_hi.begin(), split_hi.end());;
+		result.insert(result.end(), split_hi.begin(), split_hi.end());
+
+		cresult.insert(cresult.end(), alabelColor.begin(), alabelColor.end());
+		cresult.insert(cresult.end(), csplit_hi.begin(), csplit_hi.end());
 
 		// refresh the map row with this
     	theMap[i] = result;
-
+		theColors[i] = cresult;
     }
 
     // We just fundumentally changed the map, we need to edit some variables
@@ -646,6 +690,7 @@ void Map::setLabelY(std::vector<std::string> labels) {
 
     for(unsigned i = 0; i < theMap.size(); i++) {
     	std::vector<char> row = theMap[i];
+		std::vector<Color> crow = theColors[i];
 
 		// Split the current row into two vectors,
 		// Generate a new vector<char> that is made up
@@ -656,13 +701,20 @@ void Map::setLabelY(std::vector<std::string> labels) {
     	std::vector<char> result(row.begin(), row.begin() + axisloc.y + 1 - labelsize.y);
 		std::vector<char> split_hi(row.begin() + axisloc.y + 1 - labelsize.y + 1, row.end());			
 		
+    	std::vector<Color> cresult(crow.begin(), crow.begin() + axisloc.y + 1 - labelsize.y);
+		std::vector<Color> csplit_hi(crow.begin() + axisloc.y + 1 - labelsize.y + 1, crow.end());			
+		
+
 		// Create char label vector
 		std::vector<char> alabel;
+		std::vector<Color> alabelColor;
 
 
 		// add in blank spaces for x axis to keep rows even
 		for (int k = 0; k < longest; k++) {
 			alabel.push_back(' ');
+			alabelColor.push_back(emptyColor);
+
 		}
 
 		// add in label, character by character
@@ -670,15 +722,20 @@ void Map::setLabelY(std::vector<std::string> labels) {
 		for(int k = longest-Ylabels[i].size(); k < longest; k++) {
 			if(!Ylabels[i][j]) break;
 			alabel[k] = Ylabels[i][j++];
+			alabelColor[k] = axisColor;
 		}
 
 
 		// Merge 
 		result.insert(result.end(), alabel.begin(), alabel.end());
-		result.insert(result.end(), split_hi.begin(), split_hi.end());;
+		result.insert(result.end(), split_hi.begin(), split_hi.end());
 
+		cresult.insert(cresult.end(), alabelColor.begin(), alabelColor.end());
+		cresult.insert(cresult.end(), csplit_hi.begin(), csplit_hi.end());
+		
 		// refresh the map row with this
     	theMap[i] = result;
+		theColors[i] = cresult;
 
     }
 

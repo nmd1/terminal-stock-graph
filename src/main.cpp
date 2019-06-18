@@ -40,17 +40,11 @@ int main() {
 
 
 /* Changelog
-	Enhanced Display and Map integration
+	C O L O R S~~~
 	------------------------------------------
-	-- Maps no longer call ncurses to draw their contents; each 
-		map is it's own independent entity
-	-- one display object can be used to create multiple different 
-	  windows
-	-- Each window can be associated with a map, so that a map
-	  can be drawn within a window
-	-- If more than one map is associated with a single window, the 
-	  new map gets layered on top of the old one(s)
-	-- if more than one window is associated with a map, the map gets
-	  drawn among multiple windows
-
+	-- A new multidimensional array that represent colors for
+	 	each individual point has been added to the Map class.
+	--Fancy predefined colors have been added, defined in a header
+		that's designed to be associated with whatever source file that 
+		needs color support
 */	

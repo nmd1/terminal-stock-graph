@@ -9,6 +9,7 @@ public:
 	TimeGraph(int,int,bool);
 	TimeGraph(int,int);
 	bool setCoord(double, double);
+	bool setCoord(double, double, Color);
 
 	// Get extremes of a graph in real coordinates
 	double getMinX();
@@ -33,7 +34,8 @@ public:
 	PositiveTimeGraph(int,int,bool);
 	PositiveTimeGraph(int,int);
 	bool setCoord(double, double);
-	
+	bool setCoord(double, double, Color);
+
 	// Get extremes of a graph in real coordinates
 	double getMinY();
 	// Set max/min value for x/y 
