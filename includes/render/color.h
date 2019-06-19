@@ -30,6 +30,8 @@ namespace Colors {
         sky_blue,
         orange_red,
         dark_red,
+        pink,
+        light_pink,
     };
 }
 

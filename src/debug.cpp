@@ -8,23 +8,24 @@ void graph_sin()
     // Make a new window
     Window w = d.newWindow(101, 21, 0, 0);
     // Make a new map
-    Window w2 = d.newWindow(101, 21, 101, 0);
+    Window w2 = d.newWindow(101, 21, 102, 0);
     // Make a new map
-    Window w3 = d.newWindow(101, 21, 0, 21);
+    Window w3 = d.newWindow(101, 21, 0, 22);
     // Make a new map
-    Window w4 = d.newWindow(101, 21, 101, 21);
+    Window w4 = d.newWindow(101, 21, 102, 22);
     // Make a new map
-    Map sinwave(100, 21, false);
-    Map coswave(100, 21, true); // makes it transparent
-    Map line(100, 21);
-    PositiveTimeGraph logg(100, 21);
+    Map sinwave(100, 20, false);
+    Map coswave(100, 20, true); // makes it transparent
+    Map line(100, 20);
+    TimeGraph parabola(100, 20);
+    PositiveTimeGraph logg(96, 20);
 
     // Associate map with window
-    int sinwaveid = d.addMap(logg.getMap(), logg.getColorMap(), w);
-    int sinwaveid2 = d.addMap(line.getMap(), line.getColorMap(), w2);
-    int sinwaveid3 = d.addMap(line.getMap(), line.getColorMap(), w3);
-    int sinwaveid4 = d.addMap(sinwave.getMap(), sinwave.getColorMap(), w4);
-    int sinwaveid5 = d.addMap(coswave.getMap(), coswave.getColorMap(), w4);
+    int sinwaveid = d.addMap(&logg, w);
+    int sinwaveid2 = d.addMap(&line, w2);
+    int sinwaveid3 = d.addMap(&parabola, w3);
+    int sinwaveid4 = d.addMap(&sinwave, w4);
+    int sinwaveid5 = d.addMap(&coswave, w4);
 
     coswave.create();
     // Set max Y label sizes
@@ -36,6 +37,7 @@ void graph_sin()
     coswave.autoLabelX(0, 0, 0.5);
     coswave.autoLabelY(0, 0, 0.5);
 
+
     sinwave.create();
     // Set max Y label sizes
     sinwave.resizeLabelY(5);
@@ -45,6 +47,18 @@ void graph_sin()
     sinwave.setExtremeX(2 * M_PI); // go from 0 to 2*PI
     sinwave.autoLabelX(0, 0, 0.5);
     sinwave.autoLabelY(0, 0, 0.5);
+
+
+    parabola.create();
+    // Set max Y label sizes
+    parabola.resizeLabelY(5);
+    parabola.resizeLabelX(4);
+    // Scale
+    parabola.setExtremeY(5); // go from 1 to -1
+    parabola.setExtremeX(20); // go from 0 to 2*PI
+    parabola.autoLabelX(0, 0, 0.5);
+    parabola.autoLabelY(0, 0, 0.5);
+
 
     line.create();
     // Set max Y label sizes
@@ -56,6 +70,7 @@ void graph_sin()
     line.autoLabelX(0, 0, 0.5);
     line.autoLabelY(0, 0, 0.5);
 
+
     logg.create();
     // Set max Y label sizes
     logg.resizeLabelY(5);
@@ -65,7 +80,6 @@ void graph_sin()
     logg.setExtremeX(20); // go from 0 to 2*PI
     logg.autoLabelX(0, 0, 0.5);
     logg.autoLabelY(0, 0, 0.5);
-
     double max = 20;
     /*
     sinwave.setCoord(0, 0);
@@ -82,20 +96,26 @@ void graph_sin()
         double y3 = sin(x);
         double y4 = cos(x);
         double y5 = 4 * log(x);
-
+        double y6 = sqrt(x);
         sinwave.setCoord(x, y3,Colors::orange_red);
         coswave.setCoord(x, y4,Colors::sky_blue);
         line.setCoord(x, y, Colors::dark_green);
         line.setCoord(x, y2, Colors::dark_red);
         logg.setCoord(x, y5, Colors::night);
-        //sinwave.setLabelY(std::to_string(y), y);
-        //sinwave.setLabelX(std::to_string(x), x);
+        parabola.setCoord(x, y6, Colors::pink);
+        parabola.setCoord(x, -y6, Colors::pink);
 
         //usleep(1000);
     }
 
     d.draw();
-    d.inputBlock(w);
+    d.setTitle(w,"Hello World!");
+
+    d.marker(w);
+    d.marker(w2);
+    d.marker(w3);
+    d.marker(w4);
+    //d.inputBlock(w);
 
     d.exit();
     return;

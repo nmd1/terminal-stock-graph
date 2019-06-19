@@ -761,6 +761,97 @@ void Map::makeOpaque() {
 	space = defaultempty;
 }
 
+void Map::getZeroLocation(int &x, int &y) {
+	double xin = 0;
+	double yin = 0;
+	getRawCoord(xin,yin);
+	x = (int)xin;
+	y = (int)yin;
+}
+
+int Map::addToCoord(bool xory, int start, int add) {
+	// First, some metadata about what type of graph you are:
+	const int FAIL = -1;
+	bool timegraph = false;
+	bool ptimegraph = false;
+	if(getMinX(gM_internal)==labelsize.y) { // we're in a TimeGraph
+		timegraph = true;
+		if(getMinY(gM_internal)==width-2)  // we're in a PosTimeGraph
+			ptimegraph = true;
+	}
+
+	if(xory) {
+		int x = start + add;
+		if(x<getMinX(gM_internal)) return getMinX(gM_internal);
+		if(x>getMaxX(gM_internal)) return getMaxX(gM_internal);
+
+		if(timegraph) {
+			return x;
+		} else {
+			if(x > axisloc.y-labelsize.y-1 && x < axisloc.y) {
+				if(start < axisloc.y) return axisloc.y;
+				else return axisloc.y-labelsize.y-1 ;
+			}
+		}		
+		return x;
+	} else {
+		int y = start + add;
+		if(y>getMinY(gM_internal)) return getMinY(gM_internal);
+		if(y<getMaxY(gM_internal)) return getMaxY(gM_internal);
+	
+		if(y > axisloc.x && y < axisloc.x+2) {
+			if(start==axisloc.x) return axisloc.x+2;
+			else return axisloc.x;
+		}
+
+		return y;
+	}
+
+}
+
+void Map::getRealValFromCoord(double &x, double &y) {
+	double deltax = ((getMaxX(gM_real)-getMinX(gM_real))) / (xBoardLength());
+	double deltay = ((getMaxY(gM_real)-getMinY(gM_real))) / (yBoardLength());
+
+	// zero offset, current unused.
+	double zerox = 0;
+	double zeroy = 0;
+
+	int wherexiszero = 0;
+	int whereyiszero = 0;
+	getZeroLocation(wherexiszero, whereyiszero);
+	int xin = (int)x;
+	int yin = (int)y;
+
+	// Calculate what the real value of x should be
+	int xstart = wherexiszero-labelsize.y-1;
+	if(xin<wherexiszero) x = zerox + ((xin-xstart-1)*deltax);
+	else x = zerox + (xin-wherexiszero)*deltax;
+
+	// Calculate what the real value of y should be
+	yin = -(yin-whereyiszero);
+	if(yin<0) yin++;	// skip over x axis
+	y = zeroy + ((yin)*deltay);
+}
+
+bool Map::isValidPoint(int x, int y) {
+	if(y > axisloc.x && y < axisloc.x+2) {
+		return false;
+	}
+	if(x > axisloc.y-labelsize.y-1 && x < axisloc.y) {
+		return false;
+	}
+
+	// check bounds 
+	if(x<0) return false;
+	if(y<0) return false;
+	if(y>=(int)theMap.size()) return false;
+	if(x>=(int)theMap[y].size()) return false;
+
+	return true;
+
+}
+
 
 /*******************************************************************/
 

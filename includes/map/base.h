@@ -37,8 +37,8 @@ class Map {
 
 
 		// set a coordinate in the map
-		bool setCoord(double x, double y);
-		bool setCoord(double x, double y, Color color);
+		bool setCoord(double, double);
+		bool setCoord(double, double, Color);
 
 
 
@@ -101,8 +101,15 @@ class Map {
 		void makeTransparent();
 		void makeOpaque();
 
+		// is this point on the map area?
+		void getZeroLocation(int &, int &);
+		int addToCoord(bool, int, int);
+		void getRealValFromCoord(double &, double &);
+		bool isValidPoint(int, int);
+
 	protected:
 		struct xy {	int x;	int y;	};
+
 		// Graph Arrays
 		std::vector< std::vector<char> > theMap;
 		std::vector< std::vector<Color> > theColors;

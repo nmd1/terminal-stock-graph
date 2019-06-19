@@ -18,7 +18,9 @@ void stockDraw(std::string stock) {
     // Create window
     Window win = d.newWindow(200,40,0,0);
     // Associate window with map
-    d.addMap(sgraph.getMap(), sgraph.getColorMap(), win);
+    d.addMap(&sgraph, win);
+    d.addMap(&sgraph, win);
+
     sgraph.create();
 
     // Set Label Sizes (for now...)
@@ -97,7 +99,7 @@ void stockDrawFull(std::string stock) {
     // Create a window
     Window win = d.newWindow(200,40,0,0);
     // Associate window with graph
-    d.addMap(sgraph.getMap(), sgraph.getColorMap(), win);
+    d.addMap(&sgraph, win);
     sgraph.create();
 
     // Set Label Sizes (for now...)
@@ -168,7 +170,7 @@ void stockDrawWithPast(std::string stock, time_t center) {
     // Get a new window
     Window win = d.newWindow(200,40,0,0);
     // Associate map with window
-    d.addMap(sgraph.getMap(),sgraph.getColorMap(), win);
+    d.addMap(&sgraph, win);
 
     sgraph.create();
 

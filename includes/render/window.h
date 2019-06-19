@@ -5,9 +5,12 @@
 #include <unistd.h> //for sleeping
 #include <curses.h> 
 #include <string>
+#include <sstream>
 #include <tuple>
 
 #include "render/color.h"
+#include "map/base.h"
+#include "debug.h"
 
 namespace window {
 	void test();
@@ -24,8 +27,8 @@ void makeColors();
 void makeColorFromHex(Color, int, int, int);
 class Display {
 	private:
-		typedef const std::vector< std::vector<char> > * Maps;
-		typedef const std::vector< std::vector<Color> > * CMaps;
+		//typedef const std::vector< std::vector<char> > * Maps;
+		//typedef const std::vector< std::vector<Color> > * CMaps;
 
 	public:
 		Display();
@@ -44,7 +47,7 @@ class Display {
 		// Draws a specific map
 		void draw(int);
 		// Adds a map to this display class
-		int addMap(Maps, CMaps, Window);
+		int addMap(Map*, Window);
 		// refreshes all windows
 		void refresh();
 		// refreshes a specified window
@@ -52,6 +55,8 @@ class Display {
 		// process input.
 		void inputBlock(Window);
 		// starts a writer for output 
+		void drawLine(Window, bool, int,int);
+		// Draws a line (true for h, false for v)
 		void resize(Window, int, int);
 		// advances writer and places character
 		void start(int&, int&);
@@ -68,6 +73,18 @@ class Display {
 		~Display();
 		const int positive_color;
 		const int negative_color;
+
+		// Marks a point on the window. Can be controlled via keys
+		void marker(Window); 
+		// Gets id in the layer vector where a window is found
+		std::vector<int> getLayerIdsFromWindow(Window win);
+		// Checks if a point is within bounds
+		bool isWithinBounds(Window , int , int);
+		void horizontalMarker(Window, int, int);
+		void verticleMarker(Window, int, int);
+		void setTitle(Window, std::string);
+		void clearLine(Window ,int );
+
 	private:
 		void run();
 		// list that converts numbers back to the windows they represent
@@ -75,10 +92,10 @@ class Display {
 
 		// Stores the references to map object's vectors
 		// The window each map should be drawn in, and the color map
-		std::vector<std::tuple<Maps, CMaps, Window> > layers;
+		std::vector<std::tuple<Map*, Window> > layers;
 
 		// Used to determine which tuple value to get 
-		enum LayerTypes {_map_=0, _color_=1, _window_=2};
+		enum LayerTypes {_mapObject_=0, _window_=1};
 };	
 
 #endif 

@@ -40,11 +40,8 @@ int main() {
 
 
 /* Changelog
-	C O L O R S~~~
+	Titles and Markers 
 	------------------------------------------
-	-- A new multidimensional array that represent colors for
-	 	each individual point has been added to the Map class.
-	--Fancy predefined colors have been added, defined in a header
-		that's designed to be associated with whatever source file that 
-		needs color support
+	-- Support for adding titles, placing onscreen markers, and getting
+		value at a location has	been added
 */	

@@ -1,6 +1,7 @@
 test
 *.sublime-project
 *.sublime-workspace
+*.out
 extra/
 bin/
 build/
