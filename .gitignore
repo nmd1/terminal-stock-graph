@@ -6,3 +6,4 @@ extra/
 bin/
 build/
 .vscode/
+*.stock

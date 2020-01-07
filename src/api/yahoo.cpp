@@ -19,106 +19,14 @@ namespace cb
     }
 }
 
-void yahoo::removeOHLC(std::vector<yahoo::OHLC*>* data) {
-	for (auto ohlcptr : *data) {
-		delete ohlcptr;
-	}
-}
+
 
 std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
-	std::vector<yahoo::OHLC*> result;
-
-	bool use_12_hour_time = true;
-	bool is_morning = false;
-	std::string time = "?interval=2m";
-	time = "";
-	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+time;
-
-	debugf<<"Opening new connection"<<std::endl;
-	json raw_data = web(api);
-	if(raw_data.empty()) return result;	
-	debugf<<"Closing our new connection"<<std::endl;
-
-    //debugf << raw_data.dump(4) << std::endl;
-
-    json error = raw_data["chart"]["error"];
-    if(!error.empty()) {
-    	std::string ecode = error["code"];
-    	std::string edes = error["description"];
-    	debugf<<"API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
-    	//TODO: replace this with exception handling 
-		std::vector<yahoo::OHLC*> a;
-	    return a; 
-	}
-
-    json data = raw_data["chart"]["result"][0];
-    json meta_data = data["meta"];
-    for (unsigned i = 0; i < data["timestamp"].size(); i++) {
-
-    	// This next part is just parsing time.
-    	// It should honestly be in it's own function
-    	time_t date = data["timestamp"][i];
-    	tm *ltm = localtime(&date);
-/*
-		int year =  1900 + ltm->tm_year;
-		int month =  1 + ltm->tm_mon;
-		int day =  ltm->tm_mday;
-		
-		int minutes = 1 + ltm->tm_min;
-		int seconds =  1 + ltm->tm_sec;
-*/
-		int hours = ltm->tm_hour;
-
-		std::string hour_indicator = "";
-		if(use_12_hour_time) {
-			if (!(hours > 24) && (hours > 12)) {
-				is_morning=false;
-				hours-=12;
-			} else {
-				is_morning=true;
-				hour_indicator = "am";
-			}
-		}
-		if(hours==12) is_morning=!is_morning;
-		if(is_morning) {
-			hour_indicator = "am";
-		} else {
-			hour_indicator = "pm";			
-		}
-
-
-		//if(i%10)  debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
-		//if(i==0) debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
-		//if(i==data["timestamp"].size()-1) 
-		//	debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
-		yahoo::OHLC * ohlc = new yahoo::OHLC();
-        json jquote = data["indicators"]["quote"][0];
-
-		if(date) ohlc->time = date;
-        if(!jquote["volume"][i].empty())
-		    ohlc->volume = jquote["volume"][i];
-        if(!jquote["close"][i].empty())
-			ohlc->open = jquote["close"][i];
-        if(!jquote["open"][i].empty())
-            ohlc->high = jquote["open"][i];
-        if(!jquote["high"][i].empty())
-    		ohlc->low = jquote["high"][i];
-        if(!jquote["low"][i].empty())
-	       ohlc->close = jquote["low"][i];
-		else 
-
-		// Sometimes the api returns 0 for a close value
-		// In these situations, just don't add the data point.
-		// In the future find a better way to handle this situation
-			continue;
-		//debugf<<ltm<<std::endl;
-
-		result.push_back(ohlc);
-		//debugf<<dt<<std::endl;
-    }
-    //debugf<<result.size()<<std::endl;
-    return result;
-
+	json data = downloadStockJSON(stock);
+	// Uncomment to save/load to/from disk
+	//std::string name = saveJSON(data);
+	//data = loadJSON(name);
+	return getOHLCFromJSON(data);
 }
 
 /*
@@ -203,4 +111,140 @@ json yahoo::web(const std::string url, const int timeout) {
 
     json data = raw_response_json["quoteResponse"]["result"][0];
     return data;
+}
+
+
+json yahoo::downloadStockJSON(std::string stock) {
+	json empty;
+	std::string time = "?interval=2m";
+	time = "";
+	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+time;
+
+	debugf<<"Opening new connection"<<std::endl;
+	json raw_data = web(api);
+	if(raw_data.empty()) return empty;	
+	debugf<<"Closing our new connection"<<std::endl;
+
+    //debugf << raw_data.dump(4) << std::endl;
+
+    json error = raw_data["chart"]["error"];
+    if(!error.empty()) {
+    	std::string ecode = error["code"];
+    	std::string edes = error["description"];
+    	debugf<<"API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
+    	//TODO: replace this with exception handling 
+	    return empty; 
+	}
+
+    json data = raw_data["chart"]["result"][0];
+	return data;
+}
+std::vector<yahoo::OHLC*> yahoo::getOHLCFromJSON(json data) {
+	bool use_12_hour_time = true;
+	bool is_morning = false;
+	json meta_data = data["meta"];
+
+	std::vector<yahoo::OHLC*> result;
+    for (unsigned i = 0; i < data["timestamp"].size(); i++) {
+
+    	// This next part is just parsing time.
+    	// It should honestly be in it's own function
+    	time_t date = data["timestamp"][i];
+    	tm *ltm = localtime(&date);
+
+		//int year =  1900 + ltm->tm_year;
+		//int month =  1 + ltm->tm_mon;
+		//int day =  ltm->tm_mday;
+		//
+		//int minutes = 1 + ltm->tm_min;
+		//int seconds =  1 + ltm->tm_sec;
+
+		int hours = ltm->tm_hour;
+
+		std::string hour_indicator = "";
+		if(use_12_hour_time) {
+			if (!(hours > 24) && (hours > 12)) {
+				is_morning=false;
+				hours-=12;
+			} else {
+				is_morning=true;
+				hour_indicator = "am";
+			}
+		}
+		if(hours==12) is_morning=!is_morning;
+		if(is_morning) {
+			hour_indicator = "am";
+		} else {
+			hour_indicator = "pm";			
+		}
+
+
+		//if(i%10)  debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		//if(i==0) debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		//if(i==data["timestamp"].size()-1) 
+		//	debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		yahoo::OHLC * ohlc = new yahoo::OHLC();
+        json jquote = data["indicators"]["quote"][0];
+
+		if(date) ohlc->time = date;
+        if(!jquote["volume"][i].empty())
+		    ohlc->volume = jquote["volume"][i];
+        if(!jquote["close"][i].empty())
+			ohlc->open = jquote["close"][i];
+        if(!jquote["open"][i].empty())
+            ohlc->high = jquote["open"][i];
+        if(!jquote["high"][i].empty())
+    		ohlc->low = jquote["high"][i];
+        if(!jquote["low"][i].empty())
+	       ohlc->close = jquote["low"][i];
+		else 
+
+		// Sometimes the api returns 0 for a close value
+		// In these situations, just don't add the data point.
+		// In the future find a better way to handle this situation
+			continue;
+		//debugf<<ltm<<std::endl;
+
+		result.push_back(ohlc);
+		//debugf<<dt<<std::endl;
+    }
+    //debugf<<result.size()<<std::endl;
+    return result;
+
+}
+
+std::string yahoo::saveJSON(json data) {
+	// Use current time as file name 
+	auto t = std::time(NULL);
+    auto tm = *std::localtime(&t);
+
+	// Get name of stock
+	std::string name = data["meta"]["symbol"];
+
+	// decide name of directory
+	std::string dirname = "stocksnapshots/";
+	std::stringstream fnbuild;
+	fnbuild << dirname << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S")
+		<< "." << name << ".stock";
+	std::string filename = fnbuild.str();
+
+    std::ofstream outputfile(filename);
+
+	// Save JSON
+	outputfile << data.dump();
+
+	outputfile.close();
+	return filename;
+}
+json yahoo::loadJSON(std::string filename) {
+	std::ifstream infile(filename);
+	json data = json::parse(infile);
+	infile.close();
+	return data;
+}
+
+void yahoo::removeOHLC(std::vector<yahoo::OHLC*>* data) {
+	for (auto ohlcptr : *data) {
+		delete ohlcptr;
+	}
 }

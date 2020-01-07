@@ -7,10 +7,11 @@
 - [WORKING]   - In the middle of coding, normally should be empty at commit
 
 ### [NEW]
-
+- JSON of OHLC charts can be saved/loaded to and from disk
+- will be saved as stocksnapshots/_timestamp_._ticker_.stock
 
 ### [UPDATE]
-- Reduced JSON API down to the single header file that it was suppose to be
+- Moved around the functions in yahoo.cpp for a more logical ordering
 
 ### [ISSUES] 
 - Graph misaligned and labels go missing on certain json data sets
