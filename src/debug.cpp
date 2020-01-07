@@ -1,5 +1,7 @@
 #include "debug.h"
 
+std::ofstream debugf;
+std::ofstream graphwin;
 
 void makeStockGraph() {
 

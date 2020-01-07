@@ -29,6 +29,7 @@ void stockDraw(std::string stock) {
 	sgraph.resizeLabelY(6);
     stopdrawing = false;
     signal(SIGINT, stopListening);   
+    int i = 0;
     while(!stopdrawing) {
         // Get your stock data 
         std::vector<yahoo::OHLC*> sdata = yahoo::getOHLC(stock);
@@ -96,11 +97,14 @@ void stockDraw(std::string stock) {
         std::stringstream current;
         current<<"Time: "<<makeTime(sdata[sdata.size()-1]->time);
         current<<" | Price of "<<stock<<" $"<<sdata[sdata.size()-1]->close;
+        current<<" | ["<<i<<"]";
+
         d.setTitle(win, current.str());
 
         d.draw();
         yahoo::removeOHLC(&sdata);
         usleep(2*1000*1000);
+        i++;
 
     }
     signal(SIGINT, sigintDefault);   

@@ -11,5 +11,6 @@
 
 void segfaultbackTrace(int);
 void sigintDefault(int);
+void signal_setup();
 
 #endif

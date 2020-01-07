@@ -11,14 +11,11 @@
 #include "signal_handler.h"
 #include "stock/draw.h"
 
-std::ofstream debugf;
-std::ofstream graphwin;
+
 
 int main() {
 
-	// install our signal handlers
-  	signal(SIGSEGV, segfaultbackTrace);   
-    signal(SIGINT, sigintDefault);   
+	signal_setup();
 
 	// Time zone set
 	tzset();
@@ -37,11 +34,3 @@ int main() {
 
 	return 0;
 }
-
-
-/* Changelog
-	Titles and Markers 
-	------------------------------------------
-	-- Fixed some memory leaks (first of many I presume)
-	-- Fixed easy curl cleanup issue
-*/	

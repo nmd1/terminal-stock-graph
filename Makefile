@@ -1,6 +1,7 @@
 # names for repo folders
 INCLUDES:=includes
 SOURCE:=src
+TESTS:=tests
 OUT:=bin
 NAME:=stock-graph
 
@@ -16,17 +17,22 @@ DEPENDS:=$(OBJECTS)/deps
 space :=
 space +=
 VPATH := $(subst $(space),:,$(shell find $(SOURCE) -type d))
+VPATH += $(subst $(space),:,$(shell find $(TESTS) -type d))
 
 # Defining the tools we'll need
 DIR_CREATE := @mkdir -p 
 CC:=g++
-CL:=clang++
 DEBUG:=gdb -tui
 
 # Generating list of files we'll need to worry about
 SRCS:=$(shell find $(SOURCE) -name '*.cpp') # src/render/window.cpp
+TSRCS += $(shell find $(TESTS) -name '*.cpp') # src/render/window.cpp
+
 #HEAD:=$(shell find $(INCLUDES) -name '*.h') # includes/render/window.h
 OBJS:=$(patsubst %.cpp,$(OBJECTS)/%.o,$(notdir $(SRCS)))	# build/window.o
+TOBJS:= $(filter-out $(OBJECTS)/main.o, $(OBJS))
+TOBJS+=$(patsubst %.cpp,$(OBJECTS)/%.o,$(notdir $(TSRCS)))	# build/window.o
+
 #DEPS:=$(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $(SRCS)))	# build/deps/window.d
 
 # list what recipes are phony and shouldn't tip off include 
@@ -34,23 +40,34 @@ OBJS:=$(patsubst %.cpp,$(OBJECTS)/%.o,$(notdir $(SRCS)))	# build/window.o
 
 # Our goal (linking step)
 all: $(OBJS)
+	@$(MAKE) build-binary
+	@$(MAKE) build-tests
+
+build-binary: $(OBJS)
 	@$(CC) $(CFLAGS) $^  $(LIBS) -o $(OUT)/$(NAME)
 
+build-tests: $(TOBJS)
+	@$(CC) $(CFLAGS) $^  $(LIBS) -o $(OUT)/$(NAME)-test
+	
 -include $(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $(SRCS)))
+-include $(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $(TSRCS)))
+
 
 # Generating Object files (include will add header deps)
 $(OBJECTS)/%.o: %.cpp | $(OBJECTS) $(OUT)
 	@$(CC) -c $(CFLAGS) $<  $(LIBS) -o $@ 
 	@$(CC) $(CFLAGS) -MP -MM -MT '$(patsubst %.cpp,$(OBJECTS)/%.o,$(notdir $<))' $< -o $(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $<))  
 
-alt: $(OBJS)
-	@$(CL)  $^ $(LIBS) -o $(OUT)/$(NAME)
 
 loud: $(OBJS)
-	$(CC)  $^ $(LIBS) -o $(OUT)/$(NAME)
+	$(MAKE) build-binary
+	$(MAKE) build-tests
 
 run:
-	@$(OUT)/$(NAME)
+	@$(OUT)/$(NAME) $(filter-out $@,$(MAKECMDGOALS))
+
+test:
+	@$(OUT)/$(NAME)-test $(filter-out $@,$(MAKECMDGOALS))
 
 debug:
 	@$(DEBUG) $(OUT)/$(NAME)
@@ -64,3 +81,9 @@ $(OBJECTS):
 
 $(OUT):
 	@$(DIR_CREATE) $(OUT)
+
+
+# The following allows us to run binaries with no args
+# Without make yelling 
+%:
+    @:    

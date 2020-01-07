@@ -16,3 +16,10 @@ void segfaultbackTrace(int sig) {
 void sigintDefault(int sig) {
   debugf<<"Caught a sigint!"<<std::endl;
 }
+
+// Call in main
+void signal_setup() {
+  // install our signal handlers
+  signal(SIGSEGV, segfaultbackTrace);   
+  signal(SIGINT, sigintDefault);   
+}

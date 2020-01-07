@@ -1,4 +1,9 @@
 #include "map/point.h"
+/***
+    The Point class
+    Handles 2D or 3D coordinates
+    For both integers and doubles
+***/
 
 // Default behavior for something like this
 Point::Point() : isInteger(true) {
@@ -10,7 +15,7 @@ Point::Point() : isInteger(true) {
 Point::Point(double xin) : isInteger(false) {
     double_coord = std::vector<double> (1); 
     double_coord[_x_] = xin;
-    direction=_x_;
+    direction=_bad_;
 }
 
 Point::Point(double xin, double yin) : isInteger(false) {
@@ -36,7 +41,7 @@ Point::Point(PointType sel,double val) : isInteger(false) {
 Point::Point(int xin) : isInteger(true) {
     int_coord = std::vector<int> (1); 
     int_coord[_x_] = xin;
-    direction=_x_;
+    direction=_bad_;
 }
 
 Point::Point(int xin, int yin) : isInteger(true) {
@@ -86,7 +91,7 @@ bool Point::is1D() const {return getDimension()==1;}
 bool Point::is2D() const {return getDimension()==2;}
 bool Point::is3D() const {return getDimension()==3;}
 
-int  Point::getDimension() const {
+int Point::getDimension() const {
     if(isInteger) return int_coord.size();
     else return double_coord.size();
 }
