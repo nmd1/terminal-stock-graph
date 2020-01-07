@@ -24,11 +24,11 @@ int main() {
 	tzset();
 
 	// Set Debug ttys
-	debugf.open("/dev/pts/5");
-	graphwin.open("/dev/pts/10");
+	debugf.open("/dev/pts/9");
+	//graphwin.open("/dev/pts/10");
 
-	graph_sin();
-	//stockDraw("AMD");
+	//graph_sin();
+	stockDraw("AMD");
 	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
 	//stockDraw("SPY");
@@ -42,6 +42,6 @@ int main() {
 /* Changelog
 	Titles and Markers 
 	------------------------------------------
-	-- Support for adding titles, placing onscreen markers, and getting
-		value at a location has	been added
+	-- Fixed some memory leaks (first of many I presume)
+	-- Fixed easy curl cleanup issue
 */	

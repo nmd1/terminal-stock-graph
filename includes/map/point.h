@@ -6,6 +6,16 @@
 #include <limits>
 #include "extra.h"
 
+typedef struct Point_i {
+    int x;
+    int y;
+} Pointi;
+
+typedef struct Point_d {
+    double x;
+    double y;
+} Pointd;
+
 typedef enum {_x_=0,_y_=1,_z_=2,_bad_} PointType;
 
 class Point {

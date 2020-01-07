@@ -172,7 +172,7 @@ std::vector<int> Display::getLayerIdsFromWindow(Window win) {
 	return results;
 }
 
-void Display::horizontalMarker(Window win, int xstart, int yloc) {
+void Display::horizontalMarker(Window win, int xstart, int yloc, Color color) {
 	std::vector<int> markTheseMaps = getLayerIdsFromWindow(win);
 	auto mapObject = std::get<_mapObject_>(layers[markTheseMaps[0]]);
 	
@@ -184,18 +184,22 @@ void Display::horizontalMarker(Window win, int xstart, int yloc) {
 	while(x > xzero) {
 		x--;
 		if(!mapObject->isValidPoint(x,yloc)) return;
-		place(win,'_',x,yloc,Colors::light_green);
+		place(win,'_',x,yloc,color);
 	}
 	while(x < xzero) {
 		x++;
 		if(!mapObject->isValidPoint(x,yloc)) return;
-		place(win,'_',x,yloc,Colors::light_green);
+		place(win,'_',x,yloc,color);
 	}
 
 	//place(win,'_',x,y,Colors::light_green);
 
 }
-void Display::verticleMarker(Window win, int xloc, int ystart) {
+void Display::horizontalMarker(Window win, int xstart, int yloc) {
+	horizontalMarker(win,xstart,yloc, Colors::light_green);
+}
+
+void Display::verticleMarker(Window win, int xloc, int ystart, Color color) {
 	std::vector<int> markTheseMaps = getLayerIdsFromWindow(win);
 	auto mapObject = std::get<_mapObject_>(layers[markTheseMaps[0]]);
 	
@@ -207,14 +211,17 @@ void Display::verticleMarker(Window win, int xloc, int ystart) {
 	while(y < yzero) {
 		y++;
 		if(!mapObject->isValidPoint(xloc,y)) return;
-		place(win,'|',xloc,y,Colors::light_green);
+		place(win,'|',xloc,y,color);
 	}
 	while(y > yzero) {
 		y--;
 		if(!mapObject->isValidPoint(xloc,y)) return;
-		place(win,'|',xloc,y,Colors::light_green);
+		place(win,'|',xloc,y,color);
 	}
 
+}
+void Display::verticleMarker(Window win, int xloc, int ystart) {
+	verticleMarker(win, xloc, ystart,Colors::light_green);
 }
 
 void Display::marker(Window win) {
@@ -298,9 +305,9 @@ Display::~Display() {
 void Display::clearLine(Window win,int yin) {
 	int y, x;            // to store where you are
 	getyx(windows[win], y, x); // save current pos
-	move(yin, 0);          // move to begining of line
-	clrtoeol();          // clear line
-	move(y, x);          // move back to where you were
+	wmove(windows[win], yin, 0);          // move to begining of line
+	wclrtoeol(windows[win]);          // clear line
+	wmove(windows[win], y, x);          // move back to where you were
 }
 
 void Display::setTitle(Window win, std::string title) {
@@ -338,6 +345,7 @@ void Display::draw(int map) {
 	for(auto jt = theMap->begin(); jt != theMap->end(); jt++, i++) {
 		auto row = *jt;
 		int j = 0;
+		clearLine(win ,i);
 
 		for(auto point = row.begin(); point != row.end(); point++, j++) {
 			int x = j+xoffset;
@@ -348,14 +356,14 @@ void Display::draw(int map) {
 	}
 
 	// Second optional passthrough for special effects
-	if(false) {
+	if(graphSticks) {
 		i=0;
 		for(auto row : *theMap) {
 			int j = 0;
 			for(auto point : row) {
 				int x = j+xoffset;
 				int y = i+yoffset;
-				if(point=='#') verticleMarker(win,x,y);
+				if(point=='#') verticleMarker(win,x,y, (*colorMap)[i][j]);
 				j++;
 			}
 			i++;
@@ -364,6 +372,10 @@ void Display::draw(int map) {
 	refresh(win);
 }
 
+
+void Display::setGraphSticks(bool set) {
+	graphSticks = set;
+}
 
 
 void makeColorFromHex(Color c, int r, int g, int b) {

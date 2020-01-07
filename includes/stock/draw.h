@@ -14,6 +14,8 @@
 #include "api/yahoo.h"
 #include "render/window.h"
 #include "signal_handler.h"
+#include "map/point.h"
+#include "render/color.h"
 
 void stockDraw(std::string);
 void stockDrawFull(std::string stock);

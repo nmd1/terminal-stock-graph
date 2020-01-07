@@ -19,11 +19,25 @@ namespace cb
     }
 }
 
+void yahoo::removeOHLC(std::vector<yahoo::OHLC*>* data) {
+	for (auto ohlcptr : *data) {
+		delete ohlcptr;
+	}
+}
+
 std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
+	std::vector<yahoo::OHLC*> result;
+
 	bool use_12_hour_time = true;
 	bool is_morning = false;
-	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+"?interval=2m";
-	json raw_data = web(api);	
+	std::string time = "?interval=2m";
+	time = "";
+	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+time;
+
+	debugf<<"Opening new connection"<<std::endl;
+	json raw_data = web(api);
+	if(raw_data.empty()) return result;	
+	debugf<<"Closing our new connection"<<std::endl;
 
     //debugf << raw_data.dump(4) << std::endl;
 
@@ -39,14 +53,12 @@ std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
 
     json data = raw_data["chart"]["result"][0];
     json meta_data = data["meta"];
-   	std::vector<yahoo::OHLC*> result;
     for (unsigned i = 0; i < data["timestamp"].size(); i++) {
 
     	// This next part is just parsing time.
     	// It should honestly be in it's own function
     	time_t date = data["timestamp"][i];
-    	tm *ltm = new tm();
-    	ltm = localtime(&date);
+    	tm *ltm = localtime(&date);
 /*
 		int year =  1900 + ltm->tm_year;
 		int month =  1 + ltm->tm_mon;
@@ -100,10 +112,9 @@ std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
 		// In the future find a better way to handle this situation
 			continue;
 		//debugf<<ltm<<std::endl;
+
 		result.push_back(ohlc);
-
 		//debugf<<dt<<std::endl;
-
     }
     //debugf<<result.size()<<std::endl;
     return result;
@@ -114,8 +125,12 @@ std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
     Source: https://gist.github.com/connormanning/41efa6075515019e499c
 */
 json yahoo::web(const std::string url, const int timeout) {
+	json failed;
     CURL* curl = curl_easy_init();
-
+	if(!curl) {
+		std::cout<<"Looks like we found the problem"<<std::endl;
+		return failed;
+	}
     // Set remote URL.
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
@@ -140,10 +155,21 @@ json yahoo::web(const std::string url, const int timeout) {
     std::string * raw_json = new std::string();
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, raw_json);
 
+	// Setup error handling
+	std::string serror = "";
+	curl_easy_setopt(curl,CURLOPT_ERRORBUFFER, serror);
+
     // Run our HTTP GET command, capture the HTTP response code, and clean up.
-    curl_easy_perform(curl);
+    auto ecode = curl_easy_perform(curl);
+	debugf<<"Curl Handle: "<<curl<<std::endl;
+	if(ecode){
+		debugf<<"Error "<<ecode<<": "<<serror<<std::endl;
+		return failed;
+	}
+
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-    curl_easy_cleanup(curl);
+	debugf<<"Before the cleanup "<<curl<<std::endl;
+    curl_easy_cleanup(curl); // leaking memory????????
 
     // My modifications
     switch (httpCode) {
@@ -166,6 +192,8 @@ json yahoo::web(const std::string url, const int timeout) {
 
     json raw_response_json = json::parse(*raw_json);
     delete raw_json;
+	// delete curl;
+	debugf<<"Are we stil going wtf???"<<std::endl;
     return raw_response_json;
     
     // nope

@@ -102,7 +102,7 @@ class Map {
 		void makeOpaque();
 
 		// is this point on the map area?
-		void getZeroLocation(int &, int &);
+		virtual void getZeroLocation(int &, int &);
 		int addToCoord(bool, int, int);
 		void getRealValFromCoord(double &, double &);
 		bool isValidPoint(int, int);

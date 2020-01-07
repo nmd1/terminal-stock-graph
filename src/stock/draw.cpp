@@ -12,13 +12,14 @@ void stopListening(int sig) {
 void stockDraw(std::string stock) {
     // Get a new display
     Display d;
-    
+    Pointi size;
+    size.x = 200;
+    size.y = 40;
     // Create a Map
-    TimeGraph sgraph(200,40);
+    TimeGraph sgraph(size.x,size.y);
     // Create window
-    Window win = d.newWindow(200,40,0,0);
+    Window win = d.newWindow(size.x+2,size.y+3,0,0);
     // Associate window with map
-    d.addMap(&sgraph, win);
     d.addMap(&sgraph, win);
 
     sgraph.create();
@@ -31,7 +32,10 @@ void stockDraw(std::string stock) {
     while(!stopdrawing) {
         // Get your stock data 
         std::vector<yahoo::OHLC*> sdata = yahoo::getOHLC(stock);
-        
+        if(sdata.size() == 0) {
+            debugf<<"Failed."<<std::endl;
+            return;
+        }
 
         // Preprocessing 
 
@@ -63,6 +67,8 @@ void stockDraw(std::string stock) {
 
         int zerox = sdata[0]->time;
         double zeroy = (top+bot)/2;
+        
+        d.setGraphSticks(true);
 
         try{
 
@@ -78,12 +84,23 @@ void stockDraw(std::string stock) {
             it != sdata.end(); it++) 
         {
             yahoo::OHLC* point = *it;
-            sgraph.setCoord(point->time, point->close);
-            //coolGraphEffect(point->time, point->close, zeroy, &sgraph);
+            debugf<<zeroy<<" vs "<<point->close<<std::endl;
+            if(point->close < zeroy)
+                sgraph.setCoord(point->time, point->close, Colors::orange_red);
+            if(point->close == zeroy)
+                sgraph.setCoord(point->time, point->close, Colors::grey);
+            if(point->close > zeroy)
+                sgraph.setCoord(point->time, point->close, Colors::green);
         }
-        
+
+        std::stringstream current;
+        current<<"Time: "<<makeTime(sdata[sdata.size()-1]->time);
+        current<<" | Price of "<<stock<<" $"<<sdata[sdata.size()-1]->close;
+        d.setTitle(win, current.str());
+
         d.draw();
-        usleep(60*1000*1000);
+        yahoo::removeOHLC(&sdata);
+        usleep(2*1000*1000);
 
     }
     signal(SIGINT, sigintDefault);   

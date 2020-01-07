@@ -1,5 +1,9 @@
 #include "debug.h"
 
+
+void makeStockGraph() {
+
+}
 void graph_sin()
 {
 

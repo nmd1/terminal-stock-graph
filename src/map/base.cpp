@@ -764,9 +764,9 @@ void Map::makeOpaque() {
 void Map::getZeroLocation(int &x, int &y) {
 	double xin = 0;
 	double yin = 0;
-	getRawCoord(xin,yin);
-	x = (int)xin;
-	y = (int)yin;
+	//getRawCoord(xin,yin);
+	x = axisloc.y;
+	y = axisloc.x;
 }
 
 int Map::addToCoord(bool xory, int start, int add) {

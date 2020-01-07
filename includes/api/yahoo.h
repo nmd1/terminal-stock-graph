@@ -26,6 +26,7 @@ void getSnapshot(json& data, std::string attribute);
 void getSnapshot(json& data, std::vector<std::string> attributes);
 json web(const std::string, const int = 10);
 std::vector<yahoo::OHLC*> getOHLC(const std::string stock);
+void removeOHLC(std::vector<yahoo::OHLC*>*);
 
 }
 

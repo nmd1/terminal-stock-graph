@@ -81,9 +81,14 @@ class Display {
 		// Checks if a point is within bounds
 		bool isWithinBounds(Window , int , int);
 		void horizontalMarker(Window, int, int);
+		void horizontalMarker(Window, int, int, Color);
 		void verticleMarker(Window, int, int);
+		void verticleMarker(Window, int, int, Color);
 		void setTitle(Window, std::string);
 		void clearLine(Window ,int );
+
+		// Set settings
+		void setGraphSticks(bool);
 
 	private:
 		void run();
@@ -96,6 +101,9 @@ class Display {
 
 		// Used to determine which tuple value to get 
 		enum LayerTypes {_mapObject_=0, _window_=1};
+
+		// Settings
+		bool graphSticks = false;
 };	
 
 #endif 
