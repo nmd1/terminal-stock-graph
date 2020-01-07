@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 #include "debug.h"
 
-#include "nlohmann/json.hpp"
+#include "json.hpp"
 using json = nlohmann::json;
 
 namespace yahoo {
