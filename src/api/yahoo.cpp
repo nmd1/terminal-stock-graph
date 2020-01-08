@@ -25,7 +25,7 @@ std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
 	json data = downloadStockJSON(stock);
 	// Uncomment to save/load to/from disk
 	//std::string name = saveJSON(data);
-	//data = loadJSON(name);
+	//data = loadJSON("stocksnapshots/test2.AMD.stock");
 	return getOHLCFromJSON(data);
 }
 
@@ -69,14 +69,12 @@ json yahoo::web(const std::string url, const int timeout) {
 
     // Run our HTTP GET command, capture the HTTP response code, and clean up.
     auto ecode = curl_easy_perform(curl);
-	debugf<<"Curl Handle: "<<curl<<std::endl;
 	if(ecode){
-		debugf<<"Error "<<ecode<<": "<<serror<<std::endl;
+		debugf<<"Curl Error "<<ecode<<": "<<serror<<std::endl;
 		return failed;
 	}
 
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-	debugf<<"Before the cleanup "<<curl<<std::endl;
     curl_easy_cleanup(curl); // leaking memory????????
 
     // My modifications
@@ -101,7 +99,6 @@ json yahoo::web(const std::string url, const int timeout) {
     json raw_response_json = json::parse(*raw_json);
     delete raw_json;
 	// delete curl;
-	debugf<<"Are we stil going wtf???"<<std::endl;
     return raw_response_json;
     
     // nope
@@ -120,10 +117,8 @@ json yahoo::downloadStockJSON(std::string stock) {
 	time = "";
 	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+time;
 
-	debugf<<"Opening new connection"<<std::endl;
 	json raw_data = web(api);
 	if(raw_data.empty()) return empty;	
-	debugf<<"Closing our new connection"<<std::endl;
 
     //debugf << raw_data.dump(4) << std::endl;
 

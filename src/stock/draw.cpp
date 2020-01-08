@@ -85,7 +85,7 @@ void stockDraw(std::string stock) {
             it != sdata.end(); it++) 
         {
             yahoo::OHLC* point = *it;
-            debugf<<zeroy<<" vs "<<point->close<<std::endl;
+            //debugf<<zeroy<<" vs "<<point->close<<std::endl;
             if(point->close < zeroy)
                 sgraph.setCoord(point->time, point->close, Colors::orange_red);
             if(point->close == zeroy)

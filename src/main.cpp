@@ -22,7 +22,7 @@ int main() {
 
 	// Set Debug ttys
 	debugf.open("/dev/pts/9");
-	//graphwin.open("/dev/pts/10");
+	graphwin.open("/dev/pts/10");
 
 	//graph_sin();
 	stockDraw("AMD");

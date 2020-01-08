@@ -211,6 +211,13 @@ bool Map::getRawCoord(double &x, double &y) {
 	int finaly = round(y4);
 	int finalx = round(x4);
 
+	// Final x should not be negative for timegraphs.
+	// This hacky solution prevents that. but find source of problem!
+	if(finaly<0) finaly = 0;
+	if(finalx<0) finalx = 0;
+	if(finaly>=(int)theMap.size()) finaly = (int)theMap.size()-1;
+	if(finalx>=(int)theMap[finaly].size()) finalx = (int)theMap[finaly].size()-1;
+
 	if(localdebug) { 
 		debugf<<"Input: "   <<x<< " , "<<y<<std::endl;
 		debugf<<"Balance: " <<x1<<" , "<<y1<<std::endl;
@@ -490,13 +497,16 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 	double delta = ((getMaxY(gM_real)-getMinY(gM_real))) / (yBoardLength());
 
 
-	double yin = zero, xin = zerox;
+	double yin = zero, xin = ++zerox;
 
 	// Test for sameness
 	std::string prevl = "";
 
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
 	int whereyiszero = (int)(axisloc.x);
+	debugf<<"X in: "<<xin<<std::endl;
+	debugf<<"y label size: "<<labelsize.y<<std::endl;
+
 	int x = (int)(xin) - labelsize.y;
 
 	// Shift down y values when y is negative
@@ -563,7 +573,11 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		// First write in empty spaces
 		int xwrite = x + labelsize.y - label.size();
 		// Then write in characters
+		debugf<<"k: "<<x<<std::endl;
+		debugf<<"x+sizeof(y label)"<<x+labelsize.y<<std::endl;
 		for (unsigned k=x, l=0; k < x+labelsize.y; k++) {
+			debugf<<"Label "<<k<<std::endl;
+
 			if((int)k<xwrite) {
 				theMap[i][k] = ' ';
 				theColors[i][k] = emptyColor;
