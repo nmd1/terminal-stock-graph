@@ -3,8 +3,8 @@ INCLUDES:=includes
 SOURCE:=src
 TESTS:=tests
 OUT:=bin
-NAME:=stock-graph
-
+NAME:=ninethirtyfour
+TESTNAME:=test-$(NAME)
 # Flags to set/add 
 CFLAGS:=-I$(INCLUDES) -g -std=c++11 -Wall -Wextra -pedantic -pg
 LIBS:= -lcurl -lncursesw -rdynamic
@@ -47,7 +47,7 @@ build-binary: $(OBJS)
 	@$(CC) $(CFLAGS) $^  $(LIBS) -o $(OUT)/$(NAME)
 
 build-tests: $(TOBJS)
-	@$(CC) $(CFLAGS) $^  $(LIBS) -o $(OUT)/$(NAME)-test
+	@$(CC) $(CFLAGS) $^  $(LIBS) -o $(OUT)/$(TESTNAME)
 	
 -include $(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $(SRCS)))
 -include $(patsubst %.cpp,$(DEPENDS)/%.d,$(notdir $(TSRCS)))
@@ -67,7 +67,7 @@ run:
 	@$(OUT)/$(NAME) $(filter-out $@,$(MAKECMDGOALS))
 
 test:
-	@$(OUT)/$(NAME)-test $(filter-out $@,$(MAKECMDGOALS))
+	@$(OUT)/$(TESTNAME) $(filter-out $@,$(MAKECMDGOALS))
 
 debug:
 	@$(DEBUG) $(OUT)/$(NAME)
