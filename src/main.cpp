@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
 	tzset();
 
 	// Set Debug ttys
-	debugf.open("/dev/pts/9");
-	graphwin.open("/dev/pts/10");
+	debugf.open("debug.log");
+	graphwin.open("graphwin.log");
 
 	//graph_sin();
 	graphwin<<argc<<std::endl;
