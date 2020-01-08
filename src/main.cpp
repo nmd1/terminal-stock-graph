@@ -13,7 +13,7 @@
 
 
 
-int main() {
+int main(int argc, char *argv[]) {
 
 	signal_setup();
 
@@ -25,7 +25,13 @@ int main() {
 	graphwin.open("/dev/pts/10");
 
 	//graph_sin();
-	stockDraw("AMD");
+	graphwin<<argc<<std::endl;
+	if(argc > 1) {
+		stockDraw(argv[1]);
+
+	} else {
+		stockDraw("AMD");
+	}
 	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
 	//stockDraw("SPY");
