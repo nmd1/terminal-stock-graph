@@ -28,4 +28,4 @@ as of now if you run this application without specifying a stock it will default
 - Expand time range for chart viewing
 - Changing the size of the chart to fit user's screen
 
-_v0.1.0_
+_v0.1.1_

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
-#include "extra.h"
+#include "extra.hpp"
 
 typedef struct Point_i {
     int x;

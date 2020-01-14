@@ -3,32 +3,32 @@
 #include <fstream>
 #include <iomanip>
 
-#include "debug.h"
-#include "map/base.h"
-#include "map/time.h"
-#include "api/yahoo.h"
-#include "render/window.h"
-#include "signal_handler.h"
-#include "stock/draw.h"
-
+#include "debug.hpp"
+#include "map/base.hpp"
+#include "map/time.hpp"
+#include "api/yahoo.hpp"
+#include "render/window.hpp"
+#include "signal_handler.hpp"
+#include "stock/draw.hpp"
+#include "log.hpp"
 
 
 int main(int argc, char *argv[]) {
 
 	signal_setup();
-
 	// Time zone set
 	tzset();
 
+	log_setup();
+
+
 	// Set Debug ttys
-	debugf.open("debug.log");
+	debugf.open("old_debug.log");
 	graphwin.open("graphwin.log");
 
 	//graph_sin();
-	graphwin<<argc<<std::endl;
 	if(argc > 1) {
 		stockDraw(argv[1]);
-
 	} else {
 		stockDraw("AMD");
 	}

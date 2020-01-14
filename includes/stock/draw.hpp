@@ -8,14 +8,14 @@
 #include <tuple>
 #include <ctime>
 
-#include "debug.h"
-#include "map/base.h"
-#include "map/time.h"
-#include "api/yahoo.h"
-#include "render/window.h"
-#include "signal_handler.h"
-#include "map/point.h"
-#include "render/color.h"
+#include "debug.hpp"
+#include "map/base.hpp"
+#include "map/time.hpp"
+#include "api/yahoo.hpp"
+#include "render/window.hpp"
+#include "signal_handler.hpp"
+#include "map/point.hpp"
+#include "render/color.hpp"
 
 void stockDraw(std::string);
 void stockDrawFull(std::string stock);

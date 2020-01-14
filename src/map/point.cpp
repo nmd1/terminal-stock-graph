@@ -1,4 +1,4 @@
-#include "map/point.h"
+#include "map/point.hpp"
 /***
     The Point class
     Handles 2D or 3D coordinates

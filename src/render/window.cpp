@@ -1,4 +1,4 @@
-#include "render/window.h"
+#include "render/window.hpp"
 
 void window::test() {
 	setlocale(LC_ALL, "");

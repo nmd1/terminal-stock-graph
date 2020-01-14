@@ -1,4 +1,4 @@
-#include "map/base.h"
+#include "map/base.hpp"
 
 
 /*
@@ -85,12 +85,12 @@ void Map::create() {
 				}
 			}
 		}
-		//std::cout<<"size of row i="<<i<<" is "<<rowfill.size()<<std::endl;
+		LOG_BOTH(logfile, l_TRACE)<<"size of row i="<<i<<" is "<<rowfill.size();
 		theMap.push_back(rowfill);
 		theColors.push_back(rowcolors);
 		Ylabels.push_back(temp_char_label);
 	}
-	//std::cout<<"size of map is "<<theMap.size()<<std::endl;
+	LOG_BOTH(logfile, l_TRACE)<<"size of map is "<<theMap.size();
 	return;
 }
 
@@ -134,6 +134,7 @@ void Map::clear() {
 
 		}
 	}
+	LOG_BOTH(logfile, l_DEBUG) << "Graph cleared";
 }
 
 std::vector< std::vector<char> > const * Map::getMap() {
@@ -146,6 +147,7 @@ std::vector< std::vector<Color> > const * Map::getColorMap() {
 
 bool Map::getRawCoord(double &x, double &y) {
 	// Rescale down to coords that would fit on the board
+	LOG_BOTH(logfile, l_TRACE)<<"-------------[getrawcoord]-------------";
 
 	// Turn on debug print statements
 	bool localdebug = false;
@@ -193,12 +195,12 @@ bool Map::getRawCoord(double &x, double &y) {
 
 	if(timegraph) { // we're in a TimeGraph
 		reposition_offsetx = -(getMinX(gM_real)-realxzero)*(xBoardLength()/rangex);
-		if(localdebug) debugf<<"we're in a timegraph! (offsetx = "<<reposition_offsetx<<")";
+		LOG_BOTH(logfile, l_TRACE)<<"we're in a timegraph! (offsetx = "<<reposition_offsetx<<")";
 		if(ptimegraph) { // we're in a PosTimeGraph
 			reposition_offsety = -(getMinY(gM_real)-realyzero)*(yBoardLength()/rangey);
-			if(localdebug) debugf<<" A Positive one! (offsety = "<<reposition_offsety<<")";
+			LOG_BOTH(logfile, l_TRACE)<<" A Positive one! (offsety = "<<reposition_offsety<<")";
 		}
-		if(localdebug) debugf<<std::endl;
+		LOG_BOTH(logfile, l_TRACE)<<"";
 	}
 	
 
@@ -211,25 +213,25 @@ bool Map::getRawCoord(double &x, double &y) {
 	int finaly = round(y4);
 	int finalx = round(x4);
 
-	// Final x should not be negative for timegraphs.
-	// This hacky solution prevents that. but find source of problem!
+	//! Final x should not be negative for timegraphs.
+	//TODO This hacky solution prevents that. but find source of problem!
 	if(finaly<0) finaly = 0;
 	if(finalx<0) finalx = 0;
 	if(finaly>=(int)theMap.size()) finaly = (int)theMap.size()-1;
 	if(finalx>=(int)theMap[finaly].size()) finalx = (int)theMap[finaly].size()-1;
 
-	if(localdebug) { 
-		debugf<<"Input: "   <<x<< " , "<<y<<std::endl;
-		debugf<<"Balance: " <<x1<<" , "<<y1<<std::endl;
-		debugf<<"Norm: "    <<x2<<" , "<<y2<<std::endl;
-		debugf<<"Scale: "   <<x3<<" , "<<y3<<std::endl;
-		debugf<<"Respos: "  <<x4<<" , "<<y4<<std::endl;
-		debugf<<std::endl;
-		debugf<<"(yaxisl: "<<axisloc.y<<")"<<std::endl;
-		debugf<<"(xaxisl: "<<axisloc.x<<")"<<std::endl;
-		debugf<<std::endl;
-		debugf<<"Round: "   <<finalx<<" , "<<finaly<<std::endl;
-	}
+
+	LOG_BOTH(logfile, l_TRACE)<<"Input: "   <<x<< " , " <<y;
+	LOG_BOTH(logfile, l_TRACE)<<"Balance: " <<x1<<" , "<<y1;
+	LOG_BOTH(logfile, l_TRACE)<<"Norm: "    <<x2<<" , "<<y2;
+	LOG_BOTH(logfile, l_TRACE)<<"Scale: "   <<x3<<" , "<<y3;
+	LOG_BOTH(logfile, l_TRACE)<<"Respos: "  <<x4<<" , "<<y4;
+	LOG_BOTH(logfile, l_TRACE)<<"";
+	LOG_BOTH(logfile, l_TRACE)<<"(yaxisloc: "<<axisloc.y<<")";
+	LOG_BOTH(logfile, l_TRACE)<<"(xaxisloc: "<<axisloc.x<<")";
+	LOG_BOTH(logfile, l_TRACE)<<"";
+	LOG_BOTH(logfile, l_TRACE)<<"Round: "   <<round(x4)<<" , "<<round(y4);
+	LOG_BOTH(logfile, l_TRACE)<<"Hacky: "   <<finalx<<" , "<<finaly;
 
 	// Skip over labels
 
@@ -247,7 +249,7 @@ bool Map::getRawCoord(double &x, double &y) {
 	////////if(timegraph) axisloc.y-=1; // hack, yaxisloc everywhere else is wrong. Fix later.
 
 
-	if(localdebug) debugf<<"Final: "   <<finalx<<" , "<<finaly<<std::endl;
+	LOG_BOTH(logfile, l_TRACE)<<"Final: "   <<finalx<<" , "<<finaly;
 
 
 
@@ -261,8 +263,8 @@ bool Map::getRawCoord(double &x, double &y) {
 	x = finalx;
 	y = finaly;
 
-	if(localdebug) debugf<<"Success!"<<std::endl;
-	if(localdebug) debugf<<"--------------------------"<<std::endl;
+	LOG_BOTH(logfile, l_TRACE)<<"Success!";
+	LOG_BOTH(logfile, l_TRACE)<<"-------------[/getrawcoord]-------------";
 
 	return true;
 
@@ -307,7 +309,7 @@ void Map::setLabelX(std::vector<std::string> labels) {
 	return; 
 }
 
-// Use this for setting labels
+// Use this for setting labels:
 void Map::setLabelX(std::string label, double xin) {
 	double y = 0;
 
@@ -315,7 +317,7 @@ void Map::setLabelX(std::string label, double xin) {
 	int x = (int)xin;
 	y++;
 
-	debugf<<"x: "<<x<<std::endl<<"Result: "<<labelsize.x<<std::endl;
+	//debugf<<"x: "<<x<<std::endl<<"Result: "<<labelsize.x<<std::endl;
 
 	if((x)%(labelsize.x)) {return;}
 	//if(!((x+xlabelsize)< getMaxX(gM_internal) )) {return;}
@@ -504,8 +506,8 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 
 	if(!getRawCoord(xin, yin)) throw "Something Very bad happend - (0,0) Doesn't Exist.";
 	int whereyiszero = (int)(axisloc.x);
-	debugf<<"X in: "<<xin<<std::endl;
-	debugf<<"y label size: "<<labelsize.y<<std::endl;
+	//debugf<<"X in: "<<xin<<std::endl;
+	//debugf<<"y label size: "<<labelsize.y<<std::endl;
 
 	int x = (int)(xin) - labelsize.y;
 
@@ -573,10 +575,10 @@ void Map::autoLabelY(double zerox, double zero, int type, double delta_override)
 		// First write in empty spaces
 		int xwrite = x + labelsize.y - label.size();
 		// Then write in characters
-		debugf<<"k: "<<x<<std::endl;
-		debugf<<"x+sizeof(y label)"<<x+labelsize.y<<std::endl;
+		//debugf<<"k: "<<x<<std::endl;
+		//debugf<<"x+sizeof(y label)"<<x+labelsize.y<<std::endl;
 		for (unsigned k=x, l=0; k < x+labelsize.y; k++) {
-			debugf<<"Label "<<k<<std::endl;
+			//debugf<<"Label "<<k<<std::endl;
 
 			if((int)k<xwrite) {
 				theMap[i][k] = ' ';

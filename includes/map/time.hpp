@@ -1,7 +1,7 @@
 #ifndef TIME_GRAPH_H
 #define TIME_GRAPH_H
 
-#include "map/base.h"
+#include "map/base.hpp"
 
 
 class TimeGraph : public Map {

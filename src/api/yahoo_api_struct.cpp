@@ -1,4 +1,4 @@
-#include "api/yahoo_api_struct.h"
+#include "api/yahoo_api_struct.hpp"
 
 /*
 void stk::to_json(json& j, const Stock& p) {

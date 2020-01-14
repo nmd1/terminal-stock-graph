@@ -8,9 +8,9 @@
 #include <sstream>
 #include <tuple>
 
-#include "render/color.h"
-#include "map/base.h"
-#include "debug.h"
+#include "render/color.hpp"
+#include "map/base.hpp"
+#include "debug.hpp"
 
 namespace window {
 	void test();

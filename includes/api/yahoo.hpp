@@ -6,7 +6,8 @@
 #include <ctime>
 #include <iostream>
 #include <curl/curl.h>
-#include "debug.h"
+#include "debug.hpp"
+#include "log.hpp"
 
 #include "json.hpp"
 using json = nlohmann::json;

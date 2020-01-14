@@ -9,10 +9,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "extra.h"
-#include "map/point.h"
-#include "render/color.h"
-
+#include "extra.hpp"
+#include "map/point.hpp"
+#include "render/color.hpp"
+#include "log.hpp"
 // This is the map base class
 // Every map type extends this class (or a class that extends this class)
 // ya know, standard oop stuff
@@ -179,7 +179,7 @@ public:
 
 };
 
-#include "debug.h"
+#include "debug.hpp"
 
 
 #endif

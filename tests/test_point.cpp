@@ -1,6 +1,6 @@
 #include "catch.hpp"
-#include "debug.h"
-#include "map/point.h"
+#include "debug.hpp"
+#include "map/point.hpp"
 
 #define TEST_TIMES 3
 

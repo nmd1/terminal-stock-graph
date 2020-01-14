@@ -1,4 +1,4 @@
-#include "api/yahoo.h"
+#include "api/yahoo.hpp"
 /*
 	<------------time----------->
 	open					close
@@ -33,12 +33,13 @@ std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
     Source: https://gist.github.com/connormanning/41efa6075515019e499c
 */
 json yahoo::web(const std::string url, const int timeout) {
-	json failed;
+	std::stringstream errmsg;
     CURL* curl = curl_easy_init();
+
 	if(!curl) {
-		std::cout<<"Looks like we found the problem"<<std::endl;
-		return failed;
+		throw std::runtime_error("Could not generate curl object");
 	}
+	LOG_FILE(logfile, l_TRACE) << "Curl Object Created";
     // Set remote URL.
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
@@ -51,17 +52,17 @@ json yahoo::web(const std::string url, const int timeout) {
     // Follow HTTP redirects if necessary.
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-    // Response information.
-    int httpCode = 0;
-
     // Hook up data handling function.
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, cb::callback);
+
+    // Response information.
+    int httpCode = 0;
 
     // Hook up data container (will be passed as the last parameter to the
     // callback handling function).  Can be any pointer type, since it will
     // internally be passed as a void pointer.
-    std::string * raw_json = new std::string();
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, raw_json);
+    std::string * raw_json_str = new std::string();
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, raw_json_str);
 
 	// Setup error handling
 	std::string serror = "";
@@ -69,9 +70,11 @@ json yahoo::web(const std::string url, const int timeout) {
 
     // Run our HTTP GET command, capture the HTTP response code, and clean up.
     auto ecode = curl_easy_perform(curl);
-	if(ecode){
-		debugf<<"Curl Error "<<ecode<<": "<<serror<<std::endl;
-		return failed;
+	LOG_FILE(logfile, l_DEBUG) << "Curl request made";
+
+	if(ecode) {
+		errmsg<<"Curl Error "<<ecode<<": "<<serror<<std::endl;
+		throw std::runtime_error(errmsg.str());
 	}
 
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
@@ -80,71 +83,88 @@ json yahoo::web(const std::string url, const int timeout) {
     // My modifications
     switch (httpCode) {
     	case (200): {
-    		debugf<<"Got a successful response from " << url << std::endl;
-    		//debugf<<*raw_json<<endl;
+			LOG_BOTH(logfile, l_INFO) << "Got a successful response from " << url;
+    		//debugf<<*raw_json_str<<endl;
     		break;
     	}
     	case 404: {
-    		debugf<<"Error "<<httpCode<<": " << url << " not found" << std::endl;
-    		debugf<<"Check your stock symbol?"<< std::endl;
+    		errmsg<<"Error "<<httpCode<<": " << url << " not found" << std::endl;
+    		errmsg<<"Check your stock symbol?"<< std::endl;
+			throw std::runtime_error(errmsg.str());
     		break;
     	}
     	default: {
-    		debugf<<"Something went wrong :("<<std::endl;
-    		debugf<<"Got error "<<httpCode<<" when querying " << url << std::endl;
-    		break;
+    		errmsg<<"Something went wrong :("<<std::endl;
+    		errmsg<<"Got error "<<httpCode<<" when querying " << url << std::endl;
+			throw std::runtime_error(errmsg.str());
+			break;
     	}
     }
 
-    json raw_response_json = json::parse(*raw_json);
-    delete raw_json;
+    json raw_response_json = json::parse(*raw_json_str);
+    delete raw_json_str;
 	// delete curl;
+	//json error = raw_response_json["quoteResponse"]["error"];
+
+
     return raw_response_json;
     
     // nope
-    json error = raw_response_json["quoteResponse"]["error"];
     // "code": "Not Found",
 	// "description": "No data found, symbol may be delisted"
 
-    json data = raw_response_json["quoteResponse"]["result"][0];
-    return data;
+    //json data = raw_response_json["quoteResponse"]["result"][0];
 }
 
-
 json yahoo::downloadStockJSON(std::string stock) {
-	json empty;
+	std::stringstream errmsg;
 	std::string time = "?interval=2m";
 	time = "";
 	std::string api = "https://query1.finance.yahoo.com/v8/finance/chart/"+stock+time;
 
 	json raw_data = web(api);
-	if(raw_data.empty()) return empty;	
 
+	if(raw_data.empty()) {
+		throw std::runtime_error("Yahoo Finance data returned empty");
+	}
     //debugf << raw_data.dump(4) << std::endl;
 
     json error = raw_data["chart"]["error"];
     if(!error.empty()) {
     	std::string ecode = error["code"];
     	std::string edes = error["description"];
-    	debugf<<"API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
-    	//TODO: replace this with exception handling 
-	    return empty; 
+    	errmsg<<"Yahoo API Error: "<<ecode<<std::endl<<"\t"<<edes<<std::endl;
+		throw std::runtime_error(errmsg.str());
 	}
 
     json data = raw_data["chart"]["result"][0];
+	if(data.empty()) {
+		throw std::runtime_error("Yahoo Finance JSON has no chart data");
+	}
 	return data;
 }
 std::vector<yahoo::OHLC*> yahoo::getOHLCFromJSON(json data) {
 	bool use_12_hour_time = true;
 	bool is_morning = false;
 	json meta_data = data["meta"];
+	json jquote = data["indicators"]["quote"][0];
+
+	if (meta_data.empty()) {
+		throw std::runtime_error("Yahoo Finance JSON has no Metadata");
+	}
+
+	if (jquote.empty()) {
+		throw std::runtime_error("Yahoo Finance JSON has no data for this quote");
+	}
 
 	std::vector<yahoo::OHLC*> result;
-    for (unsigned i = 0; i < data["timestamp"].size(); i++) {
+	unsigned size = data["timestamp"].size();
+    for (unsigned i = 0; i < size; i++) {
 
     	// This next part is just parsing time.
     	// It should honestly be in it's own function
     	time_t date = data["timestamp"][i];
+
     	tm *ltm = localtime(&date);
 
 		//int year =  1900 + ltm->tm_year;
@@ -178,32 +198,55 @@ std::vector<yahoo::OHLC*> yahoo::getOHLCFromJSON(json data) {
 		//if(i==0) debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
 		//if(i==data["timestamp"].size()-1) 
 		//	debugf<<day<<" "<<hours<<":"<<minutes<<hour_indicator<<std::endl;
+		
+
+
+		// This is more common than I thought
+		bool all_are_missing =  jquote["volume"][i].empty() &&
+								jquote["close"][i].empty()  &&
+								jquote["open"][i].empty()   && 
+								jquote["high"][i].empty()   &&
+								jquote["low"][i].empty()	;
+
+		if(all_are_missing) {
+			LOG_BOTH(logfile, l_DEBUG) << "All OHLC values are missing ("<<i<<"/"<<size-1<<") ";
+			continue;
+		}
+
 		yahoo::OHLC * ohlc = new yahoo::OHLC();
-        json jquote = data["indicators"]["quote"][0];
+		LOG_BOTH(logfile, l_TRACE) << "New heap OHLC object: OHLC ["<<i<<"]";
 
 		if(date) ohlc->time = date;
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC Date missing ("<<i<<"/"<<size-1<<") ";
+
+
         if(!jquote["volume"][i].empty())
 		    ohlc->volume = jquote["volume"][i];
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC volume missing ("<<i<<"/"<<size-1<<") ";
+
         if(!jquote["close"][i].empty())
 			ohlc->open = jquote["close"][i];
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC close missing ("<<i<<"/"<<size-1<<") ";
+
         if(!jquote["open"][i].empty())
             ohlc->high = jquote["open"][i];
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC open missing ("<<i<<"/"<<size-1<<") ";
+
         if(!jquote["high"][i].empty())
     		ohlc->low = jquote["high"][i];
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC high missing ("<<i<<"/"<<size-1<<") ";
+
         if(!jquote["low"][i].empty())
 	       ohlc->close = jquote["low"][i];
-		else 
-
-		// Sometimes the api returns 0 for a close value
-		// In these situations, just don't add the data point.
-		// In the future find a better way to handle this situation
-			continue;
+		else LOG_BOTH(logfile, l_DEBUG) << "OHLC low missing ("<<i<<"/"<<size-1<<") ";
 		//debugf<<ltm<<std::endl;
 
 		result.push_back(ohlc);
 		//debugf<<dt<<std::endl;
     }
-    //debugf<<result.size()<<std::endl;
+    if (result.size() == 0) {
+		throw std::runtime_error("OHLC array is empty");
+	}
     return result;
 
 }
@@ -224,7 +267,7 @@ std::string yahoo::saveJSON(json data) {
 	std::string filename = fnbuild.str();
 
     std::ofstream outputfile(filename);
-
+	LOG_BOTH(logfile, l_INFO) << "saved JSON "<<filename;
 	// Save JSON
 	outputfile << data.dump();
 
@@ -235,11 +278,17 @@ json yahoo::loadJSON(std::string filename) {
 	std::ifstream infile(filename);
 	json data = json::parse(infile);
 	infile.close();
+	LOG_BOTH(logfile, l_INFO) << "loaded JSON " << filename;
 	return data;
 }
 
 void yahoo::removeOHLC(std::vector<yahoo::OHLC*>* data) {
-	for (auto ohlcptr : *data) {
+	unsigned i = 0;
+	for (auto ohlcptr : *data) {	
 		delete ohlcptr;
+
+		
+		LOG_BOTH(logfile, l_TRACE) << "Heap OHLC object destroyed ["<<i<<"]";
+		++i;
 	}
 }

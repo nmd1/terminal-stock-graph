@@ -1,5 +1,5 @@
-#include "map/time.h"
-#include "map/base.h"
+#include "map/time.hpp"
+#include "map/base.hpp"
 
 
 /******************* Maximum and minimum values on a graph  *******************/

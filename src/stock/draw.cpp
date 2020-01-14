@@ -1,4 +1,4 @@
-#include "stock/draw.h"
+#include "stock/draw.hpp"
 
 bool stopdrawing = false;
 
@@ -32,10 +32,12 @@ void stockDraw(std::string stock) {
     int i = 0;
     while(!stopdrawing) {
         // Get your stock data 
-        std::vector<yahoo::OHLC*> sdata = yahoo::getOHLC(stock);
-        if(sdata.size() == 0) {
-            debugf<<"Failed."<<std::endl;
-            return;
+        std::vector<yahoo::OHLC*> sdata;
+        try {
+            sdata = yahoo::getOHLC(stock);
+        } catch (std::runtime_error &e) {
+            LOG_BOTH(logfile, l_WARN) << e.what();
+            continue;
         }
 
         // Preprocessing 
@@ -86,12 +88,18 @@ void stockDraw(std::string stock) {
         {
             yahoo::OHLC* point = *it;
             //debugf<<zeroy<<" vs "<<point->close<<std::endl;
-            if(point->close < zeroy)
-                sgraph.setCoord(point->time, point->close, Colors::orange_red);
-            if(point->close == zeroy)
-                sgraph.setCoord(point->time, point->close, Colors::grey);
-            if(point->close > zeroy)
-                sgraph.setCoord(point->time, point->close, Colors::green);
+            double close; 
+            if(point->close == 0) {
+                close = point->open;
+            } else {
+                close = point->close;
+            }
+            if(close < zeroy)
+                sgraph.setCoord(point->time, close, Colors::orange_red);
+            if(close == zeroy)
+                sgraph.setCoord(point->time, close, Colors::grey);
+            if(close > zeroy)
+                sgraph.setCoord(point->time, close, Colors::green);
         }
 
         std::stringstream current;
@@ -128,8 +136,14 @@ void stockDrawFull(std::string stock) {
 	sgraph.resizeLabelY(6);
 
     // Get your stock data 
-	std::vector<yahoo::OHLC*> sdata = yahoo::getOHLC(stock);
-    
+    std::vector<yahoo::OHLC*> sdata;
+    try {
+        sdata = yahoo::getOHLC(stock);
+    } catch (std::runtime_error &e) {
+        LOG_BOTH(logfile, l_ERROR) << e.what();
+        return;
+    }
+
 
     // Preprocessing 
 
@@ -164,10 +178,10 @@ void stockDrawFull(std::string stock) {
     double zeroy = (bot);
 
     try{
-    sgraph.autoLabelY(zerox,zeroy,0,0.001);
-    sgraph.autoLabelX(zerox,zeroy,2);
+        sgraph.autoLabelY(zerox,zeroy,0,0.001);
+        sgraph.autoLabelX(zerox,zeroy,2);
     } catch (const char * error) {
-        debugf<<"ERROR: "<<error<<std::endl;
+        LOG_BOTH(logfile, l_WARN)<<"Autolabel error: "<<error<<std::endl;
     }
     
     for(std::vector<yahoo::OHLC*>::iterator it = sdata.begin(); 
@@ -251,6 +265,7 @@ void stockDrawWithPast(std::string stock, time_t center) {
     
     d.draw();
     d.inputBlock(win);
+    yahoo::removeOHLC(&sdata);
     d.exit();
 }
 

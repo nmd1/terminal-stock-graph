@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "debug.h"
-
+#include "debug.hpp"
+#include "log.hpp"
 void segfaultbackTrace(int);
 void sigintDefault(int);
 void signal_setup();

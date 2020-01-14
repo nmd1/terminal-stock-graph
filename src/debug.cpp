@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "debug.hpp"
 
 std::ofstream debugf;
 std::ofstream graphwin;

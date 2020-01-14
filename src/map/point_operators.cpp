@@ -1,4 +1,4 @@
-#include "map/point.h"
+#include "map/point.hpp"
 
 Point& Point::operator+=(const Point& rhs) {
     int dim = this->getDimension();

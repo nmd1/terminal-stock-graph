@@ -1,6 +1,8 @@
-#include "signal_handler.h"
+#include "signal_handler.hpp"
 
 void segfaultbackTrace(int sig) {
+  LOG_FILE(logfile, l_ERROR)<<"Segfault! Leaving"<<std::endl;
+
   void *array[10];
   size_t size;
 
@@ -9,12 +11,12 @@ void segfaultbackTrace(int sig) {
 
   // print out all the frames to stderr
   fprintf(stderr, "Error: signal %d:\n", sig);
-  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  backtrace_symbols_fd(array, size, fileno(logfile));
   exit(1);
 }
 
 void sigintDefault(int sig) {
-  debugf<<"Caught a sigint!"<<std::endl;
+  LOG_FILE(logfile, l_INFO)<<"Caught a sigint!"<<std::endl;
 }
 
 // Call in main
