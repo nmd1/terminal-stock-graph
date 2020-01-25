@@ -22,10 +22,19 @@ namespace cb
 
 
 std::vector<yahoo::OHLC*> yahoo::getOHLC(std::string stock) {
-	json data = downloadStockJSON(stock);
-	// Uncomment to save/load to/from disk
-	//std::string name = saveJSON(data);
-	//data = loadJSON("stocksnapshots/test2.AMD.stock");
+	json data;
+	if(globaloptions.loadStockJSON.empty()) {
+
+		// Download JSON from web
+		data = downloadStockJSON(stock);
+
+		// Save JSON to disk
+		if(globaloptions.saveStockJSONs)
+			std::string name = saveJSON(data);
+	} else {
+		data = loadJSON(globaloptions.loadStockJSON);
+	}
+
 	return getOHLCFromJSON(data);
 }
 

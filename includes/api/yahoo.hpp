@@ -8,6 +8,7 @@
 #include <curl/curl.h>
 #include "debug.hpp"
 #include "log.hpp"
+#include "cmdopt.hpp"
 
 #include "json.hpp"
 using json = nlohmann::json;

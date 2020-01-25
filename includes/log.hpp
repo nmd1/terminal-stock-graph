@@ -3,6 +3,14 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip> //put_time
+#include <algorithm>
+
+
+//enum Level : short;
+//class Log;
+
+
+
 
 #ifndef LOG_MIN_LEVEL
 #define LOG_MIN_LEVEL l_TRACE
@@ -23,7 +31,6 @@
  * 
  * The global reporting level get be get/set using their corresponding functions
  */
-
 #define TRACELOC __FUNCTION__ + std::string(":") + std::to_string(__LINE__)
 #define LOG(level) \
 if (level < LOG_MIN_LEVEL); \
@@ -42,7 +49,7 @@ else if (level < Log::getReportingLevel()); \
 else if (fp == NULL); \
 else Log().add(fp, level, true, TRACELOC)
 
-enum Level {
+enum Level : short{
     l_TRACE = 0,
     l_DEBUG,
     l_INFO,
@@ -50,6 +57,7 @@ enum Level {
     l_ERROR,
     l_NONE,// 5
 };
+
 
 
 class Log {
@@ -78,9 +86,11 @@ class Log {
 
 extern FILE* logfile;
 
-std::string toString(Level);
+std::string logLevelToString(Level);
+Level stringToLogLevel(std::string);
+
 bool isValidLogLevel(Level);
 
 void log_setup(void);
-
+#include "cmdopt.hpp"
 #endif

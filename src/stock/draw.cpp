@@ -5,7 +5,7 @@ bool stopdrawing = false;
 
 void stopListening(int sig) {
     stopdrawing = true;
-    sigintDefault(sig); // I don't think this is a paticularly good idea..
+    sigintDefault(sig); // ! I don't think this is a paticularly good idea..
 }
 
 
@@ -16,7 +16,7 @@ void stockDraw(std::string stock) {
     size.x = 200;
     size.y = 40;
     // Create a Map
-    TimeGraph sgraph(size.x,size.y);
+    TimeGraph sgraph(size.x,size.y, globaloptions.transparent);
     // Create window
     Window win = d.newWindow(size.x+2,size.y+3,0,0);
     // Associate window with map
@@ -124,7 +124,7 @@ void stockDrawFull(std::string stock) {
     Display d;
     
     // Create a Map
-    PositiveTimeGraph sgraph(200,40);
+    PositiveTimeGraph sgraph(200,40,globaloptions.transparent);
     // Create a window
     Window win = d.newWindow(200,40,0,0);
     // Associate window with graph
@@ -201,7 +201,7 @@ void stockDrawWithPast(std::string stock, time_t center) {
     // Get a new display
     Display d;    
     // Create a Map
-    TimeGraph sgraph(200,40);
+    TimeGraph sgraph(200,40,globaloptions.transparent);
     // Get a new window
     Window win = d.newWindow(200,40,0,0);
     // Associate map with window

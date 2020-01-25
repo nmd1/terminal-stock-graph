@@ -11,15 +11,19 @@
 #include "signal_handler.hpp"
 #include "stock/draw.hpp"
 #include "log.hpp"
-
+#include "cmdopt.hpp"
 
 int main(int argc, char *argv[]) {
-
 	signal_setup();
+	log_setup();
+	LOG_FILE(logfile, l_WARN) << "==============[RUN]==============";
+
 	// Time zone set
 	tzset();
+    set_options(argc, argv);
 
 	log_setup();
+
 
 
 	// Set Debug ttys
@@ -27,11 +31,8 @@ int main(int argc, char *argv[]) {
 	graphwin.open("graphwin.log");
 
 	//graph_sin();
-	if(argc > 1) {
-		stockDraw(argv[1]);
-	} else {
-		stockDraw("AMD");
-	}
+	stockDraw(globaloptions.stock);
+
 	//stockDrawFull("AMD");
 	//stockDrawWithPast("AMD",time(0));
 	//stockDraw("SPY");

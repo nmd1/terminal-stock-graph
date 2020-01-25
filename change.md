@@ -7,18 +7,26 @@
 - [WORKING]   - In the middle of coding, normally should be empty at commit
 
 ### [NEW]
-- Exception handling!
-- Logs! Log to stderr, files, both, neither
-- Right now data is logged to debug.log and to tty9 
+- Command line flags
+  - `--help` will display the new options
+  - Note: `-m` Does not do anything right now
+  - `-s` will set which stock you want to view
+- cmd data updates internal struct which other src files now depend on 
+- Added way to convert string to long level
+
+
 ### [UPDATE]
-- header files are now .hpp files
-- if all OHLC values are missing, don't bother adding the empty data to the vector
-- 
+- Default now does not log anything to any tty. Must explicity call flag
+- README
+  
 ### [ISSUES] 
 - Tests unveiled issue with directed points and 3D points being treated as 2D
 - Optimization: open curl object once
 - Current price is misplaced on chart
-- 
+- Size of graph is tied to terminal size
+- No user feedback if incorrect stock is specified
+
+
 ### [FIXED]
-- Weird issues related to having a zero data point in the OHLC vector
+
 ### [WORKING]

@@ -2,15 +2,17 @@
 
 FILE * logfile; 
 void log_setup() {
-    Log::setReportingLevel(l_DEBUG);
-    FILE* err = fopen("/dev/pts/9", "a");
-    Log::setGlobalLog(err);
+    Log::resetGlobalLog();
+    Log::setReportingLevel(globaloptions.leveloption);
+    if(!globaloptions.ttyout.empty()) {
+        FILE* err = fopen(globaloptions.ttyout.c_str(), "a");
+        Log::setGlobalLog(err);
+    }
     logfile = fopen("debug.log", "a");
-    LOG_FILE(logfile, l_WARN) << "==============[RUN]==============";
 }
 
 
-std::string toString(Level level) {
+std::string logLevelToString(Level level) {
     if(level == l_TRACE) return "TRACE";
     if(level == l_DEBUG) return "DEBUG";
     if(level == l_INFO)  return "INFO" ;
@@ -20,8 +22,21 @@ std::string toString(Level level) {
     std::stringstream errormsg;
     errormsg << "Invalid Log level ("<<level<<")"<<std::endl;
     throw std::runtime_error(errormsg.str());
+}
+Level stringToLogLevel(std::string input) {
+    std::transform(input.begin(), input.end(), input.begin(), ::toupper); 
+    if(input.compare("NONE") == 0)      return l_NONE;
+    if(input.compare("TRACE") == 0)     return l_TRACE;
+    if(input.compare("DEBUG") == 0)     return l_DEBUG;
+    if(input.compare("INFO") == 0)      return l_INFO;
+    if(input.compare("WARN") == 0)      return l_WARN;
+    if(input.compare("WARNING") == 0)   return l_WARN;
+    if(input.compare("ERR") == 0)       return l_ERROR;
+    if(input.compare("ERROR") == 0)     return l_ERROR;
 
-
+    std::stringstream errormsg;
+    errormsg << "Invalid Log level ("<<input<<")"<<std::endl;
+    throw std::runtime_error(errormsg.str());
 }
 
 bool isValidLogLevel(Level level) {
@@ -35,7 +50,16 @@ Log::~Log() { Log::flush(); }
 void Log::setGlobalLog(FILE* fp) {globalLog = fp;}
 void Log::setReportingLevel(Level level) { reportingLevel = level; }
 Level Log::getReportingLevel() { return reportingLevel; }
-void Log::resetGlobalLog() { globalLog = DEFAULT_LOG_LOCATION; }
+void Log::resetGlobalLog() { 
+    if( globalLog != DEFAULT_LOG_LOCATION &&
+        globalLog != stdout &&
+        globalLog != stderr &&
+        globalLog != stdin     
+    ) 
+    fclose(globalLog);
+    globalLog = DEFAULT_LOG_LOCATION; 
+}
+
 
 std::ostringstream& Log::add(Level level, std::string funcname) {
 
@@ -45,7 +69,7 @@ std::ostringstream& Log::add(Level level, std::string funcname) {
         Log::flush();
         throw std::runtime_error(errormsg.str());
     }
-    os <<"[" << toString(level) << "]\t";
+    os <<"[" << logLevelToString(level) << "]\t";
 
     if(level < l_INFO) os << "<" << funcname << "> ";
 
@@ -66,7 +90,7 @@ void Log::flush() {
     FILE* out = (localLog != NULL) ? localLog : globalLog;
     fprintf(out, "%s", os.str().c_str());
     fflush(out);
-    if(log_to_both && out != globalLog) {
+    if(globalLog && log_to_both && out != globalLog) {
         fprintf(globalLog, "%s", os.str().c_str());
         fflush(globalLog);
     }
